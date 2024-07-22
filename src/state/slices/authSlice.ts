@@ -1,20 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-
 interface AuthState {
-     user: { name:string; lastname: string; username: string; password: string } | null;
+     user: { email: string; name:string; lastname: string; password: string } | null;
      isAuthenticated: boolean;
 }
 
-const loadState = (): AuthState => {
-     const user = localStorage.getItem('user');
-     const isAuthenticated = localStorage.getItem('isAuthenticated');
+// const loadState = (): AuthState => {
+//      const user = localStorage.getItem('user');
+//      const isAuthenticated = localStorage.getItem('isAuthenticated');
 
-     return {
-          user: user ? JSON.parse(user) : null,
-          isAuthenticated: isAuthenticated === 'true',
-     };
-};
+//      return {
+//           user: user ? JSON.parse(user) : null,
+//           isAuthenticated: isAuthenticated === 'true',
+//      };
+// };
 
 const initialState: AuthState = {
      user: null,
@@ -25,15 +24,15 @@ const authSlice = createSlice({
      name: 'auth',
      initialState,
      reducers: {
-          setUser(state, action: PayloadAction<{ name: string, lastname: string, username: string, password: string }>) {
+          setUser(state, action: PayloadAction<{ email: string, name: string, lastname: string, password: string }>) {
                state.user = { 
                     name: action.payload.name,
                     lastname: action.payload.lastname,
-                    username: action.payload.username,
+                    email: action.payload.email,
                     password: action.payload.password 
                };
                state.isAuthenticated = true;
-               localStorage.setItem('username', state.user.username);
+               localStorage.setItem('email', state.user.email);
                localStorage.setItem('password', state.user.password);
                localStorage.setItem('isAuthenticated', 'true');
           },

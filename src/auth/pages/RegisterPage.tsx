@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../state/slices/authSlice';
+import { useCreateUser } from '../../api/userRequest';
 
 function Copyright(props: any) {
      return (
@@ -31,19 +32,30 @@ export default function RegisterPage() {
      const dispatch = useDispatch();
      const navigate = useNavigate();
 
-     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-          event.preventDefault();
-          const data = new FormData(event.currentTarget);
-          const name = data.get('firstname') as string;
-          const lastname = data.get('lastname') as string;
-          const username = data.get('username') as string;
-          const password = data.get('password') as string;
-          const password2 = data.get('password2') as string;
-          const validPassword = password && password2 && validatePassword(password, password2)
+     const createUser = useCreateUser();
 
-          if(validPassword){
-               dispatch(setUser({name, lastname, username, password}));
-               navigate('/');
+     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+          try {
+               event.preventDefault();
+               const data = new FormData(event.currentTarget);
+               const name = data.get('firstname') as string;
+               const lastname = data.get('lastname') as string;
+               const email = data.get('email') as string;
+               const password = data.get('password') as string;
+               const password2 = data.get('password2') as string;
+               const validPassword = password && password2 && validatePassword(password, password2)
+               const role = 'USER';
+               const active = true;
+
+
+               if(validPassword){
+                    const response = await createUser.mutateAsync({email, name, lastname, password, role, active});
+                    console.log('Create successful:', response.data);
+                    dispatch(setUser({email, name, lastname, password}));
+                    navigate('/');
+               }
+          } catch (error) {
+               console.log(error);
           }
           
      };
@@ -97,10 +109,10 @@ export default function RegisterPage() {
                                         <TextField
                                              required
                                              fullWidth
-                                             id="username"
-                                             label="Usuario"
-                                             name="username"
-                                             autoComplete="username"
+                                             id="email"
+                                             label="Email"
+                                             name="email"
+                                             autoComplete="email"
                                         />
                                    </Grid>
                                    <Grid item xs={12}>

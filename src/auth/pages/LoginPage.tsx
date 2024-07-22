@@ -41,7 +41,8 @@ export default function LoginPage() {
      const [error, setError] = React.useState('');
      const dispatch = useDispatch();
      const navigate = useNavigate();
-     const {mutateAsync: login} = useLoginUser();
+     // const {mutateAsync: login} = useLoginUser();
+     const loginUser = useLoginUser();
 
      const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
@@ -51,10 +52,10 @@ export default function LoginPage() {
                const email = data.get('email') as string;
                const password = data.get('password') as string;
 
+               const response = await loginUser.mutateAsync({email, password});
+               console.log('Login successful:', response.data);
 
-               const response = await login({email, password});
-               
-               localStorage.setItem('user', response.data);
+               localStorage.setItem('user', JSON.stringify(response.data));
                const isAuthenticated = true;
 
                dispatch(setAuthenticated({isAuthenticated}));
