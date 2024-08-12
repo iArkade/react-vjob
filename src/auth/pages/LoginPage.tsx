@@ -10,11 +10,11 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RootState } from "../../state/store";
-import { setAuthenticated } from '../../state/slices/authSlice';
 import { useLoginUser } from "../../api/userRequest";
+import { setAuthenticated } from "../../state/slices/authSlice";
+import { Stack } from "@mui/material";
 
 function Copyright(props: any) {
      return (
@@ -36,8 +36,9 @@ function Copyright(props: any) {
 
 const defaultTheme = createTheme();
 
+
 export default function LoginPage() {
-     
+
      const [error, setError] = React.useState('');
      const dispatch = useDispatch();
      const navigate = useNavigate();
@@ -52,88 +53,145 @@ export default function LoginPage() {
                const email = data.get('email') as string;
                const password = data.get('password') as string;
 
-               const response = await loginUser.mutateAsync({email, password});
-               console.log('Login successful:', response.data);
+               const response = await loginUser.mutateAsync({ email, password });
+               const token = response.data.tokens;
 
+               console.log('Login successful:', response.data);
+               localStorage.setItem('token', token);
                localStorage.setItem('user', JSON.stringify(response.data));
                const isAuthenticated = true;
 
-               dispatch(setAuthenticated({isAuthenticated}));
+               dispatch(setAuthenticated({ isAuthenticated }));
                navigate('/');
 
 
           } catch (error) {
                setError('Validaciones Incorrectas')
           }
-          
+
 
      };
 
      return (
-          <ThemeProvider theme={defaultTheme}>
-               <Container component="main" maxWidth="xs">
-                    <CssBaseline />
-                    <Box
-                         sx={{
-                              marginTop: 8,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                         }}
-                    >
-                         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                              <LockOutlinedIcon />
-                         </Avatar>
-                         <Typography component="h1" variant="h5">
-                              Iniciar Sesión
-                         </Typography>
-                         <Box
-                              component="form"
-                              onSubmit={handleSubmit}
-                              noValidate
-                              sx={{ mt: 1 }}
+          <Stack spacing={4}>
+               <Stack spacing={1}>
+                    <Typography variant="h4">Iniciar Sesión</Typography>
+                    <Typography color="text.secondary" variant="body2">
+                         No tienes una cuenta?{' '}
+                         <Link to="/auth/register">
+                              Registrate
+                         </Link>
+                    </Typography>
+               </Stack>
+               <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                    noValidate
+                    sx={{ mt: 1 }}
+               >
+                    <Stack spacing={2}>
+                         {error && <p style={{ color: 'red' }}>{error}</p>}
+                         <TextField
+                              margin="normal"
+                              required
+                              fullWidth
+                              id="email"
+                              label="Email"
+                              name="email"
+                              autoComplete="email"
+                              autoFocus
+                         />
+                         <TextField
+                              margin="normal"
+                              required
+                              fullWidth
+                              name="password"
+                              label="Contraseña"
+                              type="password"
+                              id="password"
+                              autoComplete="current-password"
+                         />
+          
+                         <Button
+                              type="submit"
+                              fullWidth
+                              variant="contained"
+                              sx={{ mt: 3, mb: 2 }}
                          >
-                              {error && <p style={{ color: 'red' }}>{error}</p>}
-                              <TextField
-                                   margin="normal"
-                                   required
-                                   fullWidth
-                                   id="email"
-                                   label="Email"
-                                   name="email"
-                                   autoComplete="email"
-                                   autoFocus
-                              />
-                              <TextField
-                                   margin="normal"
-                                   required
-                                   fullWidth
-                                   name="password"
-                                   label="Contraseña"
-                                   type="password"
-                                   id="password"
-                                   autoComplete="current-password"
-                              />
-               
-                              <Button
-                                   type="submit"
-                                   fullWidth
-                                   variant="contained"
-                                   sx={{ mt: 3, mb: 2 }}
-                              >
-                                   Iniciar Sesión
-                              </Button>
-                              <Grid container>
-                                   <Grid item>
-                                        <Link to="/auth/register">
-                                             {"No tiene una cuenta? Registrate"}
-                                        </Link>
-                                   </Grid>
-                              </Grid>
-                         </Box>
-                    </Box>
-                    <Copyright sx={{ mt: 8, mb: 4 }} />
-               </Container>
-          </ThemeProvider>
+                              Iniciar Sesión
+                         </Button>
+                    </Stack>
+                    
+               </Box>
+               <Copyright sx={{ mt: 8, mb: 4 }} />
+          </Stack>
+
+          /*
+               // <ThemeProvider theme={defaultTheme}>
+               //      <Container component="main" maxWidth="xs">
+               //           <CssBaseline />
+               //           <Box
+               //                sx={{
+               //                     marginTop: 8,
+               //                     display: "flex",
+               //                     flexDirection: "column",
+               //                     alignItems: "center",
+               //                }}
+               //           >
+               //                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+               //                     <LockOutlinedIcon />
+               //                </Avatar>
+               //                <Typography component="h1" variant="h5">
+               //                     Iniciar Sesión
+               //                </Typography>
+               //                <Box
+               //                     component="form"
+               //                     onSubmit={handleSubmit}
+               //                     noValidate
+               //                     sx={{ mt: 1 }}
+               //                >
+               //                     {error && <p style={{ color: 'red' }}>{error}</p>}
+               //                     <TextField
+               //                          margin="normal"
+               //                          required
+               //                          fullWidth
+               //                          id="email"
+               //                          label="Email"
+               //                          name="email"
+               //                          autoComplete="email"
+               //                          autoFocus
+               //                     />
+               //                     <TextField
+               //                          margin="normal"
+               //                          required
+               //                          fullWidth
+               //                          name="password"
+               //                          label="Contraseña"
+               //                          type="password"
+               //                          id="password"
+               //                          autoComplete="current-password"
+               //                     />
+                    
+               //                     <Button
+               //                          type="submit"
+               //                          fullWidth
+               //                          variant="contained"
+               //                          sx={{ mt: 3, mb: 2 }}
+               //                     >
+               //                          Iniciar Sesión
+               //                     </Button>
+               //                     <Grid container>
+               //                          <Grid item>
+               //                               <Link to="/auth/register">
+               //                                    {"No tiene una cuenta? Registrate"}
+               //                               </Link>
+               //                          </Grid>
+               //                     </Grid>
+               //                </Box>
+               //           </Box>
+               //           <Copyright sx={{ mt: 8, mb: 4 }} />
+               //      </Container>
+               // </ThemeProvider>
+          */
      );
 }

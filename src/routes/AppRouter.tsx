@@ -3,11 +3,14 @@ import { PrivateRoutes } from './PrivateRoutes';
 import { AuthRoutes } from './AuthRoutes';
 import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
+import useAuth from '../hooks/useAuth';
 
 
 export const AppRouter = () => {
 
      const isAuthenticated = useSelector((state: RootState) => state.authSlice.isAuthenticated);
+
+     useAuth();
 
      return (
           <Routes>
