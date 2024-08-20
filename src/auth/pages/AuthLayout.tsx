@@ -6,20 +6,19 @@ export const AuthLayout = () => {
      return (
           <Box
                sx={{
-               //display: { xs: 'flex', lg: 'grid' },
-               flexDirection: 'column',
-               gridTemplateColumns: '1fr 1fr',
-               minHeight: '100%',
+                    alignItems: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    minHeight: '100vh',
+                    p: { xs: 2, md: 3 },
                }}
           >
-               <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: 'column' }}>
-                    <Box sx={{ alignItems: 'center', display: 'flex', flex: '1 1 auto', justifyContent: 'center', p: 3 }}>
-                         <Box sx={{ maxWidth: '450px', width: '100%' }}>
-                              <Outlet />
-                         </Box>
-                    </Box>
+               <Box sx={{ maxWidth: '560px', width: '100%' }}>
+                    <Outlet />
                </Box>
-
           </Box>   
      )
 }
+
+
