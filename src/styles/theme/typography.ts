@@ -1,29 +1,6 @@
-interface TypographyVariant {
-  fontSize: string;
-  fontWeight: number;
-  lineHeight: number;
-  letterSpacing?: string;
-  textTransform?: string;
-}
+import type { TypographyOptions } from '@mui/material/styles/createTypography';
 
-interface Typography {
-  fontFamily: string;
-  body1: TypographyVariant;
-  body2: TypographyVariant;
-  button: Pick<TypographyVariant, 'fontWeight'>;
-  caption: TypographyVariant;
-  subtitle1: TypographyVariant;
-  subtitle2: TypographyVariant;
-  overline: TypographyVariant;
-  h1: TypographyVariant;
-  h2: TypographyVariant;
-  h3: TypographyVariant;
-  h4: TypographyVariant;
-  h5: TypographyVariant;
-  h6: TypographyVariant;
-}
-
-export const typography: Typography = {
+export const typography = {
   fontFamily:
     '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
   body1: { fontSize: '1rem', fontWeight: 400, lineHeight: 1.5 },
@@ -45,5 +22,4 @@ export const typography: Typography = {
   h4: { fontSize: '2rem', fontWeight: 500, lineHeight: 1.2 },
   h5: { fontSize: '1.5rem', fontWeight: 500, lineHeight: 1.2 },
   h6: { fontSize: '1.125rem', fontWeight: 500, lineHeight: 1.2 },
-};
-
+} satisfies TypographyOptions;
