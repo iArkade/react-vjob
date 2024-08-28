@@ -1,6 +1,9 @@
 import * as React from 'react';
+import type { Components } from '@mui/material/styles';
 
-function Icon() {
+import type { Theme } from '../types';
+
+function Icon(): React.JSX.Element {
   return (
     <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -13,7 +16,7 @@ function Icon() {
   );
 }
 
-function CheckedIcon() {
+function CheckedIcon(): React.JSX.Element {
   return (
     <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
       <rect fill="currentColor" height="20" rx="6" width="20" x="2" y="2" />
@@ -28,7 +31,7 @@ function CheckedIcon() {
   );
 }
 
-function IndeterminateIcon() {
+function IndeterminateIcon(): React.JSX.Element {
   return (
     <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -57,4 +60,4 @@ export const MuiCheckbox = {
       '&.Mui-focusVisible': { outline: '2px solid var(--mui-palette-primary-main)' },
     },
   },
-};
+} satisfies Components<Theme>['MuiCheckbox'];

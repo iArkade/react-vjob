@@ -1,3 +1,7 @@
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
+
 export const MuiInputBase = {
   styleOverrides: {
     root: {
@@ -27,4 +31,4 @@ export const MuiInputBase = {
     multiline: { '--Input-paddingBlock': '12px' },
     sizeSmall: { '--Input-fontSize': '0.875rem', '--Input-paddingInline': '8px', '--Input-minHeight': '32px' },
   },
-};
+} satisfies Components<Theme>['MuiInputBase'];

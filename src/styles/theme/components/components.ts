@@ -1,4 +1,8 @@
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
 import { MuiAlert } from './alert';
+import { MuiAutocomplete } from './autocomplete';
 import { MuiAvatar } from './avatar';
 import { MuiBackdrop } from './backdrop';
 import { MuiButton } from './button';
@@ -46,11 +50,9 @@ import { MuiToggleButton } from './toggle-button';
 import { MuiToggleButtonGroup } from './toggle-button-group';
 import { MuiTooltip } from './tooltip';
 
-// Tipo personalizado para manejar tanto componentes como objetos de configuración
-type MuiComponent = React.ComponentType | object;
-
-export const components: Record<string, MuiComponent> = {
+export const components = {
   MuiAlert,
+  MuiAutocomplete,
   MuiAvatar,
   MuiBackdrop,
   MuiButton,
@@ -97,4 +99,4 @@ export const components: Record<string, MuiComponent> = {
   MuiToggleButton,
   MuiToggleButtonGroup,
   MuiTooltip,
-};
+} satisfies Components<Theme>;

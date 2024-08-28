@@ -1,6 +1,9 @@
 import { buttonClasses } from '@mui/material/Button';
+import type { Components } from '@mui/material/styles';
 
-function getContainedVars(color) {
+import type { Theme } from '../types';
+
+function getContainedVars(color: string): Record<string, string> {
   return {
     '--Button-containedBg': `var(--mui-palette-${color}-dark)`,
     '--Button-containedBgGradient': `linear-gradient(180deg, var(--mui-palette-${color}-main) 0%, var(--mui-palette-${color}-dark) 100%)`,
@@ -8,7 +11,7 @@ function getContainedVars(color) {
   };
 }
 
-function getOutlinedVars(color, dark) {
+function getOutlinedVars(color: string, dark: boolean): Record<string, string> {
   const vars = {
     '--Button-outlinedBorder': `var(--mui-palette-${color}-main)`,
     '--Button-outlinedHoverBg': `var(--mui-palette-${color}-hovered)`,
@@ -27,7 +30,7 @@ function getOutlinedVars(color, dark) {
   return vars;
 }
 
-function getTextVars(color) {
+function getTextVars(color: string): Record<string, string> {
   return {
     '--Button-textHoverBg': `var(--mui-palette-${color}-hovered)`,
     '--Button-textActiveBg': `var(--mui-palette-${color}-activated)`,
@@ -101,4 +104,4 @@ export const MuiButton = {
     sizeMedium: { '--Button-minHeight': '40x', fontSize: '0.875rem', lineHeight: '28px' },
     sizeLarge: { '--Button-minHeight': '48x', fontSize: '0.9375rem', lineHeight: '32px' },
   },
-};
+} satisfies Components<Theme>['MuiButton'];

@@ -1,3 +1,7 @@
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
+
 export const MuiTab = {
   defaultProps: { disableRipple: true },
   styleOverrides: {
@@ -9,4 +13,4 @@ export const MuiTab = {
       '&:focus-visible': { outline: '2px solid var(--mui-palette-primary-main)' },
     },
   },
-};
+} satisfies Components<Theme>['MuiTab'];

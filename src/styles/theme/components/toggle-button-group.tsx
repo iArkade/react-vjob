@@ -1,3 +1,7 @@
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
+
 export const MuiToggleButtonGroup = {
   styleOverrides: {
     root: {
@@ -11,4 +15,4 @@ export const MuiToggleButtonGroup = {
     middleButton: { borderRadius: '8px' },
     lastButton: { borderRadius: '8px' },
   },
-};
+} satisfies Components<Theme>['MuiToggleButtonGroup'];

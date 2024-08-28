@@ -1,4 +1,7 @@
 import { paperClasses } from '@mui/material/Paper';
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
 
 export const MuiCard = {
   styleOverrides: {
@@ -14,4 +17,4 @@ export const MuiCard = {
       };
     },
   },
-};
+} satisfies Components<Theme>['MuiCard'];

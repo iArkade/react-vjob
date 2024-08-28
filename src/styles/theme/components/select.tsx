@@ -1,7 +1,10 @@
 import * as React from 'react';
+import type { Components } from '@mui/material/styles';
 import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
 
-function IconComponent() {
+import type { Theme } from '../types';
+
+function IconComponent(): React.JSX.Element {
   return (
     <CaretDownIcon
       fontSize="1em"
@@ -13,4 +16,4 @@ function IconComponent() {
 export const MuiSelect = {
   defaultProps: { displayEmpty: true, IconComponent, MenuProps: { sx: { mt: '4px' } } },
   styleOverrides: { select: { height: 'auto', minHeight: 'auto' } },
-};
+} satisfies Components<Theme>['MuiSelect'];

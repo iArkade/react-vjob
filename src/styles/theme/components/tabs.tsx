@@ -1,5 +1,8 @@
+import type { Components } from '@mui/material/styles';
 import { tabClasses } from '@mui/material/Tab';
 import { tabsClasses } from '@mui/material/Tabs';
+
+import type { Theme } from '../types';
 
 export const MuiTabs = {
   styleOverrides: {
@@ -16,4 +19,4 @@ export const MuiTabs = {
       [`& .${tabClasses.root}`]: { justifyContent: 'flex-start', paddingInline: '24px' },
     },
   },
-};
+} satisfies Components<Theme>['MuiTabs'];

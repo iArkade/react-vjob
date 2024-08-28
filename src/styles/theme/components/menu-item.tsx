@@ -1,4 +1,7 @@
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
 
 export const MuiMenuItem = {
   defaultProps: { disableRipple: true },
@@ -11,4 +14,4 @@ export const MuiMenuItem = {
       [`& .${listItemIconClasses.root}`]: { minWidth: 'auto' },
     },
   },
-};
+} satisfies Components<Theme>['MuiMenuItem'];

@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { chipClasses } from '@mui/material/Chip';
+import type { Components } from '@mui/material/styles';
 import { XCircle as XCircleIcon } from '@phosphor-icons/react/dist/ssr/XCircle';
 
-function getSoftVars(color, dark) {
+import type { Theme } from '../types';
+
+function getSoftVars(color: string, dark: boolean): Record<string, string> {
   if (dark) {
     return {
       '--Chip-softBg': `var(--mui-palette-${color}-800)`,
@@ -79,4 +82,4 @@ export const MuiChip = {
     iconSmall: { fontSize: 'var(--icon-fontSize-sm)' },
     iconMedium: { fontSize: 'var(--icon-fontSize-md)' },
   },
-};
+} satisfies Components<Theme>['MuiChip'];

@@ -1,5 +1,8 @@
 import * as React from 'react';
+import type { Components } from '@mui/material/styles';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
+
+import type { Theme } from '../types';
 
 export const MuiAvatar = {
   defaultProps: { children: <UserIcon fontSize="var(--Icon-fontSize)" /> },
@@ -13,4 +16,4 @@ export const MuiAvatar = {
       width: 'var(--Avatar-size, 40px)',
     },
   },
-};
+} satisfies Components<Theme>['MuiAvatar'];

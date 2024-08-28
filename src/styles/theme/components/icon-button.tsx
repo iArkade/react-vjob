@@ -1,3 +1,7 @@
+import type { Components } from '@mui/material/styles';
+
+import type { Theme } from '../types';
+
 export const MuiIconButton = {
   defaultProps: { color: 'secondary', disableRipple: true },
   styleOverrides: {
@@ -42,4 +46,4 @@ export const MuiIconButton = {
     sizeMedium: { '--IconButton-size': '40px' },
     sizeLarge: { '--IconButton-size': '48px' },
   },
-};
+} satisfies Components<Theme>['MuiIconButton'];
