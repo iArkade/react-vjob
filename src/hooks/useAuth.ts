@@ -16,7 +16,6 @@ const useAuth = () => {
 
      useEffect(() => {
           const token = localStorage.getItem('token');
-          console.log("Desde")
           if (token) {
                const decodedToken = jwtDecode<DecodedToken>(token);
                const currentTime = DateTime.now().toMillis();
@@ -31,7 +30,6 @@ const useAuth = () => {
                     navigate('/');
                }
           }
-          console.log("Hasta")
      }, [dispatch, navigate]);
 }
 
