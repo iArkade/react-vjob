@@ -46,7 +46,6 @@ export default function LoginPage() {
                localStorage.setItem("token", response.data.tokens);
                navigate('/');
                
-
                //
 
           } catch (error) {
