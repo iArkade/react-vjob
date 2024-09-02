@@ -8,12 +8,10 @@ import { useSettings } from '@/hooks/use-settings';
 
 import { layoutConfig } from '../config';
 import { MainNav } from './main-nav';
+import { Outlet } from 'react-router-dom';
 
-export interface HorizontalLayoutProps {
-  children?: React.ReactNode;
-}
 
-export function HorizontalLayout({ children }: HorizontalLayoutProps): React.JSX.Element {
+export function HorizontalLayout(): React.JSX.Element {
   const { settings } = useSettings();
 
   return (
@@ -45,7 +43,7 @@ export function HorizontalLayout({ children }: HorizontalLayoutProps): React.JSX
             flexDirection: 'column',
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </Box>
     </React.Fragment>

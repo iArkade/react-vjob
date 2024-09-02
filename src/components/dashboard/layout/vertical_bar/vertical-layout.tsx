@@ -3,21 +3,18 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import GlobalStyles from '@mui/material/GlobalStyles';
+import { Outlet } from 'react-router-dom';
 
 import { useSettings } from '@/hooks/use-settings';
-
 import { layoutConfig } from '../config';
 import { MainNav } from './main-nav';
 import { SideNav } from './side-nav';
 
-export interface VerticalLayoutProps {
-  children?: React.ReactNode;
-}
-
-export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Element {
+export function VerticalLayout(): React.JSX.Element {
   const { settings } = useSettings();
 
   return (
+
     <React.Fragment>
       <GlobalStyles
         styles={{
@@ -57,7 +54,7 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
               flexDirection: 'column',
             }}
           >
-            {children}
+            <Outlet />
           </Box>
         </Box>
       </Box>
