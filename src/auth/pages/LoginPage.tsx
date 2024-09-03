@@ -8,23 +8,23 @@ import { useLoginUser } from "../../api/userRequest";
 // import { setAuthenticated } from "../../state/slices/authSlice";
 import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
-function Copyright(props: any) {
-     return (
-          <Typography
-               variant="body2"
-               color="text.secondary"
-               align="center"
-               {...props}
-          >
-               {"Copyright © VisualJob  "}
-               {/* <Link color="inherit" href="https://mui.com/">
-                    Your Website
-               </Link>{" "} */}
-               {new Date().getFullYear()}
-               {"."}
-          </Typography>
-     );
-}
+// function Copyright(props: any) {
+//      return (
+//           <Typography
+//                variant="body2"
+//                color="text.secondary"
+//                align="center"
+//                {...props}
+//           >
+//                {"Copyright © VisualJob  "}
+//                {/* <Link color="inherit" href="https://mui.com/">
+//                     Your Website
+//                </Link>{" "} */}
+//                {new Date().getFullYear()}
+//                {"."}
+//           </Typography>
+//      );
+// }
 
 export default function LoginPage() {
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
                const password = data.get('password') as string;
 
                const response = await login({email, password});
-               console.log(response.data.tokens);
+               //console.log(response.data.tokens);
 
                localStorage.setItem("token", response.data.tokens);
                navigate('/');
