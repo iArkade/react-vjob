@@ -52,7 +52,7 @@ export const paths = {
           },
      },
      dashboard: {
-          overview: '/',
+          overview: '/dashboard',
           settings: {
                account: '/dashboard/settings/account',
                billing: '/dashboard/settings/billing',

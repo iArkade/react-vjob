@@ -19,15 +19,14 @@ const useAuth = () => {
           if (token) {
                const decodedToken = jwtDecode<DecodedToken>(token);
                const currentTime = DateTime.now().toMillis();
-               console.log(currentTime, decodedToken.exp);
                
 
                if (decodedToken.exp as number < currentTime) {
+                    
                     dispatch(logout());
                     navigate('/auth/login');
                } else {
                     dispatch(setAuthenticated({ isAuthenticated: true }));
-                    navigate('/');
                }
           }
      }, [dispatch, navigate]);

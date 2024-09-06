@@ -5,8 +5,9 @@ import Link from '@mui/material/Link';
 // import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/userRequest";
-// import { setAuthenticated } from "../../state/slices/authSlice";
+import { setAuthenticated } from "../../state/slices/authSlice";
 import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { useDispatch } from "react-redux";
 
 // function Copyright(props: any) {
 //      return (
@@ -31,6 +32,7 @@ export default function LoginPage() {
      //const [error, setError] = React.useState('');
      const navigate = useNavigate();
      const {mutateAsync: login} = useLoginUser();
+     const dispatch = useDispatch();
 
      const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
@@ -44,9 +46,9 @@ export default function LoginPage() {
                //console.log(response.data.tokens);
 
                localStorage.setItem("token", response.data.tokens);
-               navigate('/');
+               dispatch(setAuthenticated({isAuthenticated: true}));
+               navigate('/dashboard');
                
-               //
 
           } catch (error) {
                //setError('Validaciones Incorrectas');
