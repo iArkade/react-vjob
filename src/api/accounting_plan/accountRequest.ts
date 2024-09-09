@@ -4,18 +4,19 @@ import { AccountingPlanRequestType, AccountingPlanResponseType } from "./account
 
 
 const createAccountingPlanRequest = (data: AccountingPlanRequestType) =>
-    http.post('accountingplan', { code: data.code, description: data.description });
-
-const getAccountinPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
-    const response = await http.get('accountingplan');
-    return response.data; // Make sure response.data is the correct type
-};
+    http.post('accounting-plan', { code: data.code, name: data.name });
 
 export const useCreateAccountingPlan = () =>
     useMutation({
         mutationKey: ['CreateAccountingPlan'],
         mutationFn: createAccountingPlanRequest,
     });
+
+    
+const getAccountinPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
+    const response = await http.get('accounting-plan');
+    return response.data; // Make sure response.data is the correct type
+};
 
 export const useGetAccountingPlan = () =>
     useQuery({

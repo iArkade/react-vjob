@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Row {
     id: string;
     code: string;
-    description: string;
+    name: string;
     isNew?: boolean;
     isEdited?: boolean;
 }

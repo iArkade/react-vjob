@@ -2,12 +2,11 @@ import * as React from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Link from '@mui/material/Link';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/userRequest";
 import { setAuthenticated } from "../../state/slices/authSlice";
 import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
-import { useDispatch } from "react-redux";
 
 // function Copyright(props: any) {
 //      return (
@@ -49,16 +48,13 @@ export default function LoginPage() {
                dispatch(setAuthenticated({isAuthenticated: true}));
                navigate('/dashboard');
                
-
           } catch (error) {
                //setError('Validaciones Incorrectas');
                console.log(error)
           }
-
      };
 
      return (
-
           <Stack spacing={4}>
                <Card>
                     <CardHeader
@@ -74,7 +70,7 @@ export default function LoginPage() {
                               <Stack spacing={2}>
                                    <Stack spacing={2}>
                                         <FormControl>
-                                             <InputLabel>Email address</InputLabel>
+                                             <InputLabel>Correo</InputLabel>
                                              <OutlinedInput name="email" type="email" />
                                         </FormControl>
                                         <FormControl>

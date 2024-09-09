@@ -14,7 +14,7 @@ import { useCreateAccountingPlan, useGetAccountingPlan } from '@/api/accounting_
 interface Row {
   id: string;
   code: string;
-  description: string;
+  name: string;
   isNew?: boolean;
   isEdited?: boolean;
 }
@@ -50,30 +50,28 @@ export function Page(): React.JSX.Element {
       width: '150px',
     },
     {
-      field: 'description',
-      name: 'Description',
+      field: 'name',
+      name: 'Name',
       formatter: (row: Row, index: number) => (
         <input
           type="text"
-          value={row.description || ''}
-          onChange={(e) => handleChange(e, index, 'description')}
+          value={row.name || ''}
+          onChange={(e) => handleChange(e, index, 'name')}
         />
       ),
       width: '250px',
     },
   ] satisfies ColumnDef<Row>[];
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number, field: keyof Row) => {
     dispatch(updateRow({ index, field, value: e.target.value }));
   };
   
-
   const handleAddRow = () => {
-    dispatch(addRow({ id: uuidv4(), code: '', description: '', isNew: true }));
+    dispatch(addRow({ id: uuidv4(), code: '', name: '', isNew: true }));
   };
   
-
+  
   const handleSubmit = async () => {
     try {
       // Filter only new or edited rows
