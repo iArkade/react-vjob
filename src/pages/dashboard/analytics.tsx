@@ -82,7 +82,6 @@ export function Page(): React.JSX.Element {
 
       console.log(sanitizedRows);
       
-  
       // Save only the sanitized rows
       await Promise.all(sanitizedRows.map(row => save_data(row)));
       console.log('Data saved successfully');

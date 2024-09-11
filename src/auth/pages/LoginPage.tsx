@@ -42,7 +42,7 @@ export default function LoginPage() {
                const password = data.get('password') as string;
 
                const response = await login({email, password});
-               //console.log(response.data.tokens);
+               console.log(response.data);
 
                localStorage.setItem("token", response.data.tokens);
                dispatch(setAuthenticated({isAuthenticated: true}));
