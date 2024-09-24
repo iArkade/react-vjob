@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "react-query";
 import http from "../http";
 import { AccountingPlanRequestType, AccountingPlanResponseType } from "./account.types";
 
-
+// Solicitud para crear un plan de cuentas
 const createAccountingPlanRequest = (data: AccountingPlanRequestType) =>
     http.post('accounting-plan', { code: data.code, name: data.name });
 
@@ -12,15 +12,16 @@ export const useCreateAccountingPlan = () =>
         mutationFn: createAccountingPlanRequest,
     });
 
-    
-const getAccountinPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
-    const response = await http.get('accounting-plan');
-    return response.data; // Make sure response.data is the correct type
+// Solicitud para obtener el plan de cuentas con paginación
+const getAccountinPlanRequest = async (page: number, limit: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
+    const response = await http.get(`accounting-plan?page=${page}&limit=${limit}`);
+    return response.data; // Asegúrate que response.data tenga la estructura correcta
 };
 
-export const useGetAccountingPlan = () =>
+// Hook para obtener el plan de cuentas con paginación
+export const useGetAccountingPlan = (page: number, limit: number) =>
     useQuery({
-        queryKey: ['GetAccountingPlan'],
-        queryFn: getAccountinPlanRequest,
+        queryKey: ['GetAccountingPlan', page, limit],
+        queryFn: () => getAccountinPlanRequest(page, limit),
+        keepPreviousData: true, // Mantiene los datos anteriores mientras se obtienen nuevos datos
     });
-
