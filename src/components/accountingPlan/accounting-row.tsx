@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TableRow, TableCell, TextField, IconButton } from '@mui/material';
-import { Pencil, Trash } from '@phosphor-icons/react';
+import { FloppyDisk, Trash } from '@phosphor-icons/react';
 import { AccountingPlanResponseType } from '@/api/accounting_plan/account.types';
 
 interface AccountRowProps {
@@ -10,13 +10,19 @@ interface AccountRowProps {
 }
 
 const AccountRow: React.FC<AccountRowProps> = ({ account, onUpdate, onDelete }) => {
-    const [isEditing, setIsEditing] = useState(false);
     const [editingCode, setEditingCode] = useState(account.code);
     const [editingName, setEditingName] = useState(account.name);
+    const [isChanged, setIsChanged] = useState(false);
+
+    useEffect(() => {
+        setIsChanged(editingCode !== account.code || editingName !== account.name);
+    }, [editingCode, editingName, account.code, account.name]);
 
     const handleSave = () => {
-        onUpdate(account.id, { code: editingCode, name: editingName });
-        setIsEditing(false);
+        if (isChanged) {
+            onUpdate(account.id, { code: editingCode, name: editingName });
+            setIsChanged(false);
+        }
     };
 
     const calcularNivel = (codigo: string): number => {
@@ -26,49 +32,28 @@ const AccountRow: React.FC<AccountRowProps> = ({ account, onUpdate, onDelete }) 
     return (
         <TableRow>
             <TableCell sx={{ paddingLeft: `${calcularNivel(account.code) * 20}px` }}>
-                {isEditing ? (
-                    <TextField
-                        value={editingCode}
-                        onChange={(e) => setEditingCode(e.target.value)}
-                        variant="standard"
-                        fullWidth
-                    />
-                ) : (
-                    account.code
-                )}
+                <TextField
+                    value={editingCode}
+                    onChange={(e) => setEditingCode(e.target.value)}
+                    variant="standard"
+                    fullWidth
+                />
             </TableCell>
             <TableCell>
-                {isEditing ? (
-                    <TextField
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        variant="standard"
-                        fullWidth
-                    />
-                ) : (
-                    account.name
-                )}
+                <TextField
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    variant="standard"
+                    fullWidth
+                />
             </TableCell>
             <TableCell>
-                {isEditing ? (
-                    <>
-                        <IconButton onClick={handleSave}>
-                            <Pencil size={20} />
-                        </IconButton>
-                        <IconButton onClick={() => setIsEditing(false)}>
-                            <Trash size={20} />
-                        </IconButton>
-                    </>
-                ) : (
-                    <>
-                        <IconButton onClick={() => setIsEditing(true)}>
-                            <Pencil size={20} />
-                        </IconButton>
-                        <IconButton onClick={() => onDelete(account.code)}>
-                            <Trash size={20} />
-                        </IconButton>
-                    </>
-                )}
+                <IconButton onClick={handleSave} disabled={!isChanged}>
+                    <FloppyDisk size={20} color={isChanged ? "primary" : "disabled"} />
+                </IconButton>
+                <IconButton onClick={() => onDelete(account.code)}>
+                    <Trash size={20} />
+                </IconButton>
             </TableCell>
         </TableRow>
     );

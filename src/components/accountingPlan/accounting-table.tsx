@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableRow, 
+    TablePagination, 
+    Snackbar, 
+    Alert, 
+    CircularProgress,
+    Paper
+} from '@mui/material';
 import AccountRow from './accounting-row';
 import AccountForm from './accounting-form';
 import useAccountingPlan from '@/hooks/use-accountingPlan';
@@ -7,13 +18,32 @@ import useAccountingPlan from '@/hooks/use-accountingPlan';
 const AccountingPlanTable: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const { accounts, isLoading, isError, addAccount, updateAccount, deleteAccount, error, success, clearMessages } = useAccountingPlan(page + 1, rowsPerPage);
+    const { 
+        accounts, 
+        isLoading, 
+        isError, 
+        addAccount, 
+        updateAccount, 
+        deleteAccount, 
+        error, 
+        success, 
+        clearMessages 
+    } = useAccountingPlan(page + 1, rowsPerPage);
 
     if (isLoading) return <CircularProgress />;
     if (isError) return <Alert severity="error">Error al cargar las cuentas</Alert>;
 
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
     return (
-        <>
+        <Paper elevation={3}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -34,20 +64,17 @@ const AccountingPlanTable: React.FC = () => {
                     ))}
                 </TableBody>
             </Table>
-
+            
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={accounts.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                onPageChange={(_, newPage) => setPage(newPage)}
-                onRowsPerPageChange={(event) => {
-                    setRowsPerPage(parseInt(event.target.value, 10));
-                    setPage(0);
-                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
             />
-
+            
             <Snackbar open={!!error} autoHideDuration={6000} onClose={clearMessages}>
                 <Alert onClose={clearMessages} severity="error" sx={{ width: '100%' }}>
                     {error}
@@ -58,7 +85,7 @@ const AccountingPlanTable: React.FC = () => {
                     {success}
                 </Alert>
             </Snackbar>
-        </>
+        </Paper>
     );
 };
 
