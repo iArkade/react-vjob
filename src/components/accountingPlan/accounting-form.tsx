@@ -9,6 +9,7 @@ interface AccountFormProps {
 
 const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
     const [newAccount, setNewAccount] = useState<AccountingPlanRequestType>({ code: '', name: '' });
+    const [focusedElement, setFocusedElement] = useState<string>('newCode');
 
     const handleSubmit = () => {
         onSubmit(newAccount);
@@ -22,8 +23,13 @@ const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
                     placeholder="Nuevo código"
                     value={newAccount.code}
                     onChange={(e) => setNewAccount({ ...newAccount, code: e.target.value })}
-                    variant="standard"
+                    variant={focusedElement === 'newCode' ? 'outlined' : 'standard'}
                     fullWidth
+                    autoFocus
+                    onClick={() => setFocusedElement('newCode')}
+                    onBlur={() => setFocusedElement('')}
+                    id="newCode"
+                    tabIndex={0}
                 />
             </TableCell>
             <TableCell>
@@ -31,8 +37,12 @@ const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
                     placeholder="Nuevo nombre"
                     value={newAccount.name}
                     onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-                    variant="standard"
+                    onClick={() => setFocusedElement('newName')}
+                    onBlur={() => setFocusedElement('')}
+                    variant={focusedElement === 'newName' ? 'outlined' : 'standard'}
                     fullWidth
+                    id='newName'
+                    tabIndex={1}
                 />
             </TableCell>
             <TableCell>
