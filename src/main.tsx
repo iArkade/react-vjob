@@ -4,7 +4,7 @@ import App from './App.tsx'
 
 import  store  from './state/store.ts'
 import { Provider } from 'react-redux'
-import { ThemeProvider } from '@/components/core/theme-provider/theme-provider';
+import { CustomThemeProvider } from '@/components/core/theme-provider/theme-provider';
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const queryClient = new QueryClient()
@@ -12,9 +12,9 @@ const queryClient = new QueryClient()
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-      <ThemeProvider>
+      <CustomThemeProvider>
         <App />
-      </ThemeProvider>
+      </CustomThemeProvider>
       </Provider> 
     </QueryClientProvider>
 )

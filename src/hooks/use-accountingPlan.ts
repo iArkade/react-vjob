@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAccountingPlan, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan } from '@/api/accounting_plan/accountRequest';
+import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting_plan/accountRequest';
 import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting_plan/account.types';
 import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
 
@@ -7,7 +7,11 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const { data: accounts, isLoading, isError, refetch } = useGetAccountingPlan(page, rowsPerPage);
+    const { data: accountsData, isLoading, isError, refetch } = useGetAccountingPlanPaginated(page, rowsPerPage);
+    const accounts = accountsData?.data || [];
+    const totalAccounts = accountsData?.total || 0;
+
+    const { data: allAccounts } = useGetAccountingPlan();
 
     const createAccountingPlan = useCreateAccountingPlan();
     const updateAccountingPlan = useUpdateAccountingPlan();
@@ -20,7 +24,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
         }
 
         if (newAccount.code && newAccount.name) {
-            const existingCode = accounts?.data.some((account: AccountingPlanResponseType) => 
+            const existingCode = accounts.some((account: AccountingPlanResponseType) => 
                 normalizeCode(account.code) === normalizeCode(newAccount.code)
             );
 
@@ -29,7 +33,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
                 return;
             }
 
-            const hierarchyValidation = validateHierarchy(newAccount.code, accounts?.data || []);
+            const hierarchyValidation = validateHierarchy(newAccount.code, accounts);
             if (!hierarchyValidation.isValid) {
                 setError(hierarchyValidation.error || 'Error de jerarquía');
                 return;
@@ -48,12 +52,22 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
     };
 
     const updateAccount = async (id: number, data: { code: string; name: string }) => {
+
+        const hasChildren = accounts.some((account: AccountingPlanResponseType) =>
+            account.code.startsWith(data.code + '.') && account.code !== data.code
+        );
+
+        if (hasChildren) {
+            setError('No se puede editar una cuenta que tiene subcuentas.');
+            return;
+        }
+
         if (!validateCode(data.code)) {
             setError('El código debe contener números y puede terminar en punto.');
             return;
         }
 
-        const hierarchyValidation = validateHierarchy(data.code, accounts?.data || []);
+        const hierarchyValidation = validateHierarchy(data.code, accounts);
         if (!hierarchyValidation.isValid) {
             setError(hierarchyValidation.error || 'Error de jerarquía');
             return;
@@ -69,7 +83,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
     };
 
     const deleteAccount = async (code: string) => {
-        const hasChildren = accounts?.data.some((account: AccountingPlanResponseType) =>
+        const hasChildren = accounts.some((account: AccountingPlanResponseType) =>
             account.code.startsWith(code + '.') && account.code !== code
         );
 
@@ -93,7 +107,9 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
     };
 
     return {
-        accounts: accounts?.data || [],
+        accounts,
+        totalAccounts,
+        allAccounts,
         isLoading,
         isError,
         addAccount,

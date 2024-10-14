@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 
 import { createTheme } from '@/styles/theme/create-theme';
 
@@ -12,7 +12,7 @@ export interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export function ThemeProvider({ children }: ThemeProviderProps): React.JSX.Element {
+export function CustomThemeProvider({ children }: ThemeProviderProps): React.JSX.Element {
 
   const theme = createTheme({
     primaryColor: 'neonBlue',
@@ -21,12 +21,12 @@ export function ThemeProvider({ children }: ThemeProviderProps): React.JSX.Eleme
   });
 
   return (
-    <CssVarsProvider defaultColorScheme='light' defaultMode='light' theme={theme}>
+    <ThemeProvider theme={theme}>
       {/* <Helmet>
         <meta content={settings.colorScheme} name="color-scheme" />
       </Helmet> */}
       <CssBaseline />
       <Rtl direction="ltr">{children}</Rtl>
-    </CssVarsProvider>
+    </ThemeProvider>
   );
 }

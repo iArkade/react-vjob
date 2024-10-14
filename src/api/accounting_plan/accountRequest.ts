@@ -41,21 +41,38 @@ export const useCreateAccountingPlan = () => {
     });
 };
 
-const getAccountingPlanRequest = async (page: number, limit: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
+const getAccountingPlanPaginatedRequest = async (page: number, limit: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
     try {
-        const response = await http.get(`accounting-plan?page=${page}&limit=${limit}`);
+        const response = await http.get(`accounting-plan/paginated?page=${page}&limit=${limit}`);
         return response.data;
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const useGetAccountingPlan = (page: number, limit: number) =>
+export const useGetAccountingPlanPaginated = (page: number, limit: number) =>
     useQuery({
         queryKey: ['GetAccountingPlan', page, limit],
-        queryFn: () => getAccountingPlanRequest(page, limit),
+        queryFn: () => getAccountingPlanPaginatedRequest(page, limit),
         keepPreviousData: true,
     });
+
+
+const getAccountingPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
+    try {
+        const response = await http.get(`accounting-plan/all`);
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+export const useGetAccountingPlan = () =>
+    useQuery({
+        queryKey: ['GetAccountingPlan'],
+        queryFn: () => getAccountingPlanRequest(),
+    });
+
 
 const updateAccountingPlanRequest = async (id: number, data: AccountingPlanRequestType) => {
     try {
@@ -93,6 +110,30 @@ export const useDeleteAccountingPlan = () => {
         mutationFn: (code: string) => deleteAccountingPlanRequest(code),
         onSuccess: () => {
             queryClient.invalidateQueries('GetAccountingPlan');
+        },
+    });
+};
+
+const uploadExcelRequest = async (formData: FormData) => {
+    try {
+        const response = await http.post('accounting-plan/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+export const useUploadExcel = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['UploadExcel'],
+        mutationFn: uploadExcelRequest,
+        onSuccess: () => {
+            queryClient.invalidateQueries('GetAccountingPlan'); // Invalidate relevant queries
         },
     });
 };
