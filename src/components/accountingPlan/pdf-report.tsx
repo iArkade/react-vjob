@@ -42,10 +42,9 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         borderColor: '#bfbfbf',
-        marginBottom: 10,
+        marginBottom: 20,
     },
     tableRow: {
-        margin: 'auto',
         flexDirection: 'row',
     },
     tableHeader: {
@@ -58,7 +57,6 @@ const styles = StyleSheet.create({
         borderColor: '#bfbfbf',
     },
     tableCell: {
-        margin: 'auto',
         padding: 5,
         fontSize: 10,
     },
@@ -77,40 +75,50 @@ interface PDFReportProps {
     accounts: AccountingPlanResponseType[];
 }
 
+const ItemsPerPage = 25; 
+
 const PDFReport: React.FC<PDFReportProps> = ({ accounts }) => {
+    const pageCount = Math.ceil(accounts.length / ItemsPerPage);
+
     return (
         <Document>
-            <Page size="A4" style={styles.page} wrap>
-                <View style={styles.header} fixed>
-                    <Text style={styles.title}>Plan de Cuentas</Text>
-                    <Text style={styles.subtitle}>Reporte Generado el {new Date().toLocaleDateString()}</Text>
-                </View>
+            {Array.from({ length: pageCount }, (_, pageIndex) => (
+                <Page key={`page_${pageIndex}`} size="A4" style={styles.page}>
+                    {pageIndex === 0 && (
+                        <View style={styles.header}>
+                            <Text style={styles.title}>Plan de Cuentas</Text>
+                            <Text style={styles.subtitle}>Reporte Generado el {new Date().toLocaleDateString()}</Text>
+                        </View>
+                    )}
 
-                <View style={styles.table}>
-                    <View style={[styles.tableRow, styles.tableHeader]} fixed>
-                        <View style={styles.tableCol}>
-                            <Text style={styles.tableCell}>Código</Text>
+                    <View style={styles.table}>
+                        <View style={[styles.tableRow, styles.tableHeader]}>
+                            <View style={styles.tableCol}>
+                                <Text style={styles.tableCell}>Código</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                                <Text style={styles.tableCell}>Nombre</Text>
+                            </View>
                         </View>
-                        <View style={styles.tableCol}>
-                            <Text style={styles.tableCell}>Nombre</Text>
-                        </View>
+                        {accounts.slice(pageIndex * ItemsPerPage, (pageIndex + 1) * ItemsPerPage).map((account) => (
+                            <View key={account.id} style={styles.tableRow}>
+                                <View style={styles.tableCol}>
+                                    <Text style={styles.tableCell}>{account.code}</Text>
+                                </View>
+                                <View style={styles.tableCol}>
+                                    <Text style={styles.tableCell}>{account.name}</Text>
+                                </View>
+                            </View>
+                        ))}
                     </View>
-                    {accounts.map((account) => (
-                        <View key={account.id} style={styles.tableRow}>
-                            <View style={styles.tableCol}>
-                                <Text style={styles.tableCell}>{account.code}</Text>
-                            </View>
-                            <View style={styles.tableCol}>
-                                <Text style={styles.tableCell}>{account.name}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
 
-                <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-                    `Página ${pageNumber} de ${totalPages}`
-                )} fixed />
-            </Page>
+                    <Text
+                        style={styles.pageNumber}
+                        render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
+                        fixed
+                    />
+                </Page>
+            ))}
         </Document>
     );
 };
@@ -119,7 +127,7 @@ interface PDFReportGeneratorProps {
     accounts: AccountingPlanResponseType[];
 }
 
-const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = ({ accounts }) => {
+const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = React.memo(({ accounts }) => {
     return (
         <BlobProvider document={<PDFReport accounts={accounts} />}>
             {({ url, loading, error }) => (
@@ -152,6 +160,6 @@ const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = ({ accounts }) => 
             )}
         </BlobProvider>
     );
-};
+});
 
 export default PDFReportGenerator;

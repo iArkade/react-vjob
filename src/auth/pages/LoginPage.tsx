@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/userRequest";
 import { setAuthenticated } from "../../state/slices/authSlice";
-import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
 // function Copyright(props: any) {
 //      return (
@@ -28,9 +28,9 @@ import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, 
 
 export default function LoginPage() {
 
-     //const [error, setError] = React.useState('');
+     const [error, setError] = React.useState<string | null>(null);
      const navigate = useNavigate();
-     const {mutateAsync: login} = useLoginUser();
+     const { mutateAsync: login } = useLoginUser();
      const dispatch = useDispatch();
 
      const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,16 +41,23 @@ export default function LoginPage() {
                const email = data.get('email') as string;
                const password = data.get('password') as string;
 
-               const response = await login({email, password});
+               const response = await login({ email, password });
                console.log(response.data);
 
                localStorage.setItem("token", response.data.tokens);
-               dispatch(setAuthenticated({isAuthenticated: true}));
+               dispatch(setAuthenticated({ isAuthenticated: true }));
                navigate('/dashboard');
-               
-          } catch (error) {
+
+          } catch (error: any) {
                //setError('Validaciones Incorrectas');
-               console.log(error)
+               if (error.response && error.response.data) {
+                    console.log("Error:", error.response.data.message);
+                    // Aquí puedes guardar el mensaje en el estado local para mostrarlo en la interfaz
+                    setError(error.response.data.message);
+               } else {
+                    console.log("Error:", error.message);
+                    setError("An unexpected error occurred. Please try again.");
+               }
           }
      };
 
@@ -68,6 +75,11 @@ export default function LoginPage() {
                     <CardContent>
                          <form onSubmit={handleSubmit}>
                               <Stack spacing={2}>
+
+                                   {error && (
+                                        <Alert severity="error">{error}</Alert>
+                                   )}
+
                                    <Stack spacing={2}>
                                         <FormControl>
                                              <InputLabel>Correo</InputLabel>

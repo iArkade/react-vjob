@@ -41,22 +41,22 @@ const ExcelUpload: React.FC = () => {
 
     return (
         <Box  
-            sx={{ p: 4, borderRadius: 2, boxShadow: 3, maxWidth: 400, mx: 'auto', mt: 5 }}
+            sx={{ borderRadius: 2, boxShadow: 3, maxWidth: 400, mt: 3 }}
         >
-            <Typography variant="h5" gutterBottom>
-                Subir Excel
+            <Typography variant="h6" gutterBottom>
+                Cargar Plan de Cuentas
             </Typography>
             <input
                 type="file"
                 accept=".xlsx"
                 onChange={handleFileChange}
-                style={{ marginBottom: '16px', width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ marginBottom: '16px', width: '60%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
             />
             <Button 
                 variant="contained" 
                 color="primary" 
                 onClick={handleUpload}
-                fullWidth
+                style={{ marginLeft: '16px', width: '30%', borderRadius: '4px' }}
             >
                 Upload
             </Button>
