@@ -50,14 +50,9 @@ class AuthClient {
 
           // We do not handle the API, so just check if we have a token in localStorage.
           const token = localStorage.getItem('token');
-          const user = localStorage.getItem('user');
           let savedUser = null;
           if (!token) {
                return { data: null };
-          }
-
-          if (user) {
-               savedUser = JSON.parse(user);
           }
 
           return { data: savedUser };
@@ -65,7 +60,6 @@ class AuthClient {
 
      async signOut(): Promise<{ error?: string }> {
           localStorage.removeItem('token');
-          localStorage.removeItem('user');
           return {};
      }
 }
