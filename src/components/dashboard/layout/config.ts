@@ -21,6 +21,7 @@ export const layoutConfig = {
                     { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics, icon: 'chart-pie' },
                     { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },
                     { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto, icon: 'currency-eth' },
+                    { key: 'asiento', title: 'Asiento Diario', href: paths.dashboard.asientos, icon: 'cube' },
                ],
           },
           {
