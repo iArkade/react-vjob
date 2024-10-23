@@ -12,7 +12,7 @@ export interface User {
 }
 
 export interface UserProfile{
-     id: string;
+     id?: string;
      name?: string;
      lastname?: string;
      avatar?: string;

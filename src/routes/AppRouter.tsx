@@ -3,11 +3,11 @@ import { PrivateRoutes } from './PrivateRoutes';
 import { AuthRoutes } from './AuthRoutes';
 import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import useAuth from '../hooks/useAuth';
+import useAuth from '../hooks/use-auth';
 import { useState, useEffect } from 'react';
 
 export const AppRouter = () => {
-     const [loading, setLoading] = useState(true); // Track loading state
+     const [loading, setLoading] = useState(true);
      const isAuthenticated = useSelector((state: RootState) => state.authSlice.isAuthenticated);
      //const location = useLocation(); // Get the current location
 

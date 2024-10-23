@@ -11,13 +11,11 @@ import Tooltip from '@mui/material/Tooltip';
 import { Bell as BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
 import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
-import { useTranslation } from 'react-i18next';
 
 import type { NavItemConfig } from '@/types/nav';
 import type { UserProfile } from '@/types/user';
 import { useDialog } from '@/hooks/use-dialog';
 import { usePopover } from '@/hooks/use-popover';
-
 
 import { MobileNav } from '../mobile-nav';
 import { NotificationsPopover } from '../notifications-popover';
@@ -74,6 +72,7 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
             sx={{ alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}
           >
             <NotificationsButton />
+
             <Divider
               flexItem
               orientation="vertical"
@@ -109,8 +108,6 @@ function SearchButton(): React.JSX.Element {
   );
 }
 
-
-
 function NotificationsButton(): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();
 
@@ -131,8 +128,6 @@ function NotificationsButton(): React.JSX.Element {
     </React.Fragment>
   );
 }
-
-
 
 const user = {
   id: 'USR-000',

@@ -5,7 +5,7 @@ import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/userRequest";
-import { setAuthenticated } from "../../state/slices/authSlice";
+import { setAuthenticated, setUser } from "../../state/slices/authSlice";
 import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
 // function Copyright(props: any) {
@@ -34,17 +34,24 @@ export default function LoginPage() {
      const dispatch = useDispatch();
 
      const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const email = data.get('email') as string;
+          const password = data.get('password') as string;
 
           try {
-               event.preventDefault();
-               const data = new FormData(event.currentTarget);
-               const email = data.get('email') as string;
-               const password = data.get('password') as string;
-
                const response = await login({ email, password });
-               console.log(response.data);
+               //console.log(response.data);
 
                localStorage.setItem("token", response.data.tokens);
+               
+               dispatch(setUser({
+                    id: response.data.id,
+                    email: response.data.email,
+                    name: response.data.name,
+                    lastname: response.data.lastname,
+                    role: response.data.role,
+               }));
                dispatch(setAuthenticated({ isAuthenticated: true }));
                navigate('/dashboard');
 

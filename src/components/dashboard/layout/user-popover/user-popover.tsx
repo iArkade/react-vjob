@@ -18,17 +18,19 @@ import { paths } from '@/paths';
 import { AuthStrategy } from '@/lib/auth/strategy';
 import { RouterLink } from '@/components/core/link';
 
-import { Auth0SignOut } from './auth0-sign-out';
 import { CustomSignOut } from './custom-sign-out';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 
-const user = {
-  id: 'USR-000',
-  name: 'Sofia Rivers',
-  avatar: '/assets/avatar.png',
-  email: 'sofia@devias.io',
-  role: 'string',
-} satisfies UserProfile;
+// const user = {
+//   id: 'USR-000',//
+//   name: 'Sofia Rivers',//
+//   avatar: '/assets/avatar.png',
+//   email: 'sofia@devias.io',//
+//   role: 'string',//
+// } satisfies UserProfile;
+
 
 export interface UserPopoverProps {
   anchorEl: null | Element;
@@ -37,6 +39,9 @@ export interface UserPopoverProps {
 }
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
+  
+  const user = useSelector((state: RootState) => state.authSlice.user);
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -47,9 +52,9 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
     >
       <Box sx={{ p: 2 }}>
-        <Typography>{user.name}</Typography>
+        <Typography>{user?.name}</Typography>
         <Typography color="text.secondary" variant="body2">
-          {user.email}
+          {user?.email}
         </Typography>
       </Box>
       <Divider />
@@ -76,7 +81,6 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       <Divider />
       <Box sx={{ p: 1 }}>
         {config.auth.strategy === AuthStrategy.CUSTOM ? <CustomSignOut /> : null}
-        {config.auth.strategy === AuthStrategy.AUTH0 ? <Auth0SignOut /> : null}
       </Box>
     </Popover>
   );
