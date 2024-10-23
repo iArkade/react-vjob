@@ -19,6 +19,7 @@ export const layoutConfig = {
                items: [
                     { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'house' },
                     { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics, icon: 'chart-pie' },
+                    { key: 'transaction', title: 'Transaction', href: paths.dashboard.transaction, icon: 'cube' },
                     { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },
                     { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto, icon: 'currency-eth' },
                ],

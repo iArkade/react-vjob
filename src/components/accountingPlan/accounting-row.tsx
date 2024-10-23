@@ -15,6 +15,23 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
     const [editingCode, setEditingCode] = useState(account.code);
     const [editingName, setEditingName] = useState(account.name);
     const [isChanged, setIsChanged] = useState(false);
+    const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+    useEffect(() => {
+        // Detecta si el sistema está usando el tema oscuro
+        const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+        setIsDarkTheme(darkThemeMq.matches); // Establece el estado inicial
+
+        const themeChangeListener = (e: MediaQueryListEvent) => {
+            setIsDarkTheme(e.matches); // Cambia el estado si el tema del sistema cambia
+        };
+
+        // Agrega el listener para detectar cambios en el tema del sistema
+        darkThemeMq.addEventListener('change', themeChangeListener);
+
+        // Limpia el listener cuando el componente se desmonta
+        return () => darkThemeMq.removeEventListener('change', themeChangeListener);
+    }, []);
 
     useEffect(() => {
         setIsChanged(editingCode !== account.code || editingName !== account.name);
@@ -35,7 +52,11 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
         <TableRow
             onClick={() => onRowClick(account.id)}
             style={{
-                backgroundColor: isSelected ? '#2b2a2a' : 'inherit',
+                backgroundColor: isSelected
+                    ? isDarkTheme
+                        ? '#2b2a2a' // Color oscuro si el tema es oscuro
+                        : '#d3d3d3' // Color claro si el tema es claro
+                    : 'inherit',
                 cursor: 'pointer'
             }}
         >
@@ -57,7 +78,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
             </TableCell>
             <TableCell>
                 <IconButton onClick={handleSave} disabled={!isChanged}>
-                    <FloppyDisk size={20} weight={isChanged ? "bold" : "regular"} />
+                    <FloppyDisk size={20} weight={isChanged ? 'bold' : 'regular'} />
                 </IconButton>
                 <IconButton onClick={() => onDelete(account.code)}>
                     <Trash size={20} />
