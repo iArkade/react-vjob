@@ -18,7 +18,6 @@ import { Logo } from '@/components/core/logo';
 import type { ColorScheme } from '@/styles/theme/types';
 
 import { icons } from '../nav-icons';
-import { WorkspacesSwitch } from '../workspaces-switch';
 import { navColorStyles } from './styles';
 
 const logoColors = {
@@ -61,12 +60,9 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
       }}
     >
       <Stack spacing={2} sx={{ p: 2 }}>
-        <div>
-          <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <Logo color={logoColor} height={32} width={122} />
-          </Box>
-        </div>
-        <WorkspacesSwitch />
+        <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
+          <Logo color={logoColor} height={32} width={122} />
+        </Box>
       </Stack>
       <Box
         component="nav"

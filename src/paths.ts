@@ -65,6 +65,7 @@ export const paths = {
           analytics: '/dashboard/analytics',
           transaction: '/dashboard/transaction',
           blank: '/dashboard/blank',
+          asientos: '/dashboard/asientos',
           blog: {
                list: '/dashboard/blog',
                details: (postId: string) => `/dashboard/blog/${postId}`,

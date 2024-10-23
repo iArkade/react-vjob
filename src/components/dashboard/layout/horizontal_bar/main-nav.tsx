@@ -16,8 +16,6 @@ import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/Caret
 import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
-import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
-import { useTranslation } from 'react-i18next';
 
 import type { NavItemConfig } from '@/types/nav';
 import type { NavColor } from '@/types/settings';
@@ -40,8 +38,8 @@ import { MobileNav } from '../mobile-nav';
 import { icons } from '../nav-icons';
 import { NotificationsPopover } from '../notifications-popover';
 import { UserPopover } from '../user-popover/user-popover';
-import { WorkspacesSwitch } from '../workspaces-switch';
 import { navColorStyles } from './styles';
+import { UserCircle } from '@phosphor-icons/react';
 
 const logoColors = {
   dark: { blend_in: 'light', discrete: 'light', evident: 'light' },
@@ -98,11 +96,15 @@ export function MainNav({ color = 'evident', items = [] }: MainNavProps): React.
             >
               <ListIcon color="var(--NavItem-icon-color)" />
             </IconButton>
-            <Box component={RouterLink} href={paths.home} sx={{ display: { xs: 'none', md: 'inline-block' } }}>
+            <Box
+              component={RouterLink}
+              href={paths.home}
+              sx={{
+                display: { xs: 'none', md: 'inline-block' },
+                textAlign: 'center' // Centrar el contenido
+              }}
+            >
               <Logo color={logoColor} height={32} width={122} />
-            </Box>
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-              <WorkspacesSwitch />
             </Box>
           </Stack>
           <Stack
@@ -215,7 +217,8 @@ function UserButton(): React.JSX.Element {
           }}
           variant="dot"
         >
-          <Avatar src={user.avatar} />
+          {/* <Avatar src={user.avatar} /> */}
+          <UserCircle size={32} />
         </Badge>
       </Box>
       <UserPopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} />
@@ -282,15 +285,15 @@ function NavItem({
         {...(isBranch
           ? { role: 'button' }
           : {
-              ...(href
-                ? {
-                    component: external ? 'a' : RouterLink,
-                    href,
-                    target: external ? '_blank' : undefined,
-                    rel: external ? 'noreferrer' : undefined,
-                  }
-                : { role: 'button' }),
-            })}
+            ...(href
+              ? {
+                component: external ? 'a' : RouterLink,
+                href,
+                target: external ? '_blank' : undefined,
+                rel: external ? 'noreferrer' : undefined,
+              }
+              : { role: 'button' }),
+          })}
         sx={{
           alignItems: 'center',
           borderRadius: 1,
@@ -408,15 +411,15 @@ function DropdownItem({
         {...(isBranch
           ? { role: 'button' }
           : {
-              ...(href
-                ? {
-                    component: external ? 'a' : RouterLink,
-                    href,
-                    target: external ? '_blank' : undefined,
-                    rel: external ? 'noreferrer' : undefined,
-                  }
-                : { role: 'button' }),
-            })}
+            ...(href
+              ? {
+                component: external ? 'a' : RouterLink,
+                href,
+                target: external ? '_blank' : undefined,
+                rel: external ? 'noreferrer' : undefined,
+              }
+              : { role: 'button' }),
+          })}
         sx={{
           alignItems: 'center',
           borderRadius: 1,

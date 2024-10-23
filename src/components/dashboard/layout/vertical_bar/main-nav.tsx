@@ -21,6 +21,7 @@ import { MobileNav } from '../mobile-nav';
 import { NotificationsPopover } from '../notifications-popover';
 import { SearchDialog } from '../search-dialog';
 import { UserPopover } from '../user-popover/user-popover';
+import { UserCircle } from '@phosphor-icons/react';
 
 export interface MainNavProps {
   items: NavItemConfig[];
@@ -163,7 +164,8 @@ function UserButton(): React.JSX.Element {
           }}
           variant="dot"
         >
-          <Avatar src={user.avatar} />
+          
+          <UserCircle size={32} />
         </Badge>
       </Box>
       <UserPopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} />
