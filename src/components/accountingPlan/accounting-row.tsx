@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { TableRow, TableCell, TextField, IconButton } from '@mui/material';
 import { FloppyDisk, Trash } from '@phosphor-icons/react';
-import { AccountingPlanResponseType } from '@/api/accounting_plan/account.types';
+import { AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 
 interface AccountRowProps {
     account: AccountingPlanResponseType;

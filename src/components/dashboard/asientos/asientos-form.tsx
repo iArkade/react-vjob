@@ -29,42 +29,44 @@ import { Option } from '@/components/core/option';
 import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { CardActions, IconButton, MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { useAccounts } from '@/api/asientos/asientos-request';
+import { DatCentro } from '@/api/asientos/asientos-types';
 
 
 
-interface LineItem {
-     id: string;
-     description: string;
-     service: string;
-     quantity: number;
-     unitPrice: number;
-}
+// interface LineItem {
+//      id: string;
+//      description: string;
+//      service: string;
+//      quantity: number;
+//      unitPrice: number;
+// }
 
-function calculateSubtotal(lineItems: LineItem[]): number {
-     const subtotal = lineItems.reduce((acc, lineItem) => acc + lineItem.quantity * lineItem.unitPrice, 0);
-     return parseFloat(subtotal.toFixed(2));
-}
+// function calculateSubtotal(lineItems: LineItem[]): number {
+//      const subtotal = lineItems.reduce((acc, lineItem) => acc + lineItem.quantity * lineItem.unitPrice, 0);
+//      return parseFloat(subtotal.toFixed(2));
+// }
 
-function calculateTotalWithoutTaxes(subtotal: number, discount: number, shippingRate: number): number {
-     return subtotal - discount + shippingRate;
-}
+// function calculateTotalWithoutTaxes(subtotal: number, discount: number, shippingRate: number): number {
+//      return subtotal - discount + shippingRate;
+// }
 
-function calculateTax(totalWithoutTax: number, taxRate: number): number {
-     const tax = totalWithoutTax * (taxRate / 100);
-     return parseFloat(tax.toFixed(2));
-}
+// function calculateTax(totalWithoutTax: number, taxRate: number): number {
+//      const tax = totalWithoutTax * (taxRate / 100);
+//      return parseFloat(tax.toFixed(2));
+// }
 
-function calculateTotal(totalWithoutTax: number, taxes: number): number {
-     return totalWithoutTax + taxes;
-}
+// function calculateTotal(totalWithoutTax: number, taxes: number): number {
+//      return totalWithoutTax + taxes;
+// }
 
 const schema = zod
      .object({
           numero: zod.string().max(255),
           transaccion: zod.string().max(255),
           fecha_tr: zod.date(),
-          comentario: zod.string().max(255),
+          comentario: zod.string().max(1500),
           secuencial: zod.string().max(255),
           nro_reposicion: zod.string().max(255),
           nro_ref: zod.string().max(255),
@@ -83,16 +85,18 @@ const schema = zod
           lineItems: zod.array(
                zod.object({
                     id: zod.string(),
-                    description: zod.string(),
-                    quantity: zod.number().min(1),
-                    unitPrice: zod.number().min(0),
+                    centro: zod.string(),
+                    cta: zod.string(),
+                    ctaNombre: zod.string(),
+                    debe: zod.number().min(1),
+                    haber: zod.number().min(0),
+                    nota: zod.string(),
                })
           ),
           total1: zod.number(),
           total2: zod.number(),
           total3: zod.number(),
      })
-
 
 type Values = zod.infer<typeof schema>;
 
@@ -111,8 +115,8 @@ const defaultValues = {
      shippingRate: 0,
      taxRate: 0,
      lineItems: [
-          { id: '1', description: 'Item 1', quantity: 1, unitPrice: 100 },
-          { id: '2', description: 'Item 2', quantity: 2, unitPrice: 50 },
+          { id: '1', centro: '', cta: '', ctaNombre: '', debe: 100, haber: 100, nota: '' },
+
      ],
      total1: 0,
      total2: 0,
@@ -121,7 +125,6 @@ const defaultValues = {
 
 export function AsientosForm(): React.JSX.Element {
      const navigate = useNavigate();
-
      const {
           control,
           handleSubmit,
@@ -130,6 +133,10 @@ export function AsientosForm(): React.JSX.Element {
           setValue,
           watch,
      } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
+
+
+     const { data: centros = [], isLoading, isError } = useAccounts();
+
 
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
@@ -146,37 +153,42 @@ export function AsientosForm(): React.JSX.Element {
           [navigate]
      );
 
-     // const handleAddLineItem = React.useCallback(() => {
-     //      const lineItems = getValues('lineItems');
+     const handleCentroChange = React.useCallback(
+          (selectedCentro: string) => {
+               const lineItems = getValues('lineItems');
+               if (lineItems.length > 0) {
+                    setValue(`lineItems.0.centro`, selectedCentro);
+               } else {
 
-     //      setValue('lineItems', [
-     //           ...lineItems,
-     //           { id: `LI-${lineItems.length + 1}`, description: '', service: '', quantity: 1, unitPrice: 0 },
-     //      ]);
-     // }, [getValues, setValue]);
+                    handleAddLineItem();
+                    setValue(`lineItems.0.centro`, selectedCentro);
+               }
+          }, [getValues, setValue]
+     )
 
-     // const handleRemoveLineItem = React.useCallback(
-     //      (lineItemId: string) => {
-     //           const lineItems = getValues('lineItems');
+     const handleAddLineItem = React.useCallback(() => {
+          const lineItems = getValues('lineItems');
+          const currentCentro = getValues('centro');
+          
+          setValue('lineItems', [
+               ...lineItems,
+               { id: `LI-${lineItems.length + 1}`, centro: currentCentro, cta: '', ctaNombre: '', debe: 0, haber: 0, nota: '' },
+          ]);
+     }, [getValues, setValue]);
 
-     //           setValue(
-     //                'lineItems',
-     //                lineItems.filter((lineItem) => lineItem.id !== lineItemId)
-     //           );
-     //      },
-     //      [getValues, setValue]
-     // );
+     const handleRemoveLineItem = React.useCallback(
+          (lineItemId: string) => {
+               const lineItems = getValues('lineItems');
+
+               setValue(
+                    'lineItems',
+                    lineItems.filter((lineItem) => lineItem.id !== lineItemId)
+               );
+          },
+          [getValues, setValue]
+     );
 
      const lineItems = watch('lineItems');
-     // const discount = watch('discount');
-     // const shippingRate = watch('shippingRate');
-     // const taxRate = watch('taxRate');
-
-     // const subtotal = calculateSubtotal(lineItems);
-     // const totalWithoutTaxes = calculateTotalWithoutTaxes(subtotal, discount, shippingRate);
-     // const tax = calculateTax(totalWithoutTaxes, taxRate);
-     // const total = calculateTotal(totalWithoutTaxes, tax);
-
      return (
           <form onSubmit={handleSubmit(onSubmit)}>
                <Card>
@@ -210,7 +222,7 @@ export function AsientosForm(): React.JSX.Element {
                                              />
                                         </Grid>
 
-                                        <Grid size={{ xs: 12, md: 4 }}>
+                                        {/* <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
                                                   name="transaccion"
@@ -218,13 +230,12 @@ export function AsientosForm(): React.JSX.Element {
                                                        <FormControl fullWidth>
                                                             <InputLabel>Transacción</InputLabel>
                                                             <Select {...field}>
-                                                                 <MenuItem value="ADI">ADI - Asiento Diario</MenuItem>
-                                                                 {/* Puedes agregar más opciones aquí */}
+                                                                 <MenuItem></MenuItem>
                                                             </Select>
                                                        </FormControl>
                                                   )}
                                              />
-                                        </Grid>
+                                        </Grid> */}
 
 
                                         <Grid size={{ xs: 12, md: 4 }}>
@@ -266,31 +277,6 @@ export function AsientosForm(): React.JSX.Element {
                                                   )}
                                              />
                                         </Grid>
-                                        <Grid size={{ xs: 12, md: 4 }}>
-                                             <Controller
-                                                  control={control}
-                                                  name="secuencial"
-                                                  render={({ field }) => (
-                                                       <FormControl fullWidth>
-                                                            <InputLabel>Secuencial</InputLabel>
-                                                            <OutlinedInput {...field} />
-                                                       </FormControl>
-                                                  )}
-                                             />
-                                        </Grid>
-
-                                        <Grid size={{ xs: 12, md: 4 }}>
-                                             <Controller
-                                                  control={control}
-                                                  name="nro_reposicion"
-                                                  render={({ field }) => (
-                                                       <FormControl fullWidth>
-                                                            <InputLabel>Nro. Reposición</InputLabel>
-                                                            <OutlinedInput {...field} />
-                                                       </FormControl>
-                                                  )}
-                                             />
-                                        </Grid>
 
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
@@ -312,29 +298,43 @@ export function AsientosForm(): React.JSX.Element {
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Centro</InputLabel>
-                                                            <OutlinedInput {...field} />
+                                                            <Select
+                                                                 {...field}
+                                                                 label="Centro"
+                                                                 disabled={isLoading || isError}
+                                                                 value={field.value || ''}
+                                                                 onChange={(e) => {
+                                                                      //console.log(e.target.value)
+                                                                      field.onChange(e);
+                                                                      handleCentroChange(e.target.value);
+                                                                      // const selectedCentro = centros.find(centro => centro.codigo === e.target.value);
+                                                                      // if (selectedCentro) {
+                                                                      //      console.log(selectedCentro.nombre); // Aquí tienes el valor de centro.nombre
+                                                                      //      field.onChange(selectedCentro.codigo); // Asegúrate de que `codigo` se actualiza en el form
+                                                                      //      handleCentroChange(selectedCentro.nombre); // Llama a la función con el nombre
+                                                                      // }
+
+                                                                 }}
+                                                            >
+                                                                 {isError && <Option value=""><em>Error cargando centros</em></Option>}
+
+                                                                 {isLoading ? (
+                                                                      <Option value=""><em>Cargando centros...</em></Option>
+                                                                 ) : (
+                                                                      centros?.map((centro: DatCentro) => (
+                                                                           <Option key={centro.id} value={centro.nombre}>
+                                                                                {centro.nombre}
+                                                                           </Option>
+                                                                      ))
+                                                                 )}
+                                                            </Select>
+                                                            {errors.centro && <FormHelperText error>{errors.centro.message}</FormHelperText>}
                                                        </FormControl>
                                                   )}
                                              />
                                         </Grid>
                                         <Grid size={{ xs: 2, md: 2 }}>
                                              <Button variant="outlined" sx={{ marginTop: '28px' }}>...</Button> {/* Botón adicional */}
-                                        </Grid>
-
-                                        <Grid size={{ xs: 12, md: 6 }}>
-                                             <Controller
-                                                  control={control}
-                                                  name="pago"
-                                                  render={({ field }) => (
-                                                       <FormControl fullWidth>
-                                                            <InputLabel>Pago de</InputLabel>
-                                                            <Select {...field}>
-                                                                 <MenuItem value="NO_APLICA">No Aplica</MenuItem>
-                                                                 {/* Agregar más opciones */}
-                                                            </Select>
-                                                       </FormControl>
-                                                  )}
-                                             />
                                         </Grid>
                                    </Grid>
                               </Stack>
@@ -346,24 +346,33 @@ export function AsientosForm(): React.JSX.Element {
                                              <Table>
                                                   <TableHead>
                                                        <TableRow>
+                                                            <TableCell></TableCell>
                                                             <TableCell>Centro</TableCell>
                                                             <TableCell>Cta.</TableCell>
                                                             <TableCell>Cta. Nombre</TableCell>
                                                             <TableCell>Debe</TableCell>
                                                             <TableCell>Haber</TableCell>
                                                             <TableCell>Nota</TableCell>
-                                                            <TableCell>Imp(Nro)</TableCell>
-                                                            <TableCell>Cod.Empleado</TableCell>
-
                                                        </TableRow>
                                                   </TableHead>
                                                   <TableBody>
                                                        {lineItems.map((item, index) => (
                                                             <TableRow key={item.id}>
                                                                  <TableCell>
+                                                                      <IconButton
+                                                                           onClick={() => {
+                                                                                handleRemoveLineItem(item.id);
+                                                                           }}
+                                                                           sx={{ alignSelf: 'flex-end' }}
+                                                                      >
+                                                                           <TrashIcon />
+                                                                      </IconButton>
+                                                                 </TableCell>
+
+                                                                 <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.description`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.centro`} // Nombre dinámico
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput {...field} fullWidth />
                                                                            )}
@@ -372,7 +381,25 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.quantity`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.cta`} // Nombre dinámico
+                                                                           render={({ field }) => (
+                                                                                <OutlinedInput {...field} fullWidth />
+                                                                           )}
+                                                                      />
+                                                                 </TableCell>
+                                                                 <TableCell>
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.ctaNombre`} // Nombre dinámico
+                                                                           render={({ field }) => (
+                                                                                <OutlinedInput {...field} fullWidth />
+                                                                           )}
+                                                                      />
+                                                                 </TableCell>
+                                                                 <TableCell>
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.debe`} // Nombre dinámico
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
@@ -386,7 +413,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.unitPrice`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.haber`} // Nombre dinámico
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
@@ -398,12 +425,31 @@ export function AsientosForm(): React.JSX.Element {
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
-                                                                      {item.quantity * item.unitPrice}
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.nota`} // Nombre dinámico
+                                                                           render={({ field }) => (
+                                                                                <OutlinedInput {...field} fullWidth />
+                                                                           )}
+                                                                      />
                                                                  </TableCell>
+                                                                 {/* <TableCell>
+                                                                      {item.quantity * item.unitPrice}
+                                                                 </TableCell> */}
                                                             </TableRow>
                                                        ))}
                                                   </TableBody>
                                              </Table>
+                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
+                                                  <Button
+                                                       color="secondary"
+                                                       onClick={handleAddLineItem}
+                                                       startIcon={<PlusCircleIcon />}
+                                                       variant="outlined"
+                                                  >
+                                                       Add item
+                                                  </Button>
+                                             </div>
                                         </Grid>
                                    </Stack>
                               </Stack>
@@ -475,103 +521,14 @@ export function AsientosForm(): React.JSX.Element {
                                    </Grid>
 
                               </Stack>
-
-                              {/* <Grid container spacing={3}>
-                                   <Grid size={{ xs: 12, md: 4 }} >
-                                        <Controller
-                                             control={control}
-                                             name="discount"
-                                             render={({ field }) => (
-                                                  <FormControl error={Boolean(errors.discount)} fullWidth>
-                                                       <InputLabel>Discount</InputLabel>
-                                                       <OutlinedInput
-                                                            {...field}
-                                                            inputProps={{ step: 0.01 }}
-                                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                                 const value = event.target.valueAsNumber;
-
-                                                                 if (isNaN(value)) {
-                                                                      field.onChange('');
-                                                                      return;
-                                                                 }
-
-                                                                 field.onChange(parseFloat(value.toFixed(2)));
-                                                            }}
-                                                            startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                                            type="number"
-                                                       />
-                                                       {errors.discount ? <FormHelperText>{errors.discount.message}</FormHelperText> : null}
-                                                  </FormControl>
-                                             )}
-                                        />
-                                   </Grid>
-
-                                   <Grid size={{ xs: 12, md: 4 }}>
-                                        <Controller
-                                             control={control}
-                                             name="shippingRate"
-                                             render={({ field }) => (
-                                                  <FormControl error={Boolean(errors.shippingRate)} fullWidth>
-                                                       <InputLabel>Shipping rate</InputLabel>
-                                                       <OutlinedInput
-                                                            {...field}
-                                                            inputProps={{ step: 0.01 }}
-                                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                                 const value = event.target.valueAsNumber;
-
-                                                                 if (isNaN(value)) {
-                                                                      field.onChange('');
-                                                                      return;
-                                                                 }
-
-                                                                 field.onChange(parseFloat(value.toFixed(2)));
-                                                            }}
-                                                            startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                                            type="number"
-                                                       />
-                                                       {errors.shippingRate ? <FormHelperText>{errors.shippingRate.message}</FormHelperText> : null}
-                                                  </FormControl>
-                                             )}
-                                        />
-                                   </Grid>
-
-                                   <Grid
-                                        size={{ xs: 12, md: 4 }}
-                                   >
-                                        <Controller
-                                             control={control}
-                                             name="taxRate"
-                                             render={({ field }) => (
-                                                  <FormControl error={Boolean(errors.taxRate)} fullWidth>
-                                                       <InputLabel>Tax rate (%)</InputLabel>
-                                                       <OutlinedInput
-                                                            {...field}
-                                                            inputProps={{ step: 0.01 }}
-                                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                                 const value = event.target.valueAsNumber;
-
-                                                                 if (isNaN(value)) {
-                                                                      field.onChange('');
-                                                                      return;
-                                                                 }
-
-                                                                 if (value > 100) {
-                                                                      field.onChange(100);
-                                                                      return;
-                                                                 }
-
-                                                                 field.onChange(parseFloat(value.toFixed(2)));
-                                                            }}
-                                                            type="number"
-                                                       />
-                                                       {errors.taxRate ? <FormHelperText>{errors.taxRate.message}</FormHelperText> : null}
-                                                  </FormControl>
-                                             )}
-                                        />
-                                   </Grid>
-                              </Grid> */}
                          </Stack>
                     </CardContent>
+                    <CardActions sx={{ justifyContent: 'flex-end' }}>
+                         <Button color="secondary">Cancel</Button>
+                         <Button type="submit" variant="contained">
+                              Create invoice
+                         </Button>
+                    </CardActions>
                </Card>
           </form>
      );

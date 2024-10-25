@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useLoginUser } from "../../api/userRequest";
+import { useLoginUser } from "../../api/user-request";
 import { setAuthenticated, setUser } from "../../state/slices/authSlice";
 import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 

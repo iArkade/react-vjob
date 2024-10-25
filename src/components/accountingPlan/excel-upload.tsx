@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUploadExcel } from '@/api/accounting_plan/accountRequest';
+import { useUploadExcel } from '@/api/accounting-plan/account-request';
 import { Box, Button, Typography, Alert } from '@mui/material';
 
 const ExcelUpload: React.FC = () => {

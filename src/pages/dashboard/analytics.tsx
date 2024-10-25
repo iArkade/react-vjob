@@ -2,8 +2,8 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { CustomTable, CustomColumn } from '@/components/core/custom-table';
-import { useGetAccountingPlan, useCreateAccountingPlan } from '@/api/accounting_plan/accountRequest';
-import { AccountingPlanRequestType,  AccountingPlanResponseType} from '@/api/accounting_plan/account.types';
+import { useGetAccountingPlan, useCreateAccountingPlan } from '@/api/accounting-plan/account-request';
+import { AccountingPlanRequestType,  AccountingPlanResponseType} from '@/api/accounting-plan/account-types';
 import { UseQueryResult } from 'react-query';
 
 // Definimos AccountingPlanRow para que coincida con AccountingPlanResponseType

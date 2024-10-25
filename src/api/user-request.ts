@@ -1,6 +1,6 @@
 import { useMutation } from "react-query";
 import http from "./http";
-import { UsersType, LoginRequestType } from "./user.types";
+import { UsersType, LoginRequestType } from "./user-types";
 
 const createUserRequest = (user: UsersType) =>
      http.post('auth/register', user);
