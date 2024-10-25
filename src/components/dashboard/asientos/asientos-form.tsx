@@ -29,7 +29,7 @@ import { Option } from '@/components/core/option';
 import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CardActions, IconButton, MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { useAccounts } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 
@@ -116,7 +116,6 @@ const defaultValues = {
      taxRate: 0,
      lineItems: [
           { id: '1', centro: '', cta: '', ctaNombre: '', debe: 100, haber: 100, nota: '' },
-
      ],
      total1: 0,
      total2: 0,
@@ -169,7 +168,7 @@ export function AsientosForm(): React.JSX.Element {
      const handleAddLineItem = React.useCallback(() => {
           const lineItems = getValues('lineItems');
           const currentCentro = getValues('centro');
-          
+
           setValue('lineItems', [
                ...lineItems,
                { id: `LI-${lineItems.length + 1}`, centro: currentCentro, cta: '', ctaNombre: '', debe: 0, haber: 0, nota: '' },
@@ -189,6 +188,20 @@ export function AsientosForm(): React.JSX.Element {
      );
 
      const lineItems = watch('lineItems');
+     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`));
+     const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`));
+
+     React.useEffect(() => {
+          const totalDebe = lineItems.reduce((acc, item) => acc + (Number(item.debe) || 0), 0);
+          const totalHaber = lineItems.reduce((acc, item) => acc + (Number(item.haber) || 0), 0);
+          const totalCombined = totalDebe + totalHaber;
+
+          setValue('total1', totalDebe);
+          setValue('total2', totalHaber);
+          setValue('total3', totalCombined);
+     }, [lineItems, watchDebe, watchHaber, setValue]);
+
+
      return (
           <form onSubmit={handleSubmit(onSubmit)}>
                <Card>
@@ -237,7 +250,6 @@ export function AsientosForm(): React.JSX.Element {
                                              />
                                         </Grid> */}
 
-
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                   <Controller
@@ -262,7 +274,6 @@ export function AsientosForm(): React.JSX.Element {
                                                   />
                                              </LocalizationProvider>
                                         </Grid>
-
 
                                         <Grid size={{ xs: 12 }}>
                                              <Controller
@@ -372,48 +383,28 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.centro`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
+                                                                           name={`lineItems.${index}.centro`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.cta`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
+                                                                           name={`lineItems.${index}.cta`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.ctaNombre`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
+                                                                           name={`lineItems.${index}.ctaNombre`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.debe`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput
-                                                                                     {...field}
-                                                                                     type="number"
-                                                                                     inputProps={{ min: 1 }}
-                                                                                     fullWidth
-                                                                                />
-                                                                           )}
-                                                                      />
-                                                                 </TableCell>
-                                                                 <TableCell>
-                                                                      <Controller
-                                                                           control={control}
-                                                                           name={`lineItems.${index}.haber`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.debe`}
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
@@ -427,15 +418,24 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.nota`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.haber`}
                                                                            render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
+                                                                                <OutlinedInput
+                                                                                     {...field}
+                                                                                     type="number"
+                                                                                     inputProps={{ min: 0 }}
+                                                                                     fullWidth
+                                                                                />
                                                                            )}
                                                                       />
                                                                  </TableCell>
-                                                                 {/* <TableCell>
-                                                                      {item.quantity * item.unitPrice}
-                                                                 </TableCell> */}
+                                                                 <TableCell>
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.nota`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
+                                                                      />
+                                                                 </TableCell>
                                                             </TableRow>
                                                        ))}
                                                   </TableBody>
@@ -473,7 +473,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
+                                                                 readOnly
                                                             />
                                                        </FormControl>
                                                   )}
@@ -493,7 +494,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
+                                                                 readOnly
                                                             />
                                                        </FormControl>
                                                   )}
@@ -512,14 +514,13 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
                                                             />
                                                        </FormControl>
                                                   )}
                                              />
                                         </Grid>
                                    </Grid>
-
                               </Stack>
                          </Stack>
                     </CardContent>
