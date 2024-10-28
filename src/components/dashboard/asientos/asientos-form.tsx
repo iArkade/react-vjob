@@ -34,33 +34,6 @@ import { useAccounts } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 
 
-
-// interface LineItem {
-//      id: string;
-//      description: string;
-//      service: string;
-//      quantity: number;
-//      unitPrice: number;
-// }
-
-// function calculateSubtotal(lineItems: LineItem[]): number {
-//      const subtotal = lineItems.reduce((acc, lineItem) => acc + lineItem.quantity * lineItem.unitPrice, 0);
-//      return parseFloat(subtotal.toFixed(2));
-// }
-
-// function calculateTotalWithoutTaxes(subtotal: number, discount: number, shippingRate: number): number {
-//      return subtotal - discount + shippingRate;
-// }
-
-// function calculateTax(totalWithoutTax: number, taxRate: number): number {
-//      const tax = totalWithoutTax * (taxRate / 100);
-//      return parseFloat(tax.toFixed(2));
-// }
-
-// function calculateTotal(totalWithoutTax: number, taxes: number): number {
-//      return totalWithoutTax + taxes;
-// }
-
 const schema = zod
      .object({
           numero: zod.string().max(255),
@@ -68,20 +41,9 @@ const schema = zod
           fecha_tr: zod.date(),
           comentario: zod.string().max(1500),
           secuencial: zod.string().max(255),
-          nro_reposicion: zod.string().max(255),
           nro_ref: zod.string().max(255),
           centro: zod.string().max(255),
-          pago: zod.string().max(255),
           estado: zod.string().max(255),
-          discount: zod
-               .number()
-               .min(0, 'Discount must be greater than or equal to 0')
-               .max(100, 'Discount must be less than or equal to 100'),
-          shippingRate: zod.number().min(0, 'Shipping rate must be greater than or equal to 0'),
-          taxRate: zod
-               .number()
-               .min(0, 'Tax rate must be greater than or equal to 0')
-               .max(100, 'Tax rate must be less than or equal to 100'),
           lineItems: zod.array(
                zod.object({
                     id: zod.string(),
@@ -93,34 +55,33 @@ const schema = zod
                     nota: zod.string(),
                })
           ),
-          total1: zod.number(),
-          total2: zod.number(),
+          total1: zod
+               .number()
+               .min(0, 'El total de debe tiene que ser mayor o igual que 0')
+               .max(1000, 'El total de debe tiene que ser menor o igual 1000'),
+          total2: zod
+               .number()
+               .min(0, 'El total de haber tiene que ser mayor o igual que 0')
+               .max(1000, 'El total de haber tiene que ser menor o igual que 1000'),
           total3: zod.number(),
      })
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = {
-     numero: 'INV-001',
-     transaccion: 'Asiento Diario',
+const defaultValues: Values = {
+     numero: '',
+     transaccion: '',
      fecha_tr: new Date(),
-     comentario: 'Esta es una prueba',
-     secuencial: '000001',
-     nro_reposicion: '0',
-     nro_ref: '0',
+     comentario: '',
+     secuencial: '',
+     nro_ref: '',
      centro: '',
-     pago: 'No Aplica',
-     estado: 'Activado',
-     discount: 0,
-     shippingRate: 0,
-     taxRate: 0,
-     lineItems: [
-          { id: '1', centro: '', cta: '', ctaNombre: '', debe: 100, haber: 100, nota: '' },
-     ],
+     estado: '',
+     lineItems: [],
      total1: 0,
      total2: 0,
      total3: 0,
-} satisfies Values;
+};
 
 export function AsientosForm(): React.JSX.Element {
      const navigate = useNavigate();
@@ -133,9 +94,7 @@ export function AsientosForm(): React.JSX.Element {
           watch,
      } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
-
      const { data: centros = [], isLoading, isError } = useAccounts();
-
 
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
@@ -154,30 +113,37 @@ export function AsientosForm(): React.JSX.Element {
 
      const handleCentroChange = React.useCallback(
           (selectedCentro: string) => {
-               const lineItems = getValues('lineItems');
+               const lineItems = getValues('lineItems') || [];
                if (lineItems.length > 0) {
-                    setValue(`lineItems.0.centro`, selectedCentro);
+                    setValue(`lineItems.0.centro`, selectedCentro || '');
                } else {
 
                     handleAddLineItem();
-                    setValue(`lineItems.0.centro`, selectedCentro);
+                    setValue(`lineItems.0.centro`, selectedCentro || '');
                }
           }, [getValues, setValue]
      )
 
      const handleAddLineItem = React.useCallback(() => {
-          const lineItems = getValues('lineItems');
-          const currentCentro = getValues('centro');
+          const lineItems = getValues('lineItems') || [];
+          const currentCentro = getValues('centro') || '';
 
           setValue('lineItems', [
                ...lineItems,
-               { id: `LI-${lineItems.length + 1}`, centro: currentCentro, cta: '', ctaNombre: '', debe: 0, haber: 0, nota: '' },
+               { 
+                    id: `LI-${lineItems.length + 1}`, 
+                    centro: currentCentro, cta: '', 
+                    ctaNombre: '', 
+                    debe: 0, 
+                    haber: 0, 
+                    nota: '' 
+               },
           ]);
      }, [getValues, setValue]);
 
      const handleRemoveLineItem = React.useCallback(
           (lineItemId: string) => {
-               const lineItems = getValues('lineItems');
+               const lineItems = getValues('lineItems') || [];
 
                setValue(
                     'lineItems',
@@ -187,11 +153,13 @@ export function AsientosForm(): React.JSX.Element {
           [getValues, setValue]
      );
 
-     const lineItems = watch('lineItems');
-     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`));
-     const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`));
+     const lineItems = watch('lineItems') || '';
+     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [] ;
+     const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`)) || [];
 
      React.useEffect(() => {
+          if (!lineItems) return;
+
           const totalDebe = lineItems.reduce((acc, item) => acc + (Number(item.debe) || 0), 0);
           const totalHaber = lineItems.reduce((acc, item) => acc + (Number(item.haber) || 0), 0);
           const totalCombined = totalDebe + totalHaber;
