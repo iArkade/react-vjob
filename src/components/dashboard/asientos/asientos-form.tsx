@@ -30,57 +30,62 @@ import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { useAccounts } from '@/api/asientos/asientos-request';
+import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 
 
 const schema = zod
      .object({
-          numero: zod.string().max(255),
-          transaccion: zod.string().max(255),
-          fecha_tr: zod.date(),
+          nro_asiento: zod.string().max(255),
+          tipo_transaccion: zod.string().max(255),
+          fecha_emision: zod.date(),
           comentario: zod.string().max(1500),
           secuencial: zod.string().max(255),
-          nro_ref: zod.string().max(255),
-          centro: zod.string().max(255),
+          nro_referencia: zod.string().max(255),
+          codigo_centro: zod.string().max(255),
           estado: zod.string().max(255),
           lineItems: zod.array(
                zod.object({
                     id: zod.string(),
-                    centro: zod.string(),
+                    codigo_centro: zod.string(),
                     cta: zod.string(),
-                    ctaNombre: zod.string(),
-                    debe: zod.number().min(1),
-                    haber: zod.number().min(0),
+                    cta_nombre: zod.string(),
+                    debe: zod.string().transform(val => Number(val) || 0),  // Transforma string a number
+                    haber: zod.string().transform(val => Number(val) || 0),
                     nota: zod.string(),
                })
           ),
-          total1: zod
+          total_debe: zod
                .number()
-               .min(0, 'El total de debe tiene que ser mayor o igual que 0')
-               .max(1000, 'El total de debe tiene que ser menor o igual 1000'),
-          total2: zod
+               .min(0, 'El total de debe tiene que ser mayor o igual que 0'),
+          total_haber: zod
                .number()
-               .min(0, 'El total de haber tiene que ser mayor o igual que 0')
-               .max(1000, 'El total de haber tiene que ser menor o igual que 1000'),
-          total3: zod.number(),
+               .min(0, 'El total de haber tiene que ser mayor o igual que 0'),
+          total: zod.number(),
      })
 
 type Values = zod.infer<typeof schema>;
 
 const defaultValues: Values = {
-     numero: '',
-     transaccion: '',
-     fecha_tr: new Date(),
+     nro_asiento: '',
+     tipo_transaccion: '',
+     fecha_emision: new Date(),
      comentario: '',
      secuencial: '',
-     nro_ref: '',
-     centro: '',
+     nro_referencia: '',
+     codigo_centro: '',
      estado: '',
-     lineItems: [],
-     total1: 0,
-     total2: 0,
-     total3: 0,
+     lineItems: [{
+          id: 'LI-1', 
+          codigo_centro: '', 
+          cta: '', 
+          cta_nombre: '', 
+          debe: 0, 
+          haber: 0, 
+          nota: ''}],
+     total_debe: 0,
+     total_haber: 0,
+     total: 0,
 };
 
 export function AsientosForm(): React.JSX.Element {
@@ -95,12 +100,16 @@ export function AsientosForm(): React.JSX.Element {
      } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
      const { data: centros = [], isLoading, isError } = useAccounts();
+     const { mutate: createAsiento } = useCreateAsiento();
 
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
                try {
-                    console.log(data)
-                    // Make API request
+                     // Make API request
+                    console.log('Datos enviados:', data); // Verificar la estructura
+                    // const { lineItems, ...asientoData } = data;
+                    // createAsiento({ ...asientoData, lineItems });
+                    createAsiento(data);
                     toast.success('Invoice created');
                     navigate(paths.dashboard.invoices.list);
                } catch (err) {
@@ -115,25 +124,25 @@ export function AsientosForm(): React.JSX.Element {
           (selectedCentro: string) => {
                const lineItems = getValues('lineItems') || [];
                if (lineItems.length > 0) {
-                    setValue(`lineItems.0.centro`, selectedCentro || '');
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
                } else {
 
                     handleAddLineItem();
-                    setValue(`lineItems.0.centro`, selectedCentro || '');
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
                }
           }, [getValues, setValue]
      )
 
      const handleAddLineItem = React.useCallback(() => {
           const lineItems = getValues('lineItems') || [];
-          const currentCentro = getValues('centro') || '';
+          const currentCentro = getValues('codigo_centro') || '';
 
           setValue('lineItems', [
                ...lineItems,
                { 
                     id: `LI-${lineItems.length + 1}`, 
-                    centro: currentCentro, cta: '', 
-                    ctaNombre: '', 
+                    codigo_centro: currentCentro, cta: '', 
+                    cta_nombre: '', 
                     debe: 0, 
                     haber: 0, 
                     nota: '' 
@@ -164,9 +173,9 @@ export function AsientosForm(): React.JSX.Element {
           const totalHaber = lineItems.reduce((acc, item) => acc + (Number(item.haber) || 0), 0);
           const totalCombined = totalDebe + totalHaber;
 
-          setValue('total1', totalDebe);
-          setValue('total2', totalHaber);
-          setValue('total3', totalCombined);
+          setValue('total_debe', totalDebe);
+          setValue('total_haber', totalHaber);
+          setValue('total', totalCombined);
      }, [lineItems, watchDebe, watchHaber, setValue]);
 
 
@@ -180,7 +189,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="numero"
+                                                  name="nro_asiento"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Numero:</InputLabel>
@@ -206,7 +215,7 @@ export function AsientosForm(): React.JSX.Element {
                                         {/* <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="transaccion"
+                                                  name="tipo_transaccion"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Transacción</InputLabel>
@@ -222,7 +231,7 @@ export function AsientosForm(): React.JSX.Element {
                                              <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                   <Controller
                                                        control={control}
-                                                       name="fecha_tr"
+                                                       name="fecha_emision"
                                                        render={({ field }) => (
                                                             <DatePicker
                                                                  {...field}
@@ -231,9 +240,9 @@ export function AsientosForm(): React.JSX.Element {
                                                                  onChange={(date) => field.onChange(date?.toDate())}
                                                                  slotProps={{
                                                                       textField: {
-                                                                           error: Boolean(errors.fecha_tr),
+                                                                           error: Boolean(errors.fecha_emision),
                                                                            fullWidth: true,
-                                                                           helperText: errors.fecha_tr?.message,
+                                                                           helperText: errors.fecha_emision?.message,
                                                                       },
                                                                  }}
                                                                  value={dayjs(field.value)}
@@ -260,7 +269,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="nro_ref"
+                                                  name="nro_referencia"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Nro. Ref</InputLabel>
@@ -273,7 +282,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 10, md: 6 }}>
                                              <Controller
                                                   control={control}
-                                                  name="centro"
+                                                  name="codigo_centro"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Centro</InputLabel>
@@ -307,7 +316,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                       ))
                                                                  )}
                                                             </Select>
-                                                            {errors.centro && <FormHelperText error>{errors.centro.message}</FormHelperText>}
+                                                            {errors.codigo_centro && <FormHelperText error>{errors.codigo_centro.message}</FormHelperText>}
                                                        </FormControl>
                                                   )}
                                              />
@@ -351,7 +360,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.centro`}
+                                                                           name={`lineItems.${index}.codigo_centro`}
                                                                            render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
@@ -365,7 +374,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.ctaNombre`}
+                                                                           name={`lineItems.${index}.cta_nombre`}
                                                                            render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
@@ -378,6 +387,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      {...field}
                                                                                      type="number"
                                                                                      inputProps={{ min: 0 }}
+                                                                                     // onChange={(e) => field.onChange(Number(e.target.value))}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -392,6 +402,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      {...field}
                                                                                      type="number"
                                                                                      inputProps={{ min: 0 }}
+                                                                                     // onChange={(e) => field.onChange(Number(e.target.value))}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -431,7 +442,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total1"
+                                                  name="total_debe"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput
@@ -452,7 +463,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total2"
+                                                  name="total_haber"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput
@@ -473,7 +484,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total3"
+                                                  name="total"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput

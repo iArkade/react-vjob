@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 import http from "../http"
 import { DatCentro } from "./asientos-types";
-import { toast } from "sonner";
 
 
 const getDatCentro = async () => {
@@ -9,22 +8,12 @@ const getDatCentro = async () => {
      return response.data;
 }
 
-const postAsiento = async (data: Values) => {
-     const { lineItems, ...asientoData } = data;
-
-     // Enviar datos a la tabla `asiento`
-     const asientoResponse = await http.post('/asiento', asientoData);
-     const asientoId = asientoResponse.data.id;
-
-     // Enviar cada `lineItem` con la relación al ID de `asiento`
-     const asientoItemsRequests = lineItems.map((item) => ({
-          ...item,
-          asientoId,
-     }));
-     await http.post('/asiento-items', asientoItemsRequests);
-
-     return asientoResponse.data;
+const createAsiento = async (data: any) => {
+     console.log(data)
+     const response = await http.post('/asientos', data);
+     return response.data;
 };
+
 
 export const useAccounts = () => {
      return useQuery<DatCentro[]>({
@@ -37,16 +26,12 @@ export const useAccounts = () => {
 };
 
 export const useCreateAsiento = () => {
-     return useMutation({
-          mutationKey: ['create-asiento'],
-          mutationFn: postAsiento,
-          onSuccess: (data) => {
-               toast.success('Asiento creado con éxito');
-               console.log('Respuesta de la API:', data);
+     return useMutation(createAsiento, {
+          onSuccess: () => {
+               console.log('Asiento creado exitosamente');
           },
           onError: (error) => {
-               toast.error('Error al crear el asiento');
-               console.error('Error:', error);
+               console.error('Error al crear el asiento:', error);
           },
      });
 };
