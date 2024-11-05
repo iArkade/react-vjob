@@ -29,7 +29,7 @@ import { Option } from '@/components/core/option';
 import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper } from '@mui/material';
 import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 
@@ -46,21 +46,23 @@ const schema = zod
           estado: zod.string().max(255),
           lineItems: zod.array(
                zod.object({
-                    id: zod.string(),
+                    id_asiento_item: zod.string(),
                     codigo_centro: zod.string(),
                     cta: zod.string(),
                     cta_nombre: zod.string(),
-                    debe: zod.string().transform(val => Number(val) || 0),  // Transforma string a number
-                    haber: zod.string().transform(val => Number(val) || 0),
+                    debe: zod.number().default(0),
+                    haber: zod.number().default(0),
                     nota: zod.string(),
                })
           ),
           total_debe: zod
                .number()
-               .min(0, 'El total de debe tiene que ser mayor o igual que 0'),
+               .min(0, 'El total de debe tiene que ser mayor o igual que 0')
+               .transform((val) => parseFloat(val.toFixed(2))),
           total_haber: zod
                .number()
-               .min(0, 'El total de haber tiene que ser mayor o igual que 0'),
+               .min(0, 'El total de haber tiene que ser mayor o igual que 0')
+               .transform((val) => parseFloat(val.toFixed(2))),
           total: zod.number(),
      })
 
@@ -76,13 +78,14 @@ const defaultValues: Values = {
      codigo_centro: '',
      estado: '',
      lineItems: [{
-          id: 'LI-1', 
-          codigo_centro: '', 
-          cta: '', 
-          cta_nombre: '', 
-          debe: 0, 
-          haber: 0, 
-          nota: ''}],
+          id_asiento_item: 'LI-1',
+          codigo_centro: '',
+          cta: '',
+          cta_nombre: '',
+          debe: 0,
+          haber: 0,
+          nota: ''
+     }],
      total_debe: 0,
      total_haber: 0,
      total: 0,
@@ -105,19 +108,32 @@ export function AsientosForm(): React.JSX.Element {
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
                try {
-                     // Make API request
-                    console.log('Datos enviados:', data); // Verificar la estructura
-                    // const { lineItems, ...asientoData } = data;
-                    // createAsiento({ ...asientoData, lineItems });
-                    createAsiento(data);
-                    toast.success('Invoice created');
-                    navigate(paths.dashboard.invoices.list);
+                    // Make API request
+                    //const { lineItems, ...asientoData } = data;
+                    //createAsiento({ ...asientoData, lineItems });
+                    const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
+                    const dataToSend = {
+                         ...asientoData,
+                         fecha_emision: data.fecha_emision.toISOString().slice(0, 10),
+                         total_debe: parseFloat(total_debe.toFixed(2)),
+                         total_haber: parseFloat(total_haber.toFixed(2)),
+                         lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
+                              ...rest,
+                              debe: parseFloat(rest.debe.toFixed(2)),
+                              haber: parseFloat(rest.haber.toFixed(2)),
+                         })),
+                    };
+
+                    console.log(dataToSend)
+                    //createAsiento(dataToSend);
+                    //toast.success('Asiento creado exitosamente');
+                    //navigate(paths.dashboard.invoices.list);
                } catch (err) {
                     logger.error(err);
-                    toast.error('Something went wrong!');
+                    toast.error('Algo salió mal!');
                }
           },
-          [navigate]
+          [navigate, createAsiento]
      );
 
      const handleCentroChange = React.useCallback(
@@ -139,13 +155,13 @@ export function AsientosForm(): React.JSX.Element {
 
           setValue('lineItems', [
                ...lineItems,
-               { 
-                    id: `LI-${lineItems.length + 1}`, 
-                    codigo_centro: currentCentro, cta: '', 
-                    cta_nombre: '', 
-                    debe: 0, 
-                    haber: 0, 
-                    nota: '' 
+               {
+                    id_asiento_item: `LI-${lineItems.length + 1}`,
+                    codigo_centro: currentCentro, cta: '',
+                    cta_nombre: '',
+                    debe: 0,
+                    haber: 0,
+                    nota: ''
                },
           ]);
      }, [getValues, setValue]);
@@ -156,22 +172,22 @@ export function AsientosForm(): React.JSX.Element {
 
                setValue(
                     'lineItems',
-                    lineItems.filter((lineItem) => lineItem.id !== lineItemId)
+                    lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId)
                );
           },
           [getValues, setValue]
      );
 
-     const lineItems = watch('lineItems') || '';
-     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [] ;
+     const lineItems = watch('lineItems') || [];
+     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [];
      const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`)) || [];
 
      React.useEffect(() => {
           if (!lineItems) return;
 
-          const totalDebe = lineItems.reduce((acc, item) => acc + (Number(item.debe) || 0), 0);
-          const totalHaber = lineItems.reduce((acc, item) => acc + (Number(item.haber) || 0), 0);
-          const totalCombined = totalDebe + totalHaber;
+          const totalDebe = lineItems.reduce((acc, item) => acc + parseFloat((item.debe || 0).toFixed(2)), 0);
+          const totalHaber = lineItems.reduce((acc, item) => acc + parseFloat((item.haber || 0).toFixed(2)), 0);
+          const totalCombined = parseFloat((totalDebe + totalHaber).toFixed(2));
 
           setValue('total_debe', totalDebe);
           setValue('total_haber', totalHaber);
@@ -330,7 +346,7 @@ export function AsientosForm(): React.JSX.Element {
                               <Stack spacing={3}>
                                    <Typography variant="h6">Line items</Typography>
                                    <Stack divider={<Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray' }} />} spacing={2}>
-                                        <Grid size={{ xs: 12 }}>
+                                        <TableContainer component={Paper}>
                                              <Table>
                                                   <TableHead>
                                                        <TableRow>
@@ -345,11 +361,11 @@ export function AsientosForm(): React.JSX.Element {
                                                   </TableHead>
                                                   <TableBody>
                                                        {lineItems.map((item, index) => (
-                                                            <TableRow key={item.id}>
+                                                            <TableRow key={item.id_asiento_item}>
                                                                  <TableCell>
                                                                       <IconButton
                                                                            onClick={() => {
-                                                                                handleRemoveLineItem(item.id);
+                                                                                handleRemoveLineItem(item.id_asiento_item);
                                                                            }}
                                                                            sx={{ alignSelf: 'flex-end' }}
                                                                       >
@@ -387,7 +403,10 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      {...field}
                                                                                      type="number"
                                                                                      inputProps={{ min: 0 }}
-                                                                                     // onChange={(e) => field.onChange(Number(e.target.value))}
+                                                                                     onChange={(e) => {
+                                                                                          const value = parseFloat(e.target.value) || 0;
+                                                                                          field.onChange(value);
+                                                                                     }}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -402,7 +421,10 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      {...field}
                                                                                      type="number"
                                                                                      inputProps={{ min: 0 }}
-                                                                                     // onChange={(e) => field.onChange(Number(e.target.value))}
+                                                                                     onChange={(e) => {
+                                                                                          const value = parseFloat(e.target.value) || 0;
+                                                                                          field.onChange(value);
+                                                                                     }}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -419,17 +441,17 @@ export function AsientosForm(): React.JSX.Element {
                                                        ))}
                                                   </TableBody>
                                              </Table>
-                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
-                                                  <Button
-                                                       color="secondary"
-                                                       onClick={handleAddLineItem}
-                                                       startIcon={<PlusCircleIcon />}
-                                                       variant="outlined"
-                                                  >
-                                                       Add item
-                                                  </Button>
-                                             </div>
-                                        </Grid>
+                                        </TableContainer>
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
+                                             <Button
+                                                  color="secondary"
+                                                  onClick={handleAddLineItem}
+                                                  startIcon={<PlusCircleIcon />}
+                                                  variant="outlined"
+                                             >
+                                                  Add item
+                                             </Button>
+                                        </div>
                                    </Stack>
                               </Stack>
 

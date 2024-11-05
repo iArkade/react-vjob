@@ -9,7 +9,7 @@ const getDatCentro = async () => {
 }
 
 const createAsiento = async (data: any) => {
-     console.log(data)
+     //console.log(data)
      const response = await http.post('/asientos', data);
      return response.data;
 };
