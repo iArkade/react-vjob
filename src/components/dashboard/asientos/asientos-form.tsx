@@ -109,24 +109,21 @@ export function AsientosForm(): React.JSX.Element {
           async (data: Values): Promise<void> => {
                try {
                     // Make API request
-                    //const { lineItems, ...asientoData } = data;
-                    //createAsiento({ ...asientoData, lineItems });
                     const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
                     const dataToSend = {
                          ...asientoData,
-                         fecha_emision: data.fecha_emision.toISOString().slice(0, 10),
+                         fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
                          total_debe: parseFloat(total_debe.toFixed(2)),
                          total_haber: parseFloat(total_haber.toFixed(2)),
-                         lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
+                         lineItems: lineItems.map(({id_asiento_item, ...rest }) => ({
                               ...rest,
                               debe: parseFloat(rest.debe.toFixed(2)),
                               haber: parseFloat(rest.haber.toFixed(2)),
                          })),
                     };
 
-                    console.log(dataToSend)
-                    //createAsiento(dataToSend);
-                    //toast.success('Asiento creado exitosamente');
+                    createAsiento(dataToSend);
+                    toast.success('Asiento creado exitosamente');
                     //navigate(paths.dashboard.invoices.list);
                } catch (err) {
                     logger.error(err);
@@ -179,8 +176,6 @@ export function AsientosForm(): React.JSX.Element {
      );
 
      const lineItems = watch('lineItems') || [];
-     const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [];
-     const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`)) || [];
 
      React.useEffect(() => {
           if (!lineItems) return;
@@ -192,7 +187,7 @@ export function AsientosForm(): React.JSX.Element {
           setValue('total_debe', totalDebe);
           setValue('total_haber', totalHaber);
           setValue('total', totalCombined);
-     }, [lineItems, watchDebe, watchHaber, setValue]);
+     }, [lineItems, setValue]);
 
 
      return (
@@ -251,7 +246,7 @@ export function AsientosForm(): React.JSX.Element {
                                                        render={({ field }) => (
                                                             <DatePicker
                                                                  {...field}
-                                                                 format="MMM D, YYYY"
+                                                                 format="D MMM YYYY"
                                                                  label="Fecha Tr"
                                                                  onChange={(date) => field.onChange(date?.toDate())}
                                                                  slotProps={{
@@ -308,16 +303,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                  disabled={isLoading || isError}
                                                                  value={field.value || ''}
                                                                  onChange={(e) => {
-                                                                      //console.log(e.target.value)
                                                                       field.onChange(e);
                                                                       handleCentroChange(e.target.value);
-                                                                      // const selectedCentro = centros.find(centro => centro.codigo === e.target.value);
-                                                                      // if (selectedCentro) {
-                                                                      //      console.log(selectedCentro.nombre); // Aquí tienes el valor de centro.nombre
-                                                                      //      field.onChange(selectedCentro.codigo); // Asegúrate de que `codigo` se actualiza en el form
-                                                                      //      handleCentroChange(selectedCentro.nombre); // Llama a la función con el nombre
-                                                                      // }
-
                                                                  }}
                                                             >
                                                                  {isError && <Option value=""><em>Error cargando centros</em></Option>}
@@ -402,7 +389,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                                 <OutlinedInput
                                                                                      {...field}
                                                                                      type="number"
-                                                                                     inputProps={{ min: 0 }}
+                                                                                     //inputProps={{ min: 0 }}
+                                                                                     inputProps={{pattern: "[0-9]*[.,]?[0-9]*" }}
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
@@ -420,7 +408,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                                 <OutlinedInput
                                                                                      {...field}
                                                                                      type="number"
-                                                                                     inputProps={{ min: 0 }}
+                                                                                     //inputProps={{ min: 0 }}
+                                                                                     inputProps={{pattern: "[0-9]*[.,]?[0-9]*" }}
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);

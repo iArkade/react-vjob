@@ -5,7 +5,8 @@ import { Page as OverviewPage } from '@/pages/dashboard/overview'
 import {Page as Analytics} from '@/pages/dashboard/analytics'
 import {Page as Blank} from '@/pages/dashboard/blank'
 import {Page as Transaction} from '@/pages/dashboard/transaction'
-import {Page as Asientos} from '@/pages/dashboard/asientos'
+import {Page as Asientos} from '@/pages/dashboard/asientos/index'
+import {Page as AsientosCreate} from '@/pages/dashboard/asientos/create'
 
 export const PrivateRoutes = () => {
      
@@ -17,6 +18,7 @@ export const PrivateRoutes = () => {
                     <Route path='transaction' element={ <Transaction /> }/>
                     <Route path='blank' element={ <Blank /> }/>
                     <Route path='asientos' element={ <Asientos /> }/>
+                    <Route path='asientos/create' element={ <AsientosCreate /> }/>
                </Route>
           </Routes>
      )

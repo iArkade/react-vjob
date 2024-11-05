@@ -22,7 +22,7 @@ export const layoutConfig = {
                     { key: 'transaction', title: 'Transaction', href: paths.dashboard.transaction, icon: 'cube' },
                     { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },
                     { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto, icon: 'currency-eth' },
-                    { key: 'asiento', title: 'Asiento Diario', href: paths.dashboard.asientos, icon: 'cube' },
+                    { key: 'asiento', title: 'Asientos', href: paths.dashboard.asientos.index, icon: 'cube' },
                ],
           },
           {
