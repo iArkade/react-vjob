@@ -100,7 +100,7 @@ const TransactionTable: React.FC = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TransactionForm onSubmit={addTransaction} />
+                        <TransactionForm onSubmit={addTransaction} existingTransactions={transactions}/>
                         {filteredTransactions.map((transaction) => (
                             <TransactionRow
                                 key={transaction.id}

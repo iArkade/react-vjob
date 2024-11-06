@@ -5,32 +5,88 @@ import { TransaccionContableRequestType } from '@/api/transaccion_contable/trans
 
 interface TransactionFormProps {
     onSubmit: (transaction: TransaccionContableRequestType) => void;
+    existingTransactions?: TransaccionContableRequestType[]; // Añadimos esta prop para validar códigos duplicados
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit }) => {
-    const [newTransaction, setNewTransaction] = useState<TransaccionContableRequestType>({ codigo_transaccion: '', nombre: '', secuencial: 0, lectura: 0, activo: false });
-    const [error, setError] = useState({ codigo_transaccion: false, nombre: false, secuencial: false, lectura: false, activo: false });
+const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existingTransactions = [] }) => {
+    const [newTransaction, setNewTransaction] = useState<TransaccionContableRequestType>({
+        codigo_transaccion: '',
+        nombre: '',
+        secuencial: 0,
+        lectura: 0,
+        activo: false
+    });
 
-    const handleInputChange = useCallback((field: 'codigo_transaccion' | 'nombre' | 'secuencial' | 'lectura' | 'activo') => (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewTransaction(prev => ({ ...prev, [field]: e.target.value }));
-        setError(prev => ({ ...prev, [field]: false }));
-    }, []);
+    const [errors, setErrors] = useState({
+        codigo_transaccion: '',
+        nombre: '',
+        secuencial: '',
+        lectura: '',
+    });
+
+    const validateField = useCallback((field: keyof typeof newTransaction, value: any) => {
+        switch (field) {
+            case 'codigo_transaccion':
+                if (!value.trim()) {
+                    return 'El código es obligatorio';
+                }
+                if (existingTransactions.some(t => t.codigo_transaccion === value)) {
+                    return 'El código ya existe';
+                }
+                return '';
+            case 'nombre':
+                return !value.trim() ? 'El nombre es obligatorio' : '';
+            case 'secuencial':
+                return value <= 0 ? 'El secuencial debe ser mayor a 0' : '';
+            case 'lectura':
+                return (value !== 0 && value !== 1) ? 'La lectura debe ser 0 o 1' : '';
+            default:
+                return '';
+        }
+    }, [existingTransactions]);
+
+    const handleInputChange = useCallback((field: keyof typeof newTransaction) => (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const value = field === 'secuencial' || field === 'lectura' 
+            ? Number(e.target.value)
+            : e.target.value;
+
+        setNewTransaction(prev => ({ ...prev, [field]: value }));
+        
+        const error = validateField(field, value);
+        setErrors(prev => ({ ...prev, [field]: error }));
+    }, [validateField]);
 
     const handleSubmit = useCallback(() => {
-        if (newTransaction.codigo_transaccion.trim() === '' || newTransaction.nombre.trim() === '' || newTransaction.secuencial < 0  ) {
-            setError({
-                codigo_transaccion: newTransaction.codigo_transaccion.trim() === '',
-                nombre: newTransaction.nombre.trim() === '',
-                secuencial: newTransaction.secuencial === 0,
-                lectura: newTransaction.lectura === 0,
-                activo: newTransaction.activo === false,
+        // Validar todos los campos
+        const newErrors = {
+            codigo_transaccion: validateField('codigo_transaccion', newTransaction.codigo_transaccion),
+            nombre: validateField('nombre', newTransaction.nombre),
+            secuencial: validateField('secuencial', newTransaction.secuencial),
+            lectura: validateField('lectura', newTransaction.lectura),
+        };
+
+        setErrors(newErrors);
+
+        // Si hay errores, solo limpiar los campos con error
+        if (Object.values(newErrors).some(error => error !== '')) {
+            setNewTransaction(prev => {
+                const updated = { ...prev };
+                if (newErrors.codigo_transaccion) updated.codigo_transaccion = '';
+                if (newErrors.nombre) updated.nombre = '';
+                if (newErrors.secuencial) updated.secuencial = 0;
+                if (newErrors.lectura) updated.lectura = 0;
+                return updated;
             });
             return;
         }
 
+        // Si no hay errores, enviar y limpiar todo
         onSubmit(newTransaction);
         setNewTransaction({ codigo_transaccion: '', nombre: '', secuencial: 0, lectura: 0, activo: false });
-    }, [newTransaction, onSubmit]);
+        setErrors({ codigo_transaccion: '', nombre: '', secuencial: '', lectura: '' });
+    }, [newTransaction, onSubmit, validateField]);
 
     const handleKeyPress = useCallback(
         (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -51,8 +107,8 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit }) => {
                     variant="standard"
                     fullWidth
                     size="small"
-                    error={error.codigo_transaccion}
-                    helperText={error.codigo_transaccion ? "El código es obligatorio" : ""}
+                    error={!!errors.codigo_transaccion}
+                    helperText={errors.codigo_transaccion}
                     onKeyUp={handleKeyPress}
                 />
             </TableCell>
@@ -64,10 +120,9 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit }) => {
                     variant="standard"
                     fullWidth
                     size="small"
-                    error={error.nombre}
-                    helperText={error.nombre ? "El nombre es obligatorio" : ""}
+                    error={!!errors.nombre}
+                    helperText={errors.nombre}
                     onKeyUp={handleKeyPress}
-                    
                 />
             </TableCell>
             <TableCell>
@@ -79,8 +134,8 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit }) => {
                     variant="standard"
                     fullWidth
                     size="small"
-                    error={error.secuencial}
-                    helperText={error.secuencial ? "El secuencial es obligatorio" : ""}
+                    error={!!errors.secuencial}
+                    helperText={errors.secuencial}
                     onKeyUp={handleKeyPress}
                 />
             </TableCell>
@@ -89,15 +144,22 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit }) => {
                     type="number"
                     placeholder="Lectura"
                     value={newTransaction.lectura}
-                    onChange={handleInputChange('lectura')}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const value = e.target.value;
+                        if (value === '' || value === '0' || value === '1') {
+                            handleInputChange('lectura')(e);
+                        }
+                    }}
                     variant="standard"
-                    inputProps={{ min: 0, max: 1 }}
+                    inputProps={{ min: 0, max: 1, maxLength: 1 }}
                     fullWidth
                     size="small"
+                    error={!!errors.lectura}
+                    helperText={errors.lectura}
                 />
             </TableCell>
             <TableCell align="center">
-                <Checkbox 
+                <Checkbox
                     checked={newTransaction.activo}
                     onChange={(e, checked) => {
                         setNewTransaction(prev => ({
