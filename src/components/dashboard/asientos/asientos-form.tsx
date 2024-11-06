@@ -124,7 +124,7 @@ export function AsientosForm(): React.JSX.Element {
 
                     createAsiento(dataToSend);
                     toast.success('Asiento creado exitosamente');
-                    //navigate(paths.dashboard.invoices.list);
+                    navigate(paths.dashboard.asientos.index);
                } catch (err) {
                     logger.error(err);
                     toast.error('Algo salió mal!');
@@ -176,6 +176,8 @@ export function AsientosForm(): React.JSX.Element {
      );
 
      const lineItems = watch('lineItems') || [];
+     // const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [];
+     // const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`)) || [];
 
      React.useEffect(() => {
           if (!lineItems) return;
@@ -359,7 +361,6 @@ export function AsientosForm(): React.JSX.Element {
                                                                            <TrashIcon />
                                                                       </IconButton>
                                                                  </TableCell>
-
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
@@ -388,12 +389,13 @@ export function AsientosForm(): React.JSX.Element {
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
-                                                                                     type="number"
-                                                                                     //inputProps={{ min: 0 }}
-                                                                                     inputProps={{pattern: "[0-9]*[.,]?[0-9]*" }}
+                                                                                     type="number"                                                                                     inputProps={{min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
+                                                                                          const updatedItems = [...getValues('lineItems')];
+                                                                                          updatedItems[index].debe = value;
+                                                                                          setValue('lineItems', updatedItems);
                                                                                      }}
                                                                                      fullWidth
                                                                                 />
@@ -408,11 +410,13 @@ export function AsientosForm(): React.JSX.Element {
                                                                                 <OutlinedInput
                                                                                      {...field}
                                                                                      type="number"
-                                                                                     //inputProps={{ min: 0 }}
-                                                                                     inputProps={{pattern: "[0-9]*[.,]?[0-9]*" }}
+                                                                                     inputProps={{ min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
+                                                                                          const updatedItems = [...getValues('lineItems')];
+                                                                                          updatedItems[index].haber = value;
+                                                                                          setValue('lineItems', updatedItems);
                                                                                      }}
                                                                                      fullWidth
                                                                                 />
