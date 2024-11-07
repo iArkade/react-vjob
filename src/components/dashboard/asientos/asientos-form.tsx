@@ -29,99 +29,68 @@ import { Option } from '@/components/core/option';
 import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CardActions, IconButton, MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { useAccounts } from '@/api/asientos/asientos-request';
+import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper } from '@mui/material';
+import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
+import { AccountSelectionModal } from './account-selection';
 
-
-
-// interface LineItem {
-//      id: string;
-//      description: string;
-//      service: string;
-//      quantity: number;
-//      unitPrice: number;
-// }
-
-// function calculateSubtotal(lineItems: LineItem[]): number {
-//      const subtotal = lineItems.reduce((acc, lineItem) => acc + lineItem.quantity * lineItem.unitPrice, 0);
-//      return parseFloat(subtotal.toFixed(2));
-// }
-
-// function calculateTotalWithoutTaxes(subtotal: number, discount: number, shippingRate: number): number {
-//      return subtotal - discount + shippingRate;
-// }
-
-// function calculateTax(totalWithoutTax: number, taxRate: number): number {
-//      const tax = totalWithoutTax * (taxRate / 100);
-//      return parseFloat(tax.toFixed(2));
-// }
-
-// function calculateTotal(totalWithoutTax: number, taxes: number): number {
-//      return totalWithoutTax + taxes;
-// }
 
 const schema = zod
      .object({
-          numero: zod.string().max(255),
-          transaccion: zod.string().max(255),
-          fecha_tr: zod.date(),
+          nro_asiento: zod.string().max(255),
+          tipo_transaccion: zod.string().max(255),
+          fecha_emision: zod.date(),
           comentario: zod.string().max(1500),
           secuencial: zod.string().max(255),
-          nro_reposicion: zod.string().max(255),
-          nro_ref: zod.string().max(255),
-          centro: zod.string().max(255),
-          pago: zod.string().max(255),
+          nro_referencia: zod.string().max(255),
+          codigo_centro: zod.string().max(255),
           estado: zod.string().max(255),
-          discount: zod
-               .number()
-               .min(0, 'Discount must be greater than or equal to 0')
-               .max(100, 'Discount must be less than or equal to 100'),
-          shippingRate: zod.number().min(0, 'Shipping rate must be greater than or equal to 0'),
-          taxRate: zod
-               .number()
-               .min(0, 'Tax rate must be greater than or equal to 0')
-               .max(100, 'Tax rate must be less than or equal to 100'),
           lineItems: zod.array(
                zod.object({
-                    id: zod.string(),
-                    centro: zod.string(),
+                    id_asiento_item: zod.string(),
+                    codigo_centro: zod.string(),
                     cta: zod.string(),
-                    ctaNombre: zod.string(),
-                    debe: zod.number().min(1),
-                    haber: zod.number().min(0),
+                    cta_nombre: zod.string(),
+                    debe: zod.number().default(0),
+                    haber: zod.number().default(0),
                     nota: zod.string(),
                })
           ),
-          total1: zod.number(),
-          total2: zod.number(),
-          total3: zod.number(),
+          total_debe: zod
+               .number()
+               .min(0, 'El total de debe tiene que ser mayor o igual que 0')
+               .transform((val) => parseFloat(val.toFixed(2))),
+          total_haber: zod
+               .number()
+               .min(0, 'El total de haber tiene que ser mayor o igual que 0')
+               .transform((val) => parseFloat(val.toFixed(2))),
+          total: zod.number(),
      })
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = {
-     numero: 'INV-001',
-     transaccion: 'Asiento Diario',
-     fecha_tr: new Date(),
-     comentario: 'Esta es una prueba',
-     secuencial: '000001',
-     nro_reposicion: '0',
-     nro_ref: '0',
-     centro: '',
-     pago: 'No Aplica',
-     estado: 'Activado',
-     discount: 0,
-     shippingRate: 0,
-     taxRate: 0,
-     lineItems: [
-          { id: '1', centro: '', cta: '', ctaNombre: '', debe: 100, haber: 100, nota: '' },
-
-     ],
-     total1: 0,
-     total2: 0,
-     total3: 0,
-} satisfies Values;
+const defaultValues: Values = {
+     nro_asiento: '',
+     tipo_transaccion: '',
+     fecha_emision: new Date(),
+     comentario: '',
+     secuencial: '',
+     nro_referencia: '',
+     codigo_centro: '',
+     estado: '',
+     lineItems: [{
+          id_asiento_item: 'LI-1',
+          codigo_centro: '',
+          cta: '',
+          cta_nombre: '',
+          debe: 0,
+          haber: 0,
+          nota: ''
+     }],
+     total_debe: 0,
+     total_haber: 0,
+     total: 0,
+};
 
 export function AsientosForm(): React.JSX.Element {
      const navigate = useNavigate();
@@ -134,61 +103,113 @@ export function AsientosForm(): React.JSX.Element {
           watch,
      } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
-
      const { data: centros = [], isLoading, isError } = useAccounts();
-
+     const { mutate: createAsiento } = useCreateAsiento();
 
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
                try {
-                    console.log(data)
                     // Make API request
-                    toast.success('Invoice created');
-                    navigate(paths.dashboard.invoices.list);
+                    const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
+                    const dataToSend = {
+                         ...asientoData,
+                         fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
+                         total_debe: parseFloat(total_debe.toFixed(2)),
+                         total_haber: parseFloat(total_haber.toFixed(2)),
+                         lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
+                              ...rest,
+                              debe: parseFloat(rest.debe.toFixed(2)),
+                              haber: parseFloat(rest.haber.toFixed(2)),
+                         })),
+                    };
+
+                    createAsiento(dataToSend);
+                    toast.success('Asiento creado exitosamente');
+                    navigate(paths.dashboard.asientos.index);
                } catch (err) {
                     logger.error(err);
-                    toast.error('Something went wrong!');
+                    toast.error('Algo salió mal!');
                }
           },
-          [navigate]
+          [navigate, createAsiento]
      );
 
      const handleCentroChange = React.useCallback(
           (selectedCentro: string) => {
-               const lineItems = getValues('lineItems');
+               const lineItems = getValues('lineItems') || [];
                if (lineItems.length > 0) {
-                    setValue(`lineItems.0.centro`, selectedCentro);
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
                } else {
 
                     handleAddLineItem();
-                    setValue(`lineItems.0.centro`, selectedCentro);
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
                }
           }, [getValues, setValue]
      )
 
      const handleAddLineItem = React.useCallback(() => {
-          const lineItems = getValues('lineItems');
-          const currentCentro = getValues('centro');
-          
+          const lineItems = getValues('lineItems') || [];
+          const currentCentro = getValues('codigo_centro') || '';
+
           setValue('lineItems', [
                ...lineItems,
-               { id: `LI-${lineItems.length + 1}`, centro: currentCentro, cta: '', ctaNombre: '', debe: 0, haber: 0, nota: '' },
+               {
+                    id_asiento_item: `LI-${lineItems.length + 1}`,
+                    codigo_centro: currentCentro, cta: '',
+                    cta_nombre: '',
+                    debe: 0,
+                    haber: 0,
+                    nota: ''
+               },
           ]);
      }, [getValues, setValue]);
 
      const handleRemoveLineItem = React.useCallback(
           (lineItemId: string) => {
-               const lineItems = getValues('lineItems');
+               const lineItems = getValues('lineItems') || [];
 
                setValue(
                     'lineItems',
-                    lineItems.filter((lineItem) => lineItem.id !== lineItemId)
+                    lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId)
                );
           },
           [getValues, setValue]
      );
 
-     const lineItems = watch('lineItems');
+     const lineItems = watch('lineItems') || [];
+
+     React.useEffect(() => {
+          if (!lineItems) return;
+
+          const totalDebe = lineItems.reduce((acc, item) => acc + parseFloat((item.debe || 0).toFixed(2)), 0);
+          const totalHaber = lineItems.reduce((acc, item) => acc + parseFloat((item.haber || 0).toFixed(2)), 0);
+          const totalCombined = parseFloat((totalDebe + totalHaber).toFixed(2));
+
+          setValue('total_debe', totalDebe);
+          setValue('total_haber', totalHaber);
+          setValue('total', totalCombined);
+     }, [lineItems, setValue]);
+
+     const [openModal, setOpenModal] = React.useState(false);
+     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+
+     const handleOpenModal = (index: number) => {
+          setSelectedIndex(index);
+          setOpenModal(true);
+     };
+
+     const handleCloseModal = () => {
+          setOpenModal(false);
+     };
+
+     const handleSelectAccount = (code: string, name: string) => {
+          if (selectedIndex !== null) {
+               setValue(`lineItems.${selectedIndex}.cta`, code);
+               setValue(`lineItems.${selectedIndex}.cta_nombre`, name);
+          }
+          handleCloseModal();
+     };
+
      return (
           <form onSubmit={handleSubmit(onSubmit)}>
                <Card>
@@ -199,7 +220,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="numero"
+                                                  name="nro_asiento"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Numero:</InputLabel>
@@ -225,7 +246,7 @@ export function AsientosForm(): React.JSX.Element {
                                         {/* <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="transaccion"
+                                                  name="tipo_transaccion"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Transacción</InputLabel>
@@ -237,23 +258,22 @@ export function AsientosForm(): React.JSX.Element {
                                              />
                                         </Grid> */}
 
-
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                   <Controller
                                                        control={control}
-                                                       name="fecha_tr"
+                                                       name="fecha_emision"
                                                        render={({ field }) => (
                                                             <DatePicker
                                                                  {...field}
-                                                                 format="MMM D, YYYY"
+                                                                 format="D MMM YYYY"
                                                                  label="Fecha Tr"
                                                                  onChange={(date) => field.onChange(date?.toDate())}
                                                                  slotProps={{
                                                                       textField: {
-                                                                           error: Boolean(errors.fecha_tr),
+                                                                           error: Boolean(errors.fecha_emision),
                                                                            fullWidth: true,
-                                                                           helperText: errors.fecha_tr?.message,
+                                                                           helperText: errors.fecha_emision?.message,
                                                                       },
                                                                  }}
                                                                  value={dayjs(field.value)}
@@ -262,7 +282,6 @@ export function AsientosForm(): React.JSX.Element {
                                                   />
                                              </LocalizationProvider>
                                         </Grid>
-
 
                                         <Grid size={{ xs: 12 }}>
                                              <Controller
@@ -281,7 +300,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 4 }}>
                                              <Controller
                                                   control={control}
-                                                  name="nro_ref"
+                                                  name="nro_referencia"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Nro. Ref</InputLabel>
@@ -294,7 +313,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 10, md: 6 }}>
                                              <Controller
                                                   control={control}
-                                                  name="centro"
+                                                  name="codigo_centro"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <InputLabel>Centro</InputLabel>
@@ -304,16 +323,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                  disabled={isLoading || isError}
                                                                  value={field.value || ''}
                                                                  onChange={(e) => {
-                                                                      //console.log(e.target.value)
                                                                       field.onChange(e);
                                                                       handleCentroChange(e.target.value);
-                                                                      // const selectedCentro = centros.find(centro => centro.codigo === e.target.value);
-                                                                      // if (selectedCentro) {
-                                                                      //      console.log(selectedCentro.nombre); // Aquí tienes el valor de centro.nombre
-                                                                      //      field.onChange(selectedCentro.codigo); // Asegúrate de que `codigo` se actualiza en el form
-                                                                      //      handleCentroChange(selectedCentro.nombre); // Llama a la función con el nombre
-                                                                      // }
-
                                                                  }}
                                                             >
                                                                  {isError && <Option value=""><em>Error cargando centros</em></Option>}
@@ -328,7 +339,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                       ))
                                                                  )}
                                                             </Select>
-                                                            {errors.centro && <FormHelperText error>{errors.centro.message}</FormHelperText>}
+                                                            {errors.codigo_centro && <FormHelperText error>{errors.codigo_centro.message}</FormHelperText>}
                                                        </FormControl>
                                                   )}
                                              />
@@ -342,7 +353,7 @@ export function AsientosForm(): React.JSX.Element {
                               <Stack spacing={3}>
                                    <Typography variant="h6">Line items</Typography>
                                    <Stack divider={<Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray' }} />} spacing={2}>
-                                        <Grid size={{ xs: 12 }}>
+                                        <TableContainer component={Paper}>
                                              <Table>
                                                   <TableHead>
                                                        <TableRow>
@@ -357,54 +368,59 @@ export function AsientosForm(): React.JSX.Element {
                                                   </TableHead>
                                                   <TableBody>
                                                        {lineItems.map((item, index) => (
-                                                            <TableRow key={item.id}>
+                                                            <TableRow key={item.id_asiento_item}>
                                                                  <TableCell>
                                                                       <IconButton
                                                                            onClick={() => {
-                                                                                handleRemoveLineItem(item.id);
+                                                                                handleRemoveLineItem(item.id_asiento_item);
                                                                            }}
                                                                            sx={{ alignSelf: 'flex-end' }}
                                                                       >
                                                                            <TrashIcon />
                                                                       </IconButton>
                                                                  </TableCell>
-
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.centro`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
+                                                                           name={`lineItems.${index}.codigo_centro`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.cta`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
-                                                                      />
-                                                                 </TableCell>
-                                                                 <TableCell>
-                                                                      <Controller
-                                                                           control={control}
-                                                                           name={`lineItems.${index}.ctaNombre`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
-                                                                      />
-                                                                 </TableCell>
-                                                                 <TableCell>
-                                                                      <Controller
-                                                                           control={control}
-                                                                           name={`lineItems.${index}.debe`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.cta`}
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
-                                                                                     type="number"
-                                                                                     inputProps={{ min: 1 }}
+                                                                                     fullWidth
+                                                                                     onClick={() => handleOpenModal(index)}
+                                                                                />
+                                                                           )}
+                                                                      />
+                                                                 </TableCell>
+                                                                 <TableCell>
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.cta_nombre`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
+                                                                      />
+                                                                 </TableCell>
+                                                                 <TableCell>
+                                                                      <Controller
+                                                                           control={control}
+                                                                           name={`lineItems.${index}.debe`}
+                                                                           render={({ field }) => (
+                                                                                <OutlinedInput
+                                                                                     {...field}
+                                                                                     type="number" inputProps={{ min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
+                                                                                     onChange={(e) => {
+                                                                                          const value = parseFloat(e.target.value) || 0;
+                                                                                          field.onChange(value);
+                                                                                          const updatedItems = [...getValues('lineItems')];
+                                                                                          updatedItems[index].debe = value;
+                                                                                          setValue('lineItems', updatedItems);
+                                                                                     }}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -413,12 +429,19 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.haber`} // Nombre dinámico
+                                                                           name={`lineItems.${index}.haber`}
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
                                                                                      type="number"
-                                                                                     inputProps={{ min: 0 }}
+                                                                                     inputProps={{ min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
+                                                                                     onChange={(e) => {
+                                                                                          const value = parseFloat(e.target.value) || 0;
+                                                                                          field.onChange(value);
+                                                                                          const updatedItems = [...getValues('lineItems')];
+                                                                                          updatedItems[index].haber = value;
+                                                                                          setValue('lineItems', updatedItems);
+                                                                                     }}
                                                                                      fullWidth
                                                                                 />
                                                                            )}
@@ -427,30 +450,30 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <TableCell>
                                                                       <Controller
                                                                            control={control}
-                                                                           name={`lineItems.${index}.nota`} // Nombre dinámico
-                                                                           render={({ field }) => (
-                                                                                <OutlinedInput {...field} fullWidth />
-                                                                           )}
+                                                                           name={`lineItems.${index}.nota`}
+                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
                                                                       />
                                                                  </TableCell>
-                                                                 {/* <TableCell>
-                                                                      {item.quantity * item.unitPrice}
-                                                                 </TableCell> */}
                                                             </TableRow>
                                                        ))}
                                                   </TableBody>
                                              </Table>
-                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
-                                                  <Button
-                                                       color="secondary"
-                                                       onClick={handleAddLineItem}
-                                                       startIcon={<PlusCircleIcon />}
-                                                       variant="outlined"
-                                                  >
-                                                       Add item
-                                                  </Button>
-                                             </div>
-                                        </Grid>
+                                        </TableContainer>
+                                        <AccountSelectionModal
+                                             open={openModal}
+                                             onClose={handleCloseModal}
+                                             onSelect={handleSelectAccount} // Maneja la selección de cuenta
+                                        />
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
+                                             <Button
+                                                  color="secondary"
+                                                  onClick={handleAddLineItem}
+                                                  startIcon={<PlusCircleIcon />}
+                                                  variant="outlined"
+                                             >
+                                                  Add item
+                                             </Button>
+                                        </div>
                                    </Stack>
                               </Stack>
 
@@ -463,7 +486,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total1"
+                                                  name="total_debe"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput
@@ -473,7 +496,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
+                                                                 readOnly
                                                             />
                                                        </FormControl>
                                                   )}
@@ -483,7 +507,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total2"
+                                                  name="total_haber"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput
@@ -493,7 +517,8 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
+                                                                 readOnly
                                                             />
                                                        </FormControl>
                                                   )}
@@ -503,7 +528,7 @@ export function AsientosForm(): React.JSX.Element {
                                         <Grid size={{ xs: 12, md: 3 }}>
                                              <Controller
                                                   control={control}
-                                                  name="total3"
+                                                  name="total"
                                                   render={({ field }) => (
                                                        <FormControl fullWidth>
                                                             <OutlinedInput
@@ -512,14 +537,13 @@ export function AsientosForm(): React.JSX.Element {
                                                                       fontWeight: 'bold',
                                                                       textAlign: 'right',
                                                                  }}
-                                                                 defaultValue="0.00"
+                                                                 value={field.value || '0.00'}
                                                             />
                                                        </FormControl>
                                                   )}
                                              />
                                         </Grid>
                                    </Grid>
-
                               </Stack>
                          </Stack>
                     </CardContent>

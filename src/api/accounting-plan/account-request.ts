@@ -57,7 +57,6 @@ export const useGetAccountingPlanPaginated = (page: number, limit: number) =>
         keepPreviousData: true,
     });
 
-
 const getAccountingPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
     try {
         const response = await http.get(`accounting-plan/all`);
