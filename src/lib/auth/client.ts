@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { setAuthenticated } from "../../state/slices/authSlice";
-import { useLoginUser } from "../../api/userRequest";
+import { useLoginUser } from "../../api/user-request";
 import { User } from "../../types/user";
 
 export interface SignInWithPasswordParams {

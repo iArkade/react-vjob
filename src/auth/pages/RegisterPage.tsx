@@ -5,7 +5,7 @@ import Link from '@mui/material/Link';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../state/slices/authSlice';
-import { useCreateUser } from '../../api/userRequest';
+import { useCreateUser } from '../../api/user-request';
 import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from '@mui/material';
 
 // function Copyright(props: any) {

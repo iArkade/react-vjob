@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "../http";
-import { AccountingPlanRequestType, AccountingPlanResponseType } from "./account.types";
+import { AccountingPlanRequestType, AccountingPlanResponseType } from "./account-types";
 
 interface ApiError {
     response?: {

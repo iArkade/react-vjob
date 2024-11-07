@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo } from 'react';
 import { TableRow, TableCell, TextField, Button } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react';
-import { AccountingPlanRequestType } from '@/api/accounting_plan/account.types';
+import { AccountingPlanRequestType } from '@/api/accounting-plan/account-types';
 
 interface AccountFormProps {
     onSubmit: (account: AccountingPlanRequestType) => void;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, BlobProvider } from '@react-pdf/renderer';
-import { AccountingPlanResponseType } from '@/api/accounting_plan/account.types';
+import { AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { Alert, Box, IconButton, CircularProgress } from '@mui/material';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting_plan/accountRequest';
-import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting_plan/account.types';
+import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting-plan/account-request';
+import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
 
 const useAccountingPlan = (page: number, rowsPerPage: number) => {

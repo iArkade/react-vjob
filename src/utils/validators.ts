@@ -1,4 +1,4 @@
-import { AccountingPlanResponseType } from "@/api/accounting_plan/account.types";
+import { AccountingPlanResponseType } from "@/api/accounting-plan/account-types";
 
 export const validateCode = (code: string): boolean => {
     const regex = /^(\d+\.)*\d+\.?$/;
