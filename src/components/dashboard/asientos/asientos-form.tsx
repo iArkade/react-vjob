@@ -32,6 +32,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper } from '@mui/material';
 import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
+import { AccountSelectionModal } from './account-selection';
 
 
 const schema = zod
@@ -115,7 +116,7 @@ export function AsientosForm(): React.JSX.Element {
                          fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
                          total_debe: parseFloat(total_debe.toFixed(2)),
                          total_haber: parseFloat(total_haber.toFixed(2)),
-                         lineItems: lineItems.map(({id_asiento_item, ...rest }) => ({
+                         lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
                               ...rest,
                               debe: parseFloat(rest.debe.toFixed(2)),
                               haber: parseFloat(rest.haber.toFixed(2)),
@@ -176,8 +177,6 @@ export function AsientosForm(): React.JSX.Element {
      );
 
      const lineItems = watch('lineItems') || [];
-     // const watchDebe = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.debe`)) || [];
-     // const watchHaber = watch('lineItems')?.map((_, index) => watch(`lineItems.${index}.haber`)) || [];
 
      React.useEffect(() => {
           if (!lineItems) return;
@@ -191,6 +190,25 @@ export function AsientosForm(): React.JSX.Element {
           setValue('total', totalCombined);
      }, [lineItems, setValue]);
 
+     const [openModal, setOpenModal] = React.useState(false);
+     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+
+     const handleOpenModal = (index: number) => {
+          setSelectedIndex(index);
+          setOpenModal(true);
+     };
+
+     const handleCloseModal = () => {
+          setOpenModal(false);
+     };
+
+     const handleSelectAccount = (code: string, name: string) => {
+          if (selectedIndex !== null) {
+               setValue(`lineItems.${selectedIndex}.cta`, code);
+               setValue(`lineItems.${selectedIndex}.cta_nombre`, name);
+          }
+          handleCloseModal();
+     };
 
      return (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -372,7 +390,13 @@ export function AsientosForm(): React.JSX.Element {
                                                                       <Controller
                                                                            control={control}
                                                                            name={`lineItems.${index}.cta`}
-                                                                           render={({ field }) => <OutlinedInput {...field} fullWidth />}
+                                                                           render={({ field }) => (
+                                                                                <OutlinedInput
+                                                                                     {...field}
+                                                                                     fullWidth
+                                                                                     onClick={() => handleOpenModal(index)}
+                                                                                />
+                                                                           )}
                                                                       />
                                                                  </TableCell>
                                                                  <TableCell>
@@ -389,7 +413,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                            render={({ field }) => (
                                                                                 <OutlinedInput
                                                                                      {...field}
-                                                                                     type="number"                                                                                     inputProps={{min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
+                                                                                     type="number" inputProps={{ min: 0, step: 0.01, pattern: "[0-9]*[.,]?[0-9]*" }}
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
@@ -435,6 +459,11 @@ export function AsientosForm(): React.JSX.Element {
                                                   </TableBody>
                                              </Table>
                                         </TableContainer>
+                                        <AccountSelectionModal
+                                             open={openModal}
+                                             onClose={handleCloseModal}
+                                             onSelect={handleSelectAccount} // Maneja la selección de cuenta
+                                        />
                                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
                                              <Button
                                                   color="secondary"

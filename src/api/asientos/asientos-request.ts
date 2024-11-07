@@ -8,6 +8,8 @@ const getDatCentro = async () => {
      return response.data;
 }
 
+
+
 const createAsiento = async (data: any) => {
      //console.log(data)
      const response = await http.post('/asientos', data);
