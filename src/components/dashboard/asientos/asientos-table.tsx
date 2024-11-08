@@ -101,7 +101,13 @@ export default function AsientoTable() {
                                         <TableCell align="center">
                                              <Visibility
                                                   fontSize="small"
-                                                  sx={{ color: 'action.active' }}
+                                                  sx={{
+                                                       color: 'action.active',
+                                                       cursor: 'pointer',
+                                                       '&:hover': {
+                                                            color: 'primary.main',
+                                                       },
+                                                  }}
                                                   onClick={() => handleOpenModal(asiento)}
                                              />
                                         </TableCell>
