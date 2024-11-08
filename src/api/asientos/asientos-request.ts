@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 import http from "../http"
-import { DatCentro } from "./asientos-types";
+import { Asiento, DatCentro } from "./asientos-types";
 
 
 const getDatCentro = async () => {
@@ -8,7 +8,10 @@ const getDatCentro = async () => {
      return response.data;
 }
 
-
+const getAsientos = async () => {
+     const response = await http.get(`asientos`)
+     return response.data;
+}
 
 const createAsiento = async (data: any) => {
      //console.log(data)
@@ -23,6 +26,16 @@ export const useAccounts = () => {
           queryFn: getDatCentro,
           onError: (error) => {
                console.error('Error al obtener las cuentas:', error);
+          }
+     });
+};
+
+export const useAsientos = () => {
+     return useQuery<Asiento[]>({
+          queryKey: ['asientos'], 
+          queryFn: getAsientos,
+          onError: (error) => {
+               console.error('Error al obtener los asientos:', error);
           }
      });
 };

@@ -126,6 +126,7 @@ export function AsientosForm(): React.JSX.Element {
                     createAsiento(dataToSend);
                     toast.success('Asiento creado exitosamente');
                     navigate(paths.dashboard.asientos.index);
+                    //window.location.reload();
                } catch (err) {
                     logger.error(err);
                     toast.error('Algo salió mal!');
