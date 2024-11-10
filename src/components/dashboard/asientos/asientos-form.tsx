@@ -29,7 +29,7 @@ import { Option } from '@/components/core/option';
 import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper } from '@mui/material';
+import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Box } from '@mui/material';
 import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 import { AccountSelectionModal } from './account-selection';
@@ -110,7 +110,18 @@ export function AsientosForm(): React.JSX.Element {
           async (data: Values): Promise<void> => {
                try {
                     // Make API request
+                    
+                    
                     const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
+                    
+                    const totalDebe = parseFloat(getValues('total_debe').toFixed(2)) || 0;
+                    const totalHaber = parseFloat(getValues('total_haber').toFixed(2)) || 0;
+                    const totalCombined = totalDebe - totalHaber;
+                    
+                    if (totalCombined !== 0) {
+                         toast.error('No se puede guardar con saldo negativo o positivo. El saldo debe ser cero.');
+                         return; // Detiene el envío
+                    }
                     const dataToSend = {
                          ...asientoData,
                          fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
@@ -138,12 +149,20 @@ export function AsientosForm(): React.JSX.Element {
      const handleCentroChange = React.useCallback(
           (selectedCentro: string) => {
                const lineItems = getValues('lineItems') || [];
-               if (lineItems.length > 0) {
-                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
+               if (lineItems.length === 0) {
+                    setValue('lineItems', [
+                         {
+                              id_asiento_item: `LI-1`,
+                              codigo_centro: selectedCentro,  // Asigna `selectedCentro` en el nuevo ítem
+                              cta: '',
+                              cta_nombre: '',
+                              debe: 0,
+                              haber: 0,
+                              nota: ''
+                         }
+                    ]);
                } else {
-
-                    handleAddLineItem();
-                    setValue(`lineItems.0.codigo_centro`, selectedCentro || '');
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro);
                }
           }, [getValues, setValue]
      )
@@ -184,7 +203,7 @@ export function AsientosForm(): React.JSX.Element {
 
           const totalDebe = lineItems.reduce((acc, item) => acc + parseFloat((item.debe || 0).toFixed(2)), 0);
           const totalHaber = lineItems.reduce((acc, item) => acc + parseFloat((item.haber || 0).toFixed(2)), 0);
-          const totalCombined = parseFloat((totalDebe + totalHaber).toFixed(2));
+          const totalCombined = parseFloat((totalDebe - totalHaber).toFixed(2));
 
           setValue('total_debe', totalDebe);
           setValue('total_haber', totalHaber);
@@ -352,7 +371,17 @@ export function AsientosForm(): React.JSX.Element {
                               </Stack>
 
                               <Stack spacing={3}>
-                                   <Typography variant="h6">Line items</Typography>
+                                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                                        <Typography variant="h6">Line items</Typography>
+                                        <Button
+                                             color="secondary"
+                                             onClick={handleAddLineItem}
+                                             startIcon={<PlusCircleIcon />}
+                                             variant="outlined"
+                                        >
+                                             Agregar Item
+                                        </Button>
+                                   </Box>
                                    <Stack divider={<Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray' }} />} spacing={2}>
                                         <TableContainer component={Paper}>
                                              <Table>
@@ -418,6 +447,12 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
+
+                                                                                          if (value !== 0) {
+                                                                                               setValue(`lineItems.${index}.haber`, 0);
+                                                                                          }
+
+                                                                                          //Actualiza el valor en lineItems
                                                                                           const updatedItems = [...getValues('lineItems')];
                                                                                           updatedItems[index].debe = value;
                                                                                           setValue('lineItems', updatedItems);
@@ -439,6 +474,12 @@ export function AsientosForm(): React.JSX.Element {
                                                                                      onChange={(e) => {
                                                                                           const value = parseFloat(e.target.value) || 0;
                                                                                           field.onChange(value);
+
+                                                                                          if (value !== 0) {
+                                                                                               setValue(`lineItems.${index}.debe`, 0);
+                                                                                          }
+
+                                                                                          //Actualiza el valor en lineItems
                                                                                           const updatedItems = [...getValues('lineItems')];
                                                                                           updatedItems[index].haber = value;
                                                                                           setValue('lineItems', updatedItems);
@@ -465,16 +506,7 @@ export function AsientosForm(): React.JSX.Element {
                                              onClose={handleCloseModal}
                                              onSelect={handleSelectAccount} // Maneja la selección de cuenta
                                         />
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80px' }}>
-                                             <Button
-                                                  color="secondary"
-                                                  onClick={handleAddLineItem}
-                                                  startIcon={<PlusCircleIcon />}
-                                                  variant="outlined"
-                                             >
-                                                  Add item
-                                             </Button>
-                                        </div>
+
                                    </Stack>
                               </Stack>
 
@@ -551,7 +583,7 @@ export function AsientosForm(): React.JSX.Element {
                     <CardActions sx={{ justifyContent: 'flex-end' }}>
                          <Button color="secondary">Cancel</Button>
                          <Button type="submit" variant="contained">
-                              Create invoice
+                              Crear Asiento
                          </Button>
                     </CardActions>
                </Card>
