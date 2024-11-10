@@ -26,10 +26,9 @@ import { paths } from '@/paths';
 import { dayjs } from '@/lib/dayjs';
 import { logger } from '@/lib/default-logger';
 import { Option } from '@/components/core/option';
-import { toast } from '@/components/core/toaster';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Box } from '@mui/material';
+import { CardActions, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Box, Snackbar, Alert } from '@mui/material';
 import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 import { AccountSelectionModal } from './account-selection';
@@ -106,22 +105,40 @@ export function AsientosForm(): React.JSX.Element {
      const { data: centros = [], isLoading, isError } = useAccounts();
      const { mutate: createAsiento } = useCreateAsiento();
 
+     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+     const [snackbarMessage, setSnackbarMessage] = React.useState('');
+     const [snackbarSeverity, setSnackbarSeverity] = React.useState<'success' | 'error'>('success');
+
+     const handleSnackbarClose = () => {
+          setSnackbarOpen(false);
+     };
+
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
                try {
-                    // Make API request
-                    
-                    
-                    const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
-                    
-                    const totalDebe = parseFloat(getValues('total_debe').toFixed(2)) || 0;
-                    const totalHaber = parseFloat(getValues('total_haber').toFixed(2)) || 0;
-                    const totalCombined = totalDebe - totalHaber;
-                    
+
+                    const totalDebe = parseFloat((getValues('total_debe') || 0).toFixed(2));
+                    const totalHaber = parseFloat((getValues('total_haber') || 0).toFixed(2));
+                    const totalCombined = Math.abs(totalDebe - totalHaber); // Usar valor absoluto para evitar errores de redondeo
+
                     if (totalCombined !== 0) {
-                         toast.error('No se puede guardar con saldo negativo o positivo. El saldo debe ser cero.');
-                         return; // Detiene el envío
+                         setSnackbarMessage('El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.');
+                         setSnackbarSeverity('error');
+                         setSnackbarOpen(true);
+                         console.log("Error: La diferencia entre Debe y Haber no es cero."); // Log para depuración
+                         return; // Detener el envío si el saldo no está balanceado
                     }
+
+                    if (totalDebe === 0 && totalHaber === 0) {
+                         setSnackbarMessage('No se puede enviar un asiento sin valores en Debe o Haber.');
+                         setSnackbarSeverity('error');
+                         setSnackbarOpen(true);
+                         console.log("Error: Tanto Debe como Haber están en cero."); // Log para depuración
+                         return; // Detener el envío si ambos valores son cero
+                    }
+
+                    const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
+
                     const dataToSend = {
                          ...asientoData,
                          fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
@@ -134,16 +151,20 @@ export function AsientosForm(): React.JSX.Element {
                          })),
                     };
 
-                    createAsiento(dataToSend);
-                    toast.success('Asiento creado exitosamente');
+                    await createAsiento(dataToSend);
+                    setSnackbarMessage('Asiento creado exitosamente');
+                    setSnackbarSeverity('success');
+                    setSnackbarOpen(true);
                     navigate(paths.dashboard.asientos.index);
                     //window.location.reload();
                } catch (err) {
                     logger.error(err);
-                    toast.error('Algo salió mal!');
+                    setSnackbarMessage('Algo salió mal!');
+                    setSnackbarSeverity('error');
+                    setSnackbarOpen(true);
                }
           },
-          [navigate, createAsiento]
+          [navigate, createAsiento, getValues]
      );
 
      const handleCentroChange = React.useCallback(
@@ -509,6 +530,17 @@ export function AsientosForm(): React.JSX.Element {
 
                                    </Stack>
                               </Stack>
+
+                              <Snackbar
+                                   open={snackbarOpen}
+                                   autoHideDuration={6000}
+                                   onClose={handleSnackbarClose}
+                                   anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                              >
+                                   <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                                        {snackbarMessage}
+                                   </Alert>
+                              </Snackbar>
 
                               <Stack spacing={3}>
                                    <Grid container spacing={2} alignItems="center" justifyContent="flex-end" sx={{ marginTop: '20px' }}>
