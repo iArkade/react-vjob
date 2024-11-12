@@ -5,14 +5,14 @@ import { TransaccionContableRequestType } from '@/api/transaccion_contable/trans
 
 interface TransactionFormProps {
     onSubmit: (transaction: TransaccionContableRequestType) => void;
-    existingTransactions?: TransaccionContableRequestType[]; // Añadimos esta prop para validar códigos duplicados
+    existingTransactions?: TransaccionContableRequestType[];
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existingTransactions = [] }) => {
     const [newTransaction, setNewTransaction] = useState<TransaccionContableRequestType>({
         codigo_transaccion: '',
         nombre: '',
-        secuencial: 0,
+        secuencial: '000000001', // Valor inicial cambiado a 000000001
         lectura: 0,
         activo: false
     });
@@ -37,7 +37,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
             case 'nombre':
                 return !value.trim() ? 'El nombre es obligatorio' : '';
             case 'secuencial':
-                return value <= 0 ? 'El secuencial debe ser mayor a 0' : '';
+                return value === '000000000' ? 'El secuencial no puede ser 000000000' : '';
             case 'lectura':
                 return (value !== 0 && value !== 1) ? 'La lectura debe ser 0 o 1' : '';
             default:
@@ -48,9 +48,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
     const handleInputChange = useCallback((field: keyof typeof newTransaction) => (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
-        const value = field === 'secuencial' || field === 'lectura' 
-            ? Number(e.target.value)
-            : e.target.value;
+        const value = field === 'lectura' ? Number(e.target.value) : e.target.value;
 
         setNewTransaction(prev => ({ ...prev, [field]: value }));
         
@@ -58,8 +56,25 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
         setErrors(prev => ({ ...prev, [field]: error }));
     }, [validateField]);
 
+    const handleSecuencialKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault(); // Prevenir el comportamiento por defecto
+        const { key } = e;
+        
+        setNewTransaction(prev => {
+            if (/^\d$/.test(key)) {
+                // Si es un número, lo añadimos al final y eliminamos el primer dígito
+                const updatedSecuencial = prev.secuencial.slice(1) + key;
+                return { ...prev, secuencial: updatedSecuencial };
+            } else if (key === 'Backspace' || key === 'Delete') {
+                // Si es borrar, movemos un 0 al inicio y el resto de números a la derecha
+                const updatedSecuencial = '0' + prev.secuencial.slice(0, -1);
+                return { ...prev, secuencial: updatedSecuencial };
+            }
+            return prev; // Si no es número ni borrar, mantenemos el valor actual
+        });
+    }, []);
+
     const handleSubmit = useCallback(() => {
-        // Validar todos los campos
         const newErrors = {
             codigo_transaccion: validateField('codigo_transaccion', newTransaction.codigo_transaccion),
             nombre: validateField('nombre', newTransaction.nombre),
@@ -69,33 +84,20 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
 
         setErrors(newErrors);
 
-        // Si hay errores, solo limpiar los campos con error
         if (Object.values(newErrors).some(error => error !== '')) {
-            setNewTransaction(prev => {
-                const updated = { ...prev };
-                if (newErrors.codigo_transaccion) updated.codigo_transaccion = '';
-                if (newErrors.nombre) updated.nombre = '';
-                if (newErrors.secuencial) updated.secuencial = 0;
-                if (newErrors.lectura) updated.lectura = 0;
-                return updated;
-            });
             return;
         }
 
-        // Si no hay errores, enviar y limpiar todo
         onSubmit(newTransaction);
-        setNewTransaction({ codigo_transaccion: '', nombre: '', secuencial: 0, lectura: 0, activo: false });
+        setNewTransaction({ 
+            codigo_transaccion: '', 
+            nombre: '', 
+            secuencial: '000000001', // Reset a 000000001
+            lectura: 0, 
+            activo: false 
+        });
         setErrors({ codigo_transaccion: '', nombre: '', secuencial: '', lectura: '' });
     }, [newTransaction, onSubmit, validateField]);
-
-    const handleKeyPress = useCallback(
-        (e: React.KeyboardEvent<HTMLDivElement>) => {
-            if (e.key === 'Enter') {
-                handleSubmit();
-            }
-        },
-        [handleSubmit]
-    );
 
     return (
         <TableRow>
@@ -109,7 +111,6 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
                     size="small"
                     error={!!errors.codigo_transaccion}
                     helperText={errors.codigo_transaccion}
-                    onKeyUp={handleKeyPress}
                 />
             </TableCell>
             <TableCell>
@@ -122,21 +123,19 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
                     size="small"
                     error={!!errors.nombre}
                     helperText={errors.nombre}
-                    onKeyUp={handleKeyPress}
                 />
             </TableCell>
             <TableCell>
                 <TextField
-                    type="number"
                     placeholder="Secuencial"
                     value={newTransaction.secuencial}
-                    onChange={handleInputChange('secuencial')}
+                    onKeyDown={handleSecuencialKeyDown}
                     variant="standard"
                     fullWidth
                     size="small"
                     error={!!errors.secuencial}
                     helperText={errors.secuencial}
-                    onKeyUp={handleKeyPress}
+
                 />
             </TableCell>
             <TableCell>
@@ -151,7 +150,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
                         }
                     }}
                     variant="standard"
-                    inputProps={{ min: 0, max: 1, maxLength: 1 }}
+                    inputProps={{ min: 0, max: 1 }}
                     fullWidth
                     size="small"
                     error={!!errors.lectura}

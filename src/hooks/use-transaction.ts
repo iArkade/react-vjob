@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUpdateTransaccionContable, useDeleteTransaccionContable, useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contableRequest';
+import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUpdateTransaccionContable, useDeleteTransaccionContable, useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
 import { TransaccionContableRequestType, TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable.types';
 import { normalizeCode } from '@/utils/validators';
 
@@ -42,7 +42,7 @@ const useTransaccionContable = (page: number, rowsPerPage: number) => {
         }    
     };
 
-    const updateTransaction = async (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: number; lectura: number; activo:boolean }) => {
+    const updateTransaction = async (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo:boolean }) => {
 
         try {
             await updateTransaccionContable.mutateAsync({ id, data });

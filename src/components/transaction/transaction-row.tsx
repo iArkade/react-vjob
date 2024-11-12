@@ -5,7 +5,7 @@ import { TransaccionContableResponseType } from "@/api/transaccion_contable/tran
 
 interface TransactionRowProps {
     transaction: TransaccionContableResponseType;
-    onUpdate: (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: number; lectura: number; activo: boolean }) => void;
+    onUpdate: (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo: boolean }) => void;
     onDelete: (codigo_transaccion: string) => void;
     isSelected: boolean;
     onRowClick: (id: number) => void;
@@ -15,7 +15,9 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
     ({ transaction, onUpdate, onDelete, isSelected, onRowClick }) => {
         const [editingCode, setEditingCode] = useState(transaction.codigo_transaccion);
         const [editingName, setEditingName] = useState(transaction.nombre);
-        const [editingSecuencial, setEditingSecuencial] = useState(transaction.secuencial.toString().padStart(8, "0"));
+        const [editingSecuencial, setEditingSecuencial] = useState(
+            transaction.secuencial?.padStart(9, "0") || "000000001"
+        );
         const [editingLectura, setEditingLectura] = useState(transaction.lectura);
         const [editingActivo, setEditingActivo] = useState(transaction.activo);
         const [isChanged, setIsChanged] = useState(false);
@@ -37,26 +39,26 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
             setIsChanged(
                 editingCode !== transaction.codigo_transaccion ||
                 editingName !== transaction.nombre ||
-                editingSecuencial !== transaction.secuencial.toString().padStart(8, "0") ||
+                editingSecuencial !== (transaction.secuencial?.padStart(9, "0") || "000000001") ||
                 editingLectura !== transaction.lectura ||
                 editingActivo !== transaction.activo
             );
         }, [editingCode, editingName, editingSecuencial, editingLectura, editingActivo, transaction]);
 
         const handleSave = useCallback(() => {
-            console.log(editingActivo, editingLectura);
             onUpdate(transaction.id, {
                 codigo_transaccion: editingCode,
                 nombre: editingName,
-                secuencial: parseInt(editingSecuencial, 10),
+                secuencial: editingSecuencial,
                 lectura: editingLectura,              
-                activo: editingActivo,  // Envía el valor actualizado de editingActivo
+                activo: editingActivo,
             });
             setIsChanged(false);
         }, [transaction.id, onUpdate, editingCode, editingName, editingSecuencial, editingLectura, editingActivo]);
 
         const handleSequentialChange = (value: string) => {
-            const formattedValue = value.replace(/[^0-9]/g, "").padStart(8, "0");
+            // Limit input to numbers only, then limit to a maximum of 9 digits
+            const formattedValue = value.replace(/[^0-9]/g, "").padStart(9, "0").slice(-9);
             setEditingSecuencial(formattedValue);
         };
 
@@ -100,8 +102,9 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
                         value={editingSecuencial}
                         onChange={(e) => handleSequentialChange(e.target.value)}
                         onBlur={() => {
-                            if (!/^[0-9]{8}$/.test(editingSecuencial)) {
-                                setEditingSecuencial("");
+                            // Reset to "000000001" if the input is empty or invalid (not exactly 9 digits)
+                            if (!/^[0-9]{9}$/.test(editingSecuencial)) {
+                                setEditingSecuencial("000000001");
                             }
                         }}
                         variant="standard"

@@ -3,7 +3,7 @@ export interface TransaccionContableResponseType {
     codigo_empresa: string;
     codigo_transaccion: string;
     nombre: string;
-    secuencial: number;
+    secuencial: string;
     lectura: number;
     activo: boolean;
     createdAt: string;
@@ -14,7 +14,7 @@ export interface TransaccionContableRequestType {
     codigo_empresa?: string;
     codigo_transaccion: string;
     nombre: string;
-    secuencial: number;
+    secuencial: string;
     lectura: number;
     activo: boolean;
 }
