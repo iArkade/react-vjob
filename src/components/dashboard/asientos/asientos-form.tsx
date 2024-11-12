@@ -33,6 +33,7 @@ import { DatCentro } from '@/api/asientos/asientos-types';
 import { AccountSelectionModal } from './account-selection';
 import LineItemRow from './asientos-line-item-row';
 import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contableRequest';
+import { TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable.types';
 
 
 const schema = zod
@@ -105,8 +106,9 @@ export function AsientosForm(): React.JSX.Element {
           watch,
      } = methods;
 
-     const { data: centros = [], isLoading, isError } = useAccounts();
-     const { data: transacciones = [], isLoading, isError } = useGetTransaccionContable()
+     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useAccounts();
+     const { data: transacciones = [], isLoading: isLoadingTransacciones, isError: isErrorTransacciones } = useGetTransaccionContable();
+
      const { mutate: createAsiento } = useCreateAsiento();
 
      const [snackbar, setSnackbar] = React.useState({
@@ -126,13 +128,13 @@ export function AsientosForm(): React.JSX.Element {
 
           if (totalCombined !== 0) {
                showSnackbar('El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.', 'error');
-               console.log("Error: La diferencia entre Debe y Haber no es cero.");
+               //console.log("Error: La diferencia entre Debe y Haber no es cero.");
                return false;
           }
 
           if (totalDebe === 0 && totalHaber === 0) {
                showSnackbar('No se puede enviar un asiento sin valores en Debe o Haber.', 'error');
-               console.log("Error: Tanto Debe como Haber están en cero.");
+               //console.log("Error: Tanto Debe como Haber están en cero.");
                return false;
           }
           return true;
@@ -163,7 +165,7 @@ export function AsientosForm(): React.JSX.Element {
 
                     await createAsiento(dataToSend);
                     showSnackbar('Asiento creado exitosamente', 'success');
-                    //navigate(paths.dashboard.asientos.index);
+                    navigate(paths.dashboard.asientos.index);
                     //window.location.reload();
                } catch (err) {
                     logger.error(err);
@@ -174,13 +176,13 @@ export function AsientosForm(): React.JSX.Element {
      );
 
      const handleCentroChange = React.useCallback(
-          (selectedCentro: string) => {
+          (selectedCentro: { codigo: string, nombre: string }) => {
                const lineItems = getValues('lineItems') || [];
                if (lineItems.length === 0) {
                     setValue('lineItems', [
                          {
                               id_asiento_item: `LI-1`,
-                              codigo_centro: selectedCentro,
+                              codigo_centro: selectedCentro.codigo,
                               cta: '',
                               cta_nombre: '',
                               debe: 0,
@@ -189,7 +191,7 @@ export function AsientosForm(): React.JSX.Element {
                          }
                     ]);
                } else {
-                    setValue(`lineItems.0.codigo_centro`, selectedCentro);
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro.nombre);
                }
           }, [getValues, setValue]
      )
@@ -197,7 +199,7 @@ export function AsientosForm(): React.JSX.Element {
      const handleAddLineItem = React.useCallback(() => {
           const lineItems = getValues('lineItems') || [];
           const currentCentro = getValues('codigo_centro') || '';
-     
+
           // Crea una copia de lineItems y agrega el nuevo elemento
           const newLineItems = [
                ...lineItems,
@@ -213,10 +215,10 @@ export function AsientosForm(): React.JSX.Element {
           ];
           setValue('lineItems', newLineItems);
      }, [getValues, setValue]);
-     
+
      const handleRemoveLineItem = React.useCallback((lineItemId: string) => {
           const lineItems = getValues('lineItems') || [];
-     
+
           // Filtra los elementos y crea una nueva lista sin el item especificado
           const newLineItems = lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId);
           setValue('lineItems', newLineItems);
@@ -260,7 +262,7 @@ export function AsientosForm(): React.JSX.Element {
                <form onSubmit={handleSubmit(onSubmit)}>
                     <Card>
                          <CardContent>
-                              <Stack divider={<Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray' }} />} spacing={4}>
+                              <Stack spacing={4}>
                                    <Stack spacing={3}>
                                         <Grid container spacing={3}>
                                              <Grid size={{ xs: 12, md: 4 }}>
@@ -296,21 +298,19 @@ export function AsientosForm(): React.JSX.Element {
                                                        render={({ field }) => (
                                                             <FormControl fullWidth>
                                                                  <InputLabel>Transacción</InputLabel>
-                                                                 <Select 
+                                                                 <Select
                                                                       {...field}
                                                                       label="Transaccion"
-                                                                      disabled={isLoading || isError}
+                                                                      disabled={isLoadingTransacciones || isErrorTransacciones}
                                                                       value={field.value || ''}
-
                                                                  >
-                                                                      {isError && <Option value=""><em>Error cargando centros</em></Option>}
-                                                                      
-                                                                      {isLoading ? (
-                                                                           <Option value=""><em>Cargando transaccion...</em></Option>
+                                                                      {isErrorTransacciones && <Option value=""><em>Error cargando transacciones</em></Option>}
+                                                                      {isLoadingTransacciones ? (
+                                                                           <Option value=""><em>Cargando transacciones...</em></Option>
                                                                       ) : (
-                                                                           transacciones?.map((transaccion: DatCentro) => (
-                                                                                <Option key={centro.id} value={centro.nombre}>
-                                                                                     {centro.nombre}
+                                                                           transacciones?.map((transaccion: TransaccionContableResponseType) => (
+                                                                                <Option key={transaccion.id} value={transaccion.nombre}>
+                                                                                     {transaccion.nombre}
                                                                                 </Option>
                                                                            ))
                                                                       )}
@@ -382,20 +382,21 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <Select
                                                                       {...field}
                                                                       label="Centro"
-                                                                      disabled={isLoading || isError}
-                                                                      value={field.value || ''}
+                                                                      disabled={isLoadingCentros || isErrorCentros}                                                                      value={field.value || ''}
                                                                       onChange={(e) => {
                                                                            field.onChange(e);
-                                                                           handleCentroChange(e.target.value);
+                                                                           const selectedCentro = JSON.parse(e.target.value); //convierto en un objeto
+                                                                           handleCentroChange(selectedCentro);
                                                                       }}
                                                                  >
-                                                                      {isError && <Option value=""><em>Error cargando centros</em></Option>}
-
-                                                                      {isLoading ? (
+                                                                      {isErrorCentros && <Option value=""><em>Error cargando centros</em></Option>}
+                                                                 
+                                                                      {isLoadingCentros ? (
                                                                            <Option value=""><em>Cargando centros...</em></Option>
                                                                       ) : (
                                                                            centros?.map((centro: DatCentro) => (
-                                                                                <Option key={centro.id} value={centro.nombre}>
+                                                                                //value={centro.codigo}
+                                                                                <Option key={centro.id}  value={JSON.stringify({ codigo: centro.codigo, nombre: centro.nombre })}>
                                                                                      {centro.nombre}
                                                                                 </Option>
                                                                            ))
@@ -413,8 +414,10 @@ export function AsientosForm(): React.JSX.Element {
                                         </Grid>
                                    </Stack>
 
+                                   <Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray'}} />
+
                                    <Stack spacing={3}>
-                                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={0}>
                                              <Typography variant="h6">Line items</Typography>
                                              <Button
                                                   color="secondary"
@@ -425,7 +428,7 @@ export function AsientosForm(): React.JSX.Element {
                                                   Agregar Item
                                              </Button>
                                         </Box>
-                                        <Stack divider={<Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray' }} />} spacing={2}>
+                                        <Stack spacing={2}>
                                              <TableContainer component={Paper}>
                                                   <Table>
                                                        <TableHead>
@@ -472,7 +475,7 @@ export function AsientosForm(): React.JSX.Element {
                                    </Snackbar>
 
                                    <Stack spacing={3}>
-                                        <Grid container spacing={2} alignItems="center" justifyContent="flex-end" sx={{ marginTop: '10px' }}>
+                                        <Grid container spacing={2} alignItems="center" justifyContent="flex-end" sx={{ marginTop: '5px' }}>
                                              <Grid size={{ xs: 12, md: 2 }}>
                                                   <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Totales:</Typography>
                                              </Grid>

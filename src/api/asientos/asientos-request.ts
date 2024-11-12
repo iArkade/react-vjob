@@ -7,19 +7,6 @@ const getDatCentro = async () => {
      const response = await http.get(`dat-centro`)
      return response.data;
 }
-
-const getAsientos = async () => {
-     const response = await http.get(`asientos`)
-     return response.data;
-}
-
-const createAsiento = async (data: any) => {
-     //console.log(data)
-     const response = await http.post('/asientos', data);
-     return response.data;
-};
-
-
 export const useAccounts = () => {
      return useQuery<DatCentro[]>({
           queryKey: ['dat-centro'],
@@ -30,6 +17,11 @@ export const useAccounts = () => {
      });
 };
 
+const getAsientos = async () => {
+     const response = await http.get(`asientos`)
+     return response.data;
+}
+
 export const useAsientos = () => {
      return useQuery<Asiento[]>({
           queryKey: ['asientos'], 
@@ -38,6 +30,12 @@ export const useAsientos = () => {
                console.error('Error al obtener los asientos:', error);
           }
      });
+};
+
+const createAsiento = async (data: any) => {
+     //console.log(data)
+     const response = await http.post('/asientos', data);
+     return response.data;
 };
 
 export const useCreateAsiento = () => {
