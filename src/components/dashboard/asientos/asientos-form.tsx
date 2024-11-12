@@ -32,6 +32,7 @@ import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 import { AccountSelectionModal } from './account-selection';
 import LineItemRow from './asientos-line-item-row';
+import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contableRequest';
 
 
 const schema = zod
@@ -105,6 +106,7 @@ export function AsientosForm(): React.JSX.Element {
      } = methods;
 
      const { data: centros = [], isLoading, isError } = useAccounts();
+     const { data: transacciones = [], isLoading, isError } = useGetTransaccionContable()
      const { mutate: createAsiento } = useCreateAsiento();
 
      const [snackbar, setSnackbar] = React.useState({
@@ -178,7 +180,7 @@ export function AsientosForm(): React.JSX.Element {
                     setValue('lineItems', [
                          {
                               id_asiento_item: `LI-1`,
-                              codigo_centro: selectedCentro,  // Asigna `selectedCentro` en el nuevo ítem
+                              codigo_centro: selectedCentro,
                               cta: '',
                               cta_nombre: '',
                               debe: 0,
@@ -287,7 +289,7 @@ export function AsientosForm(): React.JSX.Element {
                                                   />
                                              </Grid>
 
-                                             {/* <Grid size={{ xs: 12, md: 4 }}>
+                                             <Grid size={{ xs: 12, md: 4 }}>
                                                   <Controller
                                                        control={control}
                                                        name="tipo_transaccion"
@@ -296,13 +298,27 @@ export function AsientosForm(): React.JSX.Element {
                                                                  <InputLabel>Transacción</InputLabel>
                                                                  <Select 
                                                                       {...field}
+                                                                      label="Transaccion"
+                                                                      disabled={isLoading || isError}
+                                                                      value={field.value || ''}
+
                                                                  >
-                                                                      <MenuItem></MenuItem>
+                                                                      {isError && <Option value=""><em>Error cargando centros</em></Option>}
+                                                                      
+                                                                      {isLoading ? (
+                                                                           <Option value=""><em>Cargando transaccion...</em></Option>
+                                                                      ) : (
+                                                                           transacciones?.map((transaccion: DatCentro) => (
+                                                                                <Option key={centro.id} value={centro.nombre}>
+                                                                                     {centro.nombre}
+                                                                                </Option>
+                                                                           ))
+                                                                      )}
                                                                  </Select>
                                                             </FormControl>
                                                        )}
                                                   />
-                                             </Grid> */}
+                                             </Grid>
 
                                              <Grid size={{ xs: 12, md: 4 }}>
                                                   <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -439,7 +455,7 @@ export function AsientosForm(): React.JSX.Element {
                                              <AccountSelectionModal
                                                   open={openModal}
                                                   onClose={handleCloseModal}
-                                                  onSelect={handleSelectAccount} // Maneja la selección de cuenta
+                                                  onSelect={handleSelectAccount}
                                              />
                                         </Stack>
                                    </Stack>
@@ -456,7 +472,7 @@ export function AsientosForm(): React.JSX.Element {
                                    </Snackbar>
 
                                    <Stack spacing={3}>
-                                        <Grid container spacing={2} alignItems="center" justifyContent="flex-end" sx={{ marginTop: '20px' }}>
+                                        <Grid container spacing={2} alignItems="center" justifyContent="flex-end" sx={{ marginTop: '10px' }}>
                                              <Grid size={{ xs: 12, md: 2 }}>
                                                   <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Totales:</Typography>
                                              </Grid>
