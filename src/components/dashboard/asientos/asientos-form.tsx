@@ -96,6 +96,9 @@ const defaultValues: Values = {
 export function AsientosForm(): React.JSX.Element {
      const navigate = useNavigate();
 
+     const handleCancel = () => {
+          navigate(paths.dashboard.asientos.index);
+     };
      const methods = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
      const {
           control,
@@ -198,14 +201,15 @@ export function AsientosForm(): React.JSX.Element {
 
      const handleAddLineItem = React.useCallback(() => {
           const lineItems = getValues('lineItems') || [];
-          const currentCentro = getValues('codigo_centro') || '';
-
+          const currentCentroString  = getValues('codigo_centro') || '';
+          const currentCentro = currentCentroString ? JSON.parse(currentCentroString) : {};
+          const nombreCentro = currentCentro.nombre || '';
           // Crea una copia de lineItems y agrega el nuevo elemento
           const newLineItems = [
                ...lineItems,
                {
                     id_asiento_item: `LI-${lineItems.length + 1}`,
-                    codigo_centro: currentCentro,
+                    codigo_centro: nombreCentro,
                     cta: '',
                     cta_nombre: '',
                     debe: 0,
@@ -545,7 +549,7 @@ export function AsientosForm(): React.JSX.Element {
                               </Stack>
                          </CardContent>
                          <CardActions sx={{ justifyContent: 'flex-end' }}>
-                              <Button color="secondary">Cancel</Button>
+                              <Button color="secondary"  onClick={handleCancel}>Cancel</Button>
                               <Button type="submit" variant="contained">
                                    Crear Asiento
                               </Button>

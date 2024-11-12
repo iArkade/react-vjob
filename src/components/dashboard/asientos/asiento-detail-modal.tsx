@@ -41,8 +41,8 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                onClose={onClose}
                maxWidth="sm"
                sx={{
-                    '& .MuiDialog-container': { justifyContent: 'center' },
-                    '& .MuiDialog-paper': { width: '100%', borderRadius: 3 },
+                    '& .MuiDialog-container': { justifyContent: 'flex-end' },
+                    '& .MuiDialog-paper': { height: '100%', width: '100%' },
                }}
           >
                <DialogTitle>
@@ -57,8 +57,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                     {asiento ? (
                          <Stack spacing={3} sx={{ flex: '1 1 auto', overflowY: 'auto' }}>
                               <Stack spacing={3}>
-                                   <Stack direction="row" spacing={3} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Typography variant="h6">Details</Typography>
+                                   <Stack direction="row" spacing={3} sx={{ alignItems: 'center', justifyContent: 'end' }}>
                                         <Button
                                              color="secondary"
                                              component={RouterLink}
@@ -184,7 +183,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                                        <Typography variant="subtitle1">Total</Typography>
                                                        <Typography variant="subtitle1">
                                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                                                                 (Number(asiento.total_debe) || 0) + (Number(asiento.total_haber) || 0)
+                                                                 (Number(asiento.total_debe) || 0) - (Number(asiento.total_haber) || 0)
                                                             )}
                                                        </Typography>
                                                   </Stack>

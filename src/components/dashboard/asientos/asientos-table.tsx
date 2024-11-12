@@ -7,9 +7,7 @@ import {
 } from '@mui/material';
 import { Visibility } from '@mui/icons-material';
 import { useState } from 'react';
-import { useAsientos } from '@/api/asientos/asientos-request';
 import { Asiento } from '@/api/asientos/asientos-types';
-import AsientoDetailsModal from './asiento-detail-modal';
 
 type OrderStatus = 'Pendiente' | 'Activo' | 'Cancelado' | 'Rechazado';
 
@@ -20,14 +18,16 @@ const statusColors: Record<OrderStatus, 'default' | 'error' | 'warning' | 'succe
      Rechazado: 'default',
 };
 
+type AsientoTableProps = {
+     asientos: Asiento[] | undefined;
+     isLoading: boolean;
+     isError: boolean;
+     onOpenModal: (asiento: Asiento) => void;
+};
 
-export default function AsientoTable() {
+export default function AsientoTable({ asientos, isLoading, isError, onOpenModal }: AsientoTableProps) {
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
-     const [selectedAsiento, setSelectedAsiento] = useState<Asiento | null>(null); // Para almacenar el asiento seleccionado
-     const [openModal, setOpenModal] = useState(false);
-
-     const { data: asientos, isLoading, isError } = useAsientos();
 
      const handleChangePage = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
           setPage(newPage);
@@ -39,18 +39,6 @@ export default function AsientoTable() {
      };
 
      const paginatedAsientos = asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
-
-     const handleOpenModal = (asiento: Asiento) => {
-          setSelectedAsiento(asiento);
-          setOpenModal(true);
-     };
-
-     // Cierra el modal y limpia el asiento seleccionado
-     const handleCloseModal = () => {
-          setSelectedAsiento(null);
-          setOpenModal(false);
-     };
-
 
      if (isLoading) {
           return <CircularProgress />;
@@ -108,7 +96,7 @@ export default function AsientoTable() {
                                                             color: 'primary.main',
                                                        },
                                                   }}
-                                                  onClick={() => handleOpenModal(asiento)}
+                                                  onClick={() => onOpenModal(asiento)}
                                              />
                                         </TableCell>
                                    </TableRow>
@@ -125,11 +113,6 @@ export default function AsientoTable() {
                          onRowsPerPageChange={handleChangeRowsPerPage}
                     />
                </TableContainer>
-               <AsientoDetailsModal
-                    open={openModal}
-                    onClose={handleCloseModal}
-                    asiento={selectedAsiento}
-               />
           </>
      );
 }

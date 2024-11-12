@@ -9,6 +9,10 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import AsientoTable from '@/components/dashboard/asientos/asientos-table';
 import { RouterLink } from '@/components/core/link';
 import { paths } from '@/paths';
+import { Asiento } from '@/api/asientos/asientos-types';
+import { useAsientos } from '@/api/asientos/asientos-request';
+import AsientoDetailsModal from '@/components/dashboard/asientos/asiento-detail-modal';
+import { useSearchParams } from 'react-router-dom';
 
 // import { useSearchParams } from 'react-router-dom';
 
@@ -24,8 +28,39 @@ import { paths } from '@/paths';
 
 export function Page(): React.JSX.Element {
      // const { customer, id, previewId, sortDir, status } = useExtractSearchParams();
-
      // const sortedOrders = applySort(orders, sortDir);
+     const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
+     const [openModal, setOpenModal] = React.useState(false);
+
+     const { data: asientos, isLoading, isError } = useAsientos();
+     const [searchParams, setSearchParams] = useSearchParams();
+
+     const handleOpenModal = (asiento: Asiento) => {
+          if (asiento && asiento.id) { // Verifica que asiento e id estén definidos
+               setSelectedAsiento(asiento);
+               setOpenModal(true);
+               setSearchParams({ previewId: asiento.id.toString() }); // Agrega el ID del asiento como previewId en la URL
+          }
+     };
+
+     const handleCloseModal = () => {
+          setSelectedAsiento(null);
+          setOpenModal(false);
+          searchParams.delete('previewId');  // Remueve `previewId` del URL
+          setSearchParams(searchParams);
+     };
+
+     // React.useEffect(() => {
+     //      const previewId = searchParams.get('previewId');
+     //      if (previewId && asientos) {
+     //           // Busca el asiento correspondiente en los datos, asegurándose de que `a.id` esté definido
+     //           const asiento = asientos.find((a) => a.id !== undefined && a.id.toString() === previewId);
+     //           if (asiento) {
+     //                setSelectedAsiento(asiento);
+     //                setOpenModal(true);
+     //           }
+     //      }
+     // }, [searchParams, asientos]);
 
      return (
           <React.Fragment>
@@ -55,12 +90,22 @@ export function Page(): React.JSX.Element {
                          </Stack>
                               <Card>
                                    <Box sx={{ overflowX: 'auto' }}>
-                                        <AsientoTable />
+                                        <AsientoTable 
+                                             asientos={asientos}        // Pasamos los datos
+                                             isLoading={isLoading}      // Estado de carga
+                                             isError={isError}          // Estado de error
+                                             onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
+                                        />
                                    </Box>
                                    <Divider />
                               </Card>
                     </Stack>
                </Box>
+               <AsientoDetailsModal
+                    open={openModal}
+                    onClose={handleCloseModal}
+                    asiento={selectedAsiento}
+               />
                {/* <OrderModal open={Boolean(previewId)} /> */}
           </React.Fragment>
      );
