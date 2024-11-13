@@ -32,6 +32,23 @@ export const useAsientos = () => {
      });
 };
 
+const getAsiento = async (id: number) => {
+     const response = await http.get(`asientos/${id}`)
+     return response.data;
+}
+
+export const useAsiento = (id: number) => {
+     return useQuery<Asiento>({
+          queryKey: ['asiento', id], 
+          queryFn: () => getAsiento(id),
+          onError: (error) => {
+               console.error('Error al obtener los asientos:', error);
+          }
+     });
+};
+
+
+
 const createAsiento = async (data: any) => {
      //console.log(data)
      const response = await http.post('/asientos', data);
