@@ -50,17 +50,19 @@ export function Page(): React.JSX.Element {
           setSearchParams(searchParams);
      };
 
-     // React.useEffect(() => {
-     //      const previewId = searchParams.get('previewId');
-     //      if (previewId && asientos) {
-     //           // Busca el asiento correspondiente en los datos, asegurándose de que `a.id` esté definido
-     //           const asiento = asientos.find((a) => a.id !== undefined && a.id.toString() === previewId);
-     //           if (asiento) {
-     //                setSelectedAsiento(asiento);
-     //                setOpenModal(true);
-     //           }
-     //      }
-     // }, [searchParams, asientos]);
+     const previewId = searchParams.get('previewId');
+
+     React.useEffect(() => {
+          const previewId = searchParams.get('previewId');
+          if (previewId && asientos) {
+               // Busca el asiento correspondiente en los datos, asegurándose de que `a.id` esté definido
+               const asiento = asientos.find((a) => a.id !== undefined && a.id.toString() === previewId);
+               if (asiento) {
+                    setSelectedAsiento(asiento);
+                    setOpenModal(true);
+               }
+          }
+     }, [searchParams, asientos]);
 
      return (
           <React.Fragment>
@@ -105,6 +107,7 @@ export function Page(): React.JSX.Element {
                     open={openModal}
                     onClose={handleCloseModal}
                     asiento={selectedAsiento}
+                    previewId={previewId || ''}
                />
                {/* <OrderModal open={Boolean(previewId)} /> */}
           </React.Fragment>

@@ -68,7 +68,8 @@ export const paths = {
           asientos: {
                index: '/dashboard/asientos',
                create: '/dashboard/asientos/create',
-               details: (invoiceId: string) => `/dashboard/invoices/${invoiceId}`,
+               preview: (asientoId: string) => `/dashboard/asientos?previewId=${asientoId}`,
+               details: (asientoId: string) => `/dashboard/asientos/${asientoId}`,
           },
           blog: {
                list: '/dashboard/blog',
