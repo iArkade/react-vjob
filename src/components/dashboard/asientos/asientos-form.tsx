@@ -93,13 +93,22 @@ const defaultValues: Values = {
      total: 0,
 };
 
-export function AsientosForm(): React.JSX.Element {
+type AsientosFormProps = {
+     asiento?: Omit<Values, 'total'>
+};
+
+export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element {
      const navigate = useNavigate();
 
      const handleCancel = () => {
           navigate(paths.dashboard.asientos.index);
      };
-     const methods = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
+
+     const methods = useForm<Values>({
+          defaultValues: asiento || defaultValues,
+          resolver: zodResolver(schema),
+     });
+
      const {
           control,
           handleSubmit,
@@ -113,6 +122,7 @@ export function AsientosForm(): React.JSX.Element {
      const { data: transacciones = [], isLoading: isLoadingTransacciones, isError: isErrorTransacciones } = useGetTransaccionContable();
 
      const { mutate: createAsiento } = useCreateAsiento();
+     //const { mutate: updateAsiento } = useUpdateAsiento();
 
      const [snackbar, setSnackbar] = React.useState({
           open: false,
@@ -154,9 +164,14 @@ export function AsientosForm(): React.JSX.Element {
 
                     const { total, total_debe, total_haber, lineItems, ...asientoData } = data;
 
+                    const fechaEmisionISO = data.fecha_emision instanceof Date 
+                         ? data.fecha_emision.toISOString().split('T')[0] // Convierte la fecha a ISO 8601
+                         : dayjs(data.fecha_emision).format('YYYY-MM-DD');
+                    
                     const dataToSend = {
                          ...asientoData,
-                         fecha_emision: new Date(data.fecha_emision).toISOString().slice(0, 10),
+                         //fecha_emision: new Date(data.fecha_emision).toISOString().split('T')[0],
+                         fecha_emision:fechaEmisionISO,
                          total_debe: parseFloat(total_debe.toFixed(2)),
                          total_haber: parseFloat(total_haber.toFixed(2)),
                          lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
@@ -169,6 +184,7 @@ export function AsientosForm(): React.JSX.Element {
                     await createAsiento(dataToSend);
                     showSnackbar('Asiento creado exitosamente', 'success');
                     navigate(paths.dashboard.asientos.index);
+                    //window.location.href = paths.dashboard.asientos.index;
                     //window.location.reload();
                } catch (err) {
                     logger.error(err);
@@ -222,8 +238,6 @@ export function AsientosForm(): React.JSX.Element {
 
      const handleRemoveLineItem = React.useCallback((lineItemId: string) => {
           const lineItems = getValues('lineItems') || [];
-
-          // Filtra los elementos y crea una nueva lista sin el item especificado
           const newLineItems = lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId);
           setValue('lineItems', newLineItems);
      }, [getValues, setValue]);
@@ -332,9 +346,9 @@ export function AsientosForm(): React.JSX.Element {
                                                             render={({ field }) => (
                                                                  <DatePicker
                                                                       {...field}
-                                                                      format="D MMM YYYY"
+                                                                      format="YYYY-MM-DD"
                                                                       label="Fecha Tr"
-                                                                      onChange={(date) => field.onChange(date?.toDate())}
+                                                                      onChange={(date) =>field.onChange(date?.toDate())} 
                                                                       slotProps={{
                                                                            textField: {
                                                                                 error: Boolean(errors.fecha_emision),
@@ -342,7 +356,7 @@ export function AsientosForm(): React.JSX.Element {
                                                                                 helperText: errors.fecha_emision?.message,
                                                                            },
                                                                       }}
-                                                                      value={dayjs(field.value)}
+                                                                      value={field.value ? dayjs(field.value) : null}
                                                                  />
                                                             )}
                                                        />
@@ -551,7 +565,7 @@ export function AsientosForm(): React.JSX.Element {
                          <CardActions sx={{ justifyContent: 'flex-end' }}>
                               <Button color="secondary"  onClick={handleCancel}>Cancel</Button>
                               <Button type="submit" variant="contained">
-                                   Crear Asiento
+                                   {asiento ? 'Actualizar Asiento' : 'Crear Asiento'}
                               </Button>
                          </CardActions>
                     </Card>

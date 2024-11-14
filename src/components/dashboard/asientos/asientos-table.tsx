@@ -3,7 +3,8 @@ import {
      Typography, Chip, Paper, Box,
      TablePagination,
      CircularProgress,
-     Alert
+     Alert,
+     Button
 } from '@mui/material';
 import { Visibility } from '@mui/icons-material';
 import { useState } from 'react';
@@ -22,10 +23,11 @@ type AsientoTableProps = {
      asientos: Asiento[] | undefined;
      isLoading: boolean;
      isError: boolean;
+     refetch: () => void;
      onOpenModal: (asiento: Asiento) => void;
 };
 
-export default function AsientoTable({ asientos, isLoading, isError, onOpenModal }: AsientoTableProps) {
+export default function AsientoTable({ asientos, isLoading, isError, onOpenModal, refetch }: AsientoTableProps) {
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -49,6 +51,12 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
      }
      return (
           <>
+               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mr={2}>
+                    <Typography variant="h5">Lista de Asientos</Typography>
+                    <Button variant="contained" onClick={refetch}>
+                         Recargar Asientos
+                    </Button>
+               </Box>
                <TableContainer component={Paper}>
                     <Table>
                          <TableHead>
