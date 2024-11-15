@@ -87,8 +87,8 @@ export function Page(): React.JSX.Element {
                                         asientos={asientos}        // Pasamos los datos
                                         isLoading={isLoading}      // Estado de carga
                                         isError={isError}          // Estado de error
-                                        refetch={refetch}
                                         onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal  
+                                        refetch = {refetch}
                                    />
                               </Box>
                               <Divider />

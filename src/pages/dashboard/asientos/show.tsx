@@ -12,7 +12,7 @@ export function Page(): React.JSX.Element {
      const { id } = useParams<{ id: string }>();
      const asientoId = id ? parseInt(id, 10) : undefined;
 
-     const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
+     //const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
      
      //console.log(asiento, asientoId);
 
@@ -32,9 +32,9 @@ export function Page(): React.JSX.Element {
                                    <Typography variant="h4">Asiento Diario Contable</Typography>
                               </div>
                          </Stack>
-                         {!isLoading && !isError && asiento && (
+                         {/* {!isLoading && !isError && asiento && (
                               <AsientosForm asiento={asiento} />
-                         )}
+                         )} */}
                     </Stack>
                </Box>
           </React.Fragment>
