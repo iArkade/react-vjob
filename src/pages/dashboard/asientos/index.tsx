@@ -9,23 +9,51 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import AsientoTable from '@/components/dashboard/asientos/asientos-table';
 import { RouterLink } from '@/components/core/link';
 import { paths } from '@/paths';
-
-// import { useSearchParams } from 'react-router-dom';
-
-// import { config } from '@/config';
-// import { dayjs } from '@/lib/dayjs';
-// import { OrderModal } from '@/components/dashboard/order/order-modal';
-// import { OrdersFilters } from '@/components/dashboard/order/orders-filters';
-// import type { Filters } from '@/components/dashboard/order/orders-filters';
-// import { OrdersPagination } from '@/components/dashboard/order/orders-pagination';
-// import { OrdersSelectionProvider } from '@/components/dashboard/order/orders-selection-context';
-// import type { Order } from '@/components/dashboard/order/orders-table';
-
+import { Asiento } from '@/api/asientos/asientos-types';
+import { useAsientos } from '@/api/asientos/asientos-request';
+import AsientoDetailsModal from '@/components/dashboard/asientos/asiento-detail-modal';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export function Page(): React.JSX.Element {
-     // const { customer, id, previewId, sortDir, status } = useExtractSearchParams();
 
-     // const sortedOrders = applySort(orders, sortDir);
+     const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
+     const [openModal, setOpenModal] = React.useState(false);
+
+     const { data: asientos, isLoading, isError, refetch } = useAsientos();
+     const [searchParams, setSearchParams] = useSearchParams();
+     const navigate = useNavigate();
+
+     const handleOpenModal = (asiento: Asiento) => {
+          if (asiento?.id) {
+               setSelectedAsiento(asiento);
+               setOpenModal(true);
+               navigate(`/dashboard/asientos?previewId=${asiento.id}`);
+          }
+     };
+
+     const handleCloseModal = () => {
+          setSelectedAsiento(null);
+          setOpenModal(false);
+          navigate('/dashboard/asientos');
+     };
+
+     React.useEffect(() => {
+          const previewId = searchParams.get('previewId');
+
+          // Si hay un previewId en la URL y tenemos asientos cargados
+          if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
+               const asiento = asientos.find(a => a?.id?.toString() === previewId);
+
+               if (asiento) {
+                    setSelectedAsiento(asiento);
+                    setOpenModal(true);
+               } else {
+                    //console.error(`Asiento con ID ${previewId} no encontrado.`);
+                    navigate('/dashboard/asientos');
+               }
+          }
+     }, [searchParams, asientos, openModal]);
+
 
      return (
           <React.Fragment>
@@ -43,44 +71,37 @@ export function Page(): React.JSX.Element {
                                    <Typography variant="h4">Asientos</Typography>
                               </Box>
                               <div>
-                                   <Button 
+                                   <Button
                                         component={RouterLink}
                                         href={paths.dashboard.asientos.create}
-                                        startIcon={<PlusIcon />} 
+                                        startIcon={<PlusIcon />}
                                         variant="contained"
                                    >
                                         Asiento Diario
                                    </Button>
                               </div>
                          </Stack>
-                              <Card>
-                                   <Box sx={{ overflowX: 'auto' }}>
-                                        <AsientoTable />
-                                   </Box>
-                                   <Divider />
-                              </Card>
+                         <Card>
+                              <Box sx={{ overflowX: 'auto' }}>
+                                   <AsientoTable
+                                        asientos={asientos}        // Pasamos los datos
+                                        isLoading={isLoading}      // Estado de carga
+                                        isError={isError}          // Estado de error
+                                        onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal  
+                                        refetch = {refetch}
+                                   />
+                              </Box>
+                              <Divider />
+                         </Card>
                     </Stack>
                </Box>
-               {/* <OrderModal open={Boolean(previewId)} /> */}
+               <AsientoDetailsModal
+                    open={openModal}
+                    onClose={handleCloseModal}
+                    asiento={selectedAsiento}
+                    previewId={searchParams.get('previewId') || ''}
+               />
           </React.Fragment>
      );
 }
-
-// function useExtractSearchParams(): {
-//      customer?: string;
-//      id?: string;
-//      previewId?: string;
-//      sortDir?: 'asc' | 'desc';
-//      status?: string;
-// } {
-//      const [searchParams] = useSearchParams();
-
-//      return {
-//           customer: searchParams.get('customer') || undefined,
-//           id: searchParams.get('id') || undefined,
-//           previewId: searchParams.get('previewId') || undefined,
-//           sortDir: (searchParams.get('sortDir') || undefined) as 'asc' | 'desc' | undefined,
-//           status: searchParams.get('status') || undefined,
-//      };
-// }
 

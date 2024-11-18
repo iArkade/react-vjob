@@ -1,69 +1,37 @@
 import {
      Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-     Avatar, Typography, Chip, Paper, Box,
-     TablePagination
+     Typography, Chip, Paper, Box,
+     TablePagination,
+     CircularProgress,
+     Alert,
+     Button,
 } from '@mui/material';
 import { Visibility } from '@mui/icons-material';
-import VisaIcon from '@mui/icons-material/CreditCard'; // Usa el ícono de Visa o personaliza
-import ApplePayIcon from '@mui/icons-material/Apple'; // Icono de Apple Pay
-import GooglePayIcon from '@mui/icons-material/Google'; // Icono de Google Pay
-import AmexIcon from '@mui/icons-material/CreditCard'; // Icono de American Express
 import { useState } from 'react';
+import { Asiento } from '@/api/asientos/asientos-types';
 
-type OrderStatus = 'Pendiente' | 'Completo' | 'Cancelado' | 'Rechazado';
+type OrderStatus = 'Pendiente' | 'Activo' | 'Cancelado' | 'Rechazado';
 
 const statusColors: Record<OrderStatus, 'default' | 'error' | 'warning' | 'success'> = {
      Pendiente: 'warning',
-     Completo: 'success',
+     Activo: 'success',
      Cancelado: 'error',
      Rechazado: 'default',
 };
 
-const orders = [
-     {
-          date: 'NOV 6',
-          order: 'ORD-005',
-          products: 1,
-          amount: '$56.70',
-          paymentMethod: { type: 'Visa', icon: <VisaIcon />, lastDigits: '4011' },
-          customer: { name: 'Penjani Inyene', email: 'penjani.inyene@domain.com', avatar: '/path/to/avatar1.jpg' },
-          status: 'Pendiente' as OrderStatus,
-     },
-     {
-          date: 'NOV 6',
-          order: 'ORD-004',
-          products: 1,
-          amount: '$49.12',
-          paymentMethod: { type: 'American Express', icon: <AmexIcon />, lastDigits: '5678' },
-          customer: { name: 'Jie Yan', email: 'jie.yan@domain.com', avatar: '/path/to/avatar2.jpg' },
-          status: 'Completo' as OrderStatus,
-     },
-     {
-          date: 'NOV 6',
-          order: 'ORD-003',
-          products: 2,
-          amount: '$18.75',
-          paymentMethod: { type: 'Apple Pay', icon: <ApplePayIcon />, lastDigits: '' },
-          customer: { name: 'Fran Perez', email: 'fran.perez@domain.com', avatar: '/path/to/avatar3.jpg' },
-          status: 'Cancelado' as OrderStatus,
-     },
-     {
-          date: 'NOV 5',
-          order: 'ORD-002',
-          products: 1,
-          amount: '$49.99',
-          paymentMethod: { type: 'Google Pay', icon: <GooglePayIcon />, lastDigits: '' },
-          customer: { name: 'Carson Darrin', email: 'carson.darrin@domain.com', avatar: '/path/to/avatar4.jpg' },
-          status: 'Rechazado' as OrderStatus,
-     },
-];
+type AsientoTableProps = {
+     asientos: Asiento[] | undefined;
+     isLoading: boolean;
+     isError: boolean;
+     onOpenModal: (asiento: Asiento) => void;
+     refetch: () => void;
+};
 
-
-export default function AsientoTable() {
+export default function AsientoTable({ asientos, isLoading, isError, onOpenModal, refetch }: AsientoTableProps) {
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
 
-     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+     const handleChangePage = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
           setPage(newPage);
      };
 
@@ -72,70 +40,87 @@ export default function AsientoTable() {
           setPage(0);
      };
 
-     const paginatedOrders = orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+     const paginatedAsientos = asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
 
+     if (isLoading) {
+          return <CircularProgress />;
+     }
+
+     if (isError) {
+          return <Alert severity="error">Error al cargar los asientos</Alert>;
+     }
      return (
-          <TableContainer component={Paper}>
-               <Table>
-                    <TableHead>
-                         <TableRow>
-                              <TableCell>Order</TableCell>
-                              <TableCell>Payment Method</TableCell>
-                              <TableCell>Customer</TableCell>
-                              <TableCell>Status</TableCell>
-                              <TableCell align="right">Actions</TableCell>
-                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                         {paginatedOrders.map((order, index) => (
-                              <TableRow key={index}>
-                                   <TableCell>
-                                        <Box display="flex" flexDirection="column">
-                                             <Typography variant="body2" color="textSecondary">{order.date}</Typography>
-                                             <Typography variant="subtitle2">{order.order}</Typography>
-                                             <Typography variant="body2" color="textSecondary">{order.products} products • {order.amount}</Typography>
-                                        </Box>
-                                   </TableCell>
-                                   <TableCell>
-                                        <Box display="flex" alignItems="center">
-                                             {order.paymentMethod.icon}
-                                             <Typography variant="body2" sx={{ ml: 1 }}>{order.paymentMethod.type}</Typography>
-                                             <Typography variant="body2" color="textSecondary" sx={{ ml: 1 }}>**** {order.paymentMethod.lastDigits}</Typography>
-                                        </Box>
-                                   </TableCell>
-                                   <TableCell>
-                                        <Box display="flex" alignItems="center">
-                                             <Avatar alt={order.customer.name} src={order.customer.avatar} sx={{ width: 32, height: 32, mr: 1 }} />
-                                             <Box>
-                                                  <Typography variant="subtitle2">{order.customer.name}</Typography>
-                                                  <Typography variant="body2" color="textSecondary">{order.customer.email}</Typography>
-                                             </Box>
-                                        </Box>
-                                   </TableCell>
-                                   <TableCell>
-                                        <Chip
-                                             label={order.status}
-                                             color={statusColors[order.status as OrderStatus]}
-                                             variant="outlined"
-                                             size="small"
-                                        />
-                                   </TableCell>
-                                   <TableCell align="right">
-                                        <Visibility fontSize="small" sx={{ color: 'action.active' }} />
-                                   </TableCell>
+          <>
+               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mr={2} mt={2}>
+                    <Typography variant="h5" ml={2}>Lista de Asientos</Typography>
+                    <Button variant="contained" onClick={refetch}>
+                         Recargar Asientos
+                    </Button>
+               </Box>
+               <TableContainer component={Paper}>
+                    <Table>
+                         <TableHead>
+                              <TableRow>
+                                   <TableCell>Asiento</TableCell>
+                                   <TableCell>Comentario</TableCell>
+                                   <TableCell>Tipo Transacción</TableCell>
+                                   <TableCell>Estado</TableCell>
+                                   <TableCell>Total Debe</TableCell>
+                                   <TableCell>Total Haber</TableCell>
+                                   <TableCell align="right">Acciones</TableCell>
                               </TableRow>
-                         ))}
-                    </TableBody>
-               </Table>
-               <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={orders.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-               />
-          </TableContainer>
+                         </TableHead>
+                         <TableBody>
+                              {paginatedAsientos.map((asiento) => (
+                                   <TableRow key={asiento.id}>
+                                        <TableCell>
+                                             <Box display="flex" flexDirection="column">
+                                                  <Typography variant="body2" color="textSecondary">{asiento.fecha_emision}</Typography>
+                                                  <Typography variant="subtitle2">#{asiento.nro_asiento}</Typography>
+                                                  <Typography variant="body2" color="textSecondary">ID-{asiento.id}</Typography>
+
+                                             </Box>
+                                        </TableCell>
+                                        <TableCell>{asiento.comentario}</TableCell>
+                                        <TableCell>{asiento.tipo_transaccion}</TableCell>
+                                        {/* <TableCell>{asiento.estado}</TableCell> */}
+                                        <TableCell>
+                                             <Chip
+                                                  label={asiento.estado}
+                                                  color={statusColors[asiento.estado as OrderStatus]}
+                                                  variant="outlined"
+                                                  size="small"
+                                             />
+                                        </TableCell>
+                                        <TableCell>{asiento.total_debe}</TableCell>
+                                        <TableCell>{asiento.total_haber}</TableCell>
+                                        <TableCell align="center">
+                                             <Visibility
+                                                  fontSize="small"
+                                                  sx={{
+                                                       color: 'action.active',
+                                                       cursor: 'pointer',
+                                                       '&:hover': {
+                                                            color: 'primary.main',
+                                                       },
+                                                  }}
+                                                  onClick={() => onOpenModal(asiento)}
+                                             />
+                                        </TableCell>
+                                   </TableRow>
+                              ))}
+                         </TableBody>
+                    </Table>
+                    <TablePagination
+                         rowsPerPageOptions={[5, 10, 25]}
+                         component="div"
+                         count={asientos?.length || 0}
+                         rowsPerPage={rowsPerPage}
+                         page={page}
+                         onPageChange={handleChangePage}
+                         onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+               </TableContainer>
+          </>
      );
 }

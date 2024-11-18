@@ -60,7 +60,7 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                                              onClick={() => isSelectable(account.code) && onSelect(account.code, account.name)}
                                              style={{
                                                   cursor: isSelectable(account.code) ? 'pointer' : 'default',
-                                                  backgroundColor: isSelectable(account.code) ? 'inherit' : '#f0f0f0',
+                                                  backgroundColor: isSelectable(account.code) ? 'inherit' : '#d1cdcd',
                                              }}
                                         >
                                              <TableCell>{account.code}</TableCell>

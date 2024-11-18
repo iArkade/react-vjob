@@ -71,6 +71,9 @@ export const useGetTransaccionContable = () =>
     useQuery({
         queryKey: ['GetTransaccionContable'],
         queryFn: () => getTransaccionContableRequest(),
+        onError: (error) => {
+            console.error('Error al obtener las transacciones:', error);
+        }
     });
 
 
