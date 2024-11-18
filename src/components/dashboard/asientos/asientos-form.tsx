@@ -156,7 +156,6 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
      const onSubmit = React.useCallback(
           async (data: Values): Promise<void> => {
                try {
-
                     const totalDebe = parseFloat((getValues('total_debe') || 0).toFixed(2));
                     const totalHaber = parseFloat((getValues('total_haber') || 0).toFixed(2));
 
@@ -174,16 +173,16 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                          fecha_emision:fechaEmisionISO,
                          total_debe: parseFloat(total_debe.toFixed(2)),
                          total_haber: parseFloat(total_haber.toFixed(2)),
-                         // lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
-                         //      ...rest,
-                         //      debe: parseFloat(rest.debe.toFixed(2)),
-                         //      haber: parseFloat(rest.haber.toFixed(2)),
-                         // })),
+                         lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
+                              ...rest,
+                              debe: parseFloat(rest.debe.toFixed(2)),
+                              haber: parseFloat(rest.haber.toFixed(2)),
+                         })),
                     };
 
                     await createAsiento(dataToSend);
-                    //showSnackbar('Asiento creado exitosamente', 'success');
-                    //navigate(paths.dashboard.asientos.index);
+                    showSnackbar('Asiento creado exitosamente', 'success');
+                    navigate(paths.dashboard.asientos.index);
                } catch (err) {
                     logger.error(err);
                     showSnackbar('Algo salió mal!', 'error');
@@ -192,16 +191,15 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
           [navigate, createAsiento, getValues]
      );
 
-     const [selectedCentroNombre, setSelectedCentroNombre] = React.useState('');
-
      const handleCentroChange = React.useCallback(
-          (selectedCentro: { codigo: string, nombre: string }) => {
+          (selectedCentro:string) => {
                const lineItems = getValues('lineItems') || [];
+               
                if (lineItems.length === 0) {
                     setValue('lineItems', [
                          {
                               id_asiento_item: `LI-1`,
-                              codigo_centro: selectedCentro.codigo,
+                              codigo_centro: selectedCentro,
                               cta: '',
                               cta_nombre: '',
                               debe: 0,
@@ -210,37 +208,33 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                          }
                     ]);
                } else {
-                    setValue(`lineItems.0.codigo_centro`, selectedCentro.nombre);
+                    setValue(`lineItems.0.codigo_centro`, selectedCentro);
                }
           }, [getValues, setValue]
      )
 
-     // const handleAddLineItem = React.useCallback(() => {
-     //      const lineItems = getValues('lineItems') || [];
-     //      const currentCentroString  = getValues('codigo_centro') || '';
-     //      const currentCentro = currentCentroString ? JSON.parse(currentCentroString) : {};
-     //      const nombreCentro = currentCentro.nombre || '';
-     //      // Crea una copia de lineItems y agrega el nuevo elemento
-     //      const newLineItems = [
-     //           ...lineItems,
-     //           {
-     //                id_asiento_item: `LI-${lineItems.length + 1}`,
-     //                codigo_centro: nombreCentro,
-     //                cta: '',
-     //                cta_nombre: '',
-     //                debe: 0,
-     //                haber: 0,
-     //                nota: ''
-     //           },
-     //      ];
-     //      setValue('lineItems', newLineItems);
-     // }, [getValues, setValue]);
+     const handleAddLineItem = React.useCallback(() => {
+          const lineItems = getValues('lineItems') || [];
+          const currentCentro = getValues('codigo_centro') || '';
 
-     // const handleRemoveLineItem = React.useCallback((lineItemId: string) => {
-     //      const lineItems = getValues('lineItems') || [];
-     //      const newLineItems = lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId);
-     //      setValue('lineItems', newLineItems);
-     // }, [getValues, setValue]);
+          setValue('lineItems', [
+               ...lineItems,
+               {
+                    id_asiento_item: `LI-${lineItems.length + 1}`,
+                    codigo_centro: currentCentro, cta: '',
+                    cta_nombre: '',
+                    debe: 0,
+                    haber: 0,
+                    nota: ''
+               },
+          ]);
+     }, [getValues, setValue]);
+
+     const handleRemoveLineItem = React.useCallback((lineItemId: string) => {
+          const lineItems = getValues('lineItems') || [];
+          const newLineItems = lineItems.filter((lineItem) => lineItem.id_asiento_item !== lineItemId);
+          setValue('lineItems', newLineItems);
+     }, [getValues, setValue]);
 
      const lineItems = watch('lineItems') || [];
 
@@ -403,9 +397,8 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                                       disabled={isLoadingCentros || isErrorCentros}
                                                                       value={field.value || ''}
                                                                       onChange={(e) => {
-                                                                           const selectedCentro = JSON.parse(e.target.value);
-                                                                           field.onChange(selectedCentro.codigo); // Solo guardamos el código
-                                                                           handleCentroChange(selectedCentro);
+                                                                           field.onChange(e);
+                                                                           handleCentroChange(e.target.value);
                                                                       }}
                                                                  >
                                                                       {isErrorCentros && <Option value=""><em>Error cargando centros</em></Option>}
@@ -413,9 +406,8 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                                       {isLoadingCentros ? (
                                                                            <Option value=""><em>Cargando centros...</em></Option>
                                                                       ) : (
-                                                                           centros?.map((centro: DatCentro) => (
-                                                                                //value={centro.codigo}
-                                                                                <Option key={centro.id}  value={JSON.stringify({ codigo: centro.codigo, nombre: centro.nombre })}>
+                                                                           centros?.map((centro: DatCentro) => (                                                                                //value={JSON.stringify({ codigo: centro.codigo, nombre: centro.nombre })}>
+                                                                                <Option key={centro.id}  value={centro.codigo}>
                                                                                      {centro.nombre}
                                                                                 </Option>
                                                                            ))
@@ -435,7 +427,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
 
                                    <Divider sx={{ borderBottomWidth: 2, borderColor: 'darkgray'}} />
 
-                                   {/* <Stack spacing={3}>
+                                   <Stack spacing={3}>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={0}>
                                              <Typography variant="h6">Line items</Typography>
                                              <Button
@@ -469,6 +461,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                                       index={index}
                                                                       onRemove={handleRemoveLineItem}
                                                                       handleOpenModal={handleOpenModal}
+                                                                      handleCentroChange={handleCentroChange}
                                                                  />
                                                             ))}
                                                        </TableBody>
@@ -480,7 +473,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                   onSelect={handleSelectAccount}
                                              />
                                         </Stack>
-                                   </Stack> */}
+                                   </Stack>
 
                                    <Snackbar
                                         open={snackbar.open}

@@ -1,18 +1,24 @@
 // LineItemRow.tsx
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { OutlinedInput, TableCell, TableRow, IconButton } from '@mui/material';
+import { OutlinedInput, TableCell, TableRow, IconButton, Select } from '@mui/material';
 import { Trash as TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
+import { useAccounts } from '@/api/asientos/asientos-request';
+import { Option } from '@/components/core/option';
+import { DatCentro } from '@/api/asientos/asientos-types';
+
 
 interface LineItemRowProps {
      item: any;
      index: number;
      onRemove: (id: string) => void;
      handleOpenModal: (index: number) => void;
+     handleCentroChange: (centro:string) => void;
 }
 
-const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handleOpenModal }) => {
+const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handleOpenModal, handleCentroChange }) => {
      const { control, setValue, getValues } = useFormContext();
+     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useAccounts();
 
      const handleDebeChange = (value: number) => {
 
@@ -43,7 +49,30 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handle
                     <Controller
                          control={control}
                          name={`lineItems.${index}.codigo_centro`}
-                         render={({ field }) => <OutlinedInput {...field} fullWidth />}
+                         render={({ field }) => 
+                              <Select 
+                                   {...field} 
+                                   label="Centro"
+                                   disabled={isLoadingCentros || isErrorCentros}
+                                   value={field.value || ''}     
+                                   onChange={(e) => {
+                                        field.onChange(e);
+                                        handleCentroChange(e.target.value);
+                                   }} 
+                              >
+                                   {isErrorCentros && <Option value=""><em>Error cargando centros</em></Option>}
+                                                                      
+                                   {isLoadingCentros ? (
+                                        <Option value=""><em>Cargando centros...</em></Option>
+                                   ) : (
+                                        centros?.map((centro: DatCentro) => (
+                                             <Option key={centro.id}  value={centro.codigo}>
+                                                  {centro.nombre}
+                                             </Option>
+                                        ))
+                                   )}
+                              </Select>
+                         }
                     />
                </TableCell>
                <TableCell>
