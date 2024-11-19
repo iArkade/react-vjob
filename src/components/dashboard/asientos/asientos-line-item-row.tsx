@@ -3,9 +3,9 @@ import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { OutlinedInput, TableCell, TableRow, IconButton, Select } from '@mui/material';
 import { Trash as TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
-import { useAccounts } from '@/api/asientos/asientos-request';
 import { Option } from '@/components/core/option';
 import { DatCentro } from '@/api/asientos/asientos-types';
+import { useGetCentroCosto } from '@/api/centro_costo/centro-costo-request';
 
 
 interface LineItemRowProps {
@@ -18,7 +18,7 @@ interface LineItemRowProps {
 
 const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handleOpenModal, handleCentroChange }) => {
      const { control, setValue, getValues } = useFormContext();
-     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useAccounts();
+     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useGetCentroCosto();
 
      const handleDebeChange = (value: number) => {
 

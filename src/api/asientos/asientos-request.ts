@@ -1,21 +1,21 @@
 import { useMutation, useQuery } from "react-query";
 import http from "../http"
-import { Asiento, DatCentro } from "./asientos-types";
+import { Asiento } from "./asientos-types";
 
 
-const getDatCentro = async () => {
-     const response = await http.get(`dat-centro`)
-     return response.data;
-}
-export const useAccounts = () => {
-     return useQuery<DatCentro[]>({
-          queryKey: ['dat-centro'],
-          queryFn: getDatCentro,
-          onError: (error) => {
-               console.error('Error al obtener las cuentas:', error);
-          }
-     });
-};
+// const getDatCentro = async () => {
+//      const response = await http.get(`dat-centro`)
+//      return response.data;
+// }
+// export const useAccounts = () => {
+//      return useQuery<DatCentro[]>({
+//           queryKey: ['dat-centro'],
+//           queryFn: getDatCentro,
+//           onError: (error) => {
+//                console.error('Error al obtener las cuentas:', error);
+//           }
+//      });
+// };
 
 const getAsientos = async () => {
      const response = await http.get(`asientos`)

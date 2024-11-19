@@ -28,12 +28,13 @@ import { Option } from '@/components/core/option';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CardActions, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Box, Snackbar, Alert } from '@mui/material';
-import { useAccounts, useCreateAsiento } from '@/api/asientos/asientos-request';
+import { useCreateAsiento } from '@/api/asientos/asientos-request';
 import { DatCentro } from '@/api/asientos/asientos-types';
 import { AccountSelectionModal } from './account-selection';
 import LineItemRow from './asientos-line-item-row';
-import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contableRequest';
 import { TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable.types';
+import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
+import { useGetCentroCosto } from '@/api/centro_costo/centro-costo-request';
 
 
 const schema = zod
@@ -94,6 +95,7 @@ const defaultValues: Values = {
 };
 
 type AsientosFormProps = {
+     //asiento?: Omit<Values, 'total'>
      asiento?: Omit<Values, 'total'>
 };
 
@@ -118,7 +120,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
           watch,
      } = methods;
 
-     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useAccounts();
+     const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useGetCentroCosto();
      const { data: transacciones = [], isLoading: isLoadingTransacciones, isError: isErrorTransacciones } = useGetTransaccionContable();
 
      const { mutate: createAsiento } = useCreateAsiento();
@@ -249,6 +251,22 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
           setValue('total', totalCombined);
      }, [lineItems, setValue]);
 
+     const handleTransaccionChange = React.useCallback(
+          (selectedTransaccion: string) => {
+               const selectedTransaccionData = transacciones.find((transaccion: TransaccionContableResponseType) => transaccion.nombre === selectedTransaccion);
+               console.log(selectedTransaccionData)
+               if(selectedTransaccionData){
+                    const currentYear = new Date().getFullYear();
+                    const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;
+                    setValue('nro_asiento', nroAsiento)
+               }else{
+                    console.error('Transacción seleccionada no encontrada');
+               }
+
+          },[transacciones, setValue]
+          
+     )
+
      const [openModal, setOpenModal] = React.useState(false);
      const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
@@ -315,6 +333,10 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                                       label="Transaccion"
                                                                       disabled={isLoadingTransacciones || isErrorTransacciones}
                                                                       value={field.value || ''}
+                                                                      onChange={(e) => {
+                                                                           field.onChange(e);
+                                                                           handleTransaccionChange(e.target.value);
+                                                                      }}
                                                                  >
                                                                       {isErrorTransacciones && <Option value=""><em>Error cargando transacciones</em></Option>}
                                                                       {isLoadingTransacciones ? (
@@ -420,7 +442,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                              </Grid>
 
                                              <Grid size={{ xs: 2, md: 2 }}>
-                                                  <Button variant="outlined" sx={{ marginTop: '28px' }}>...</Button> {/* Botón adicional */}
+                                                  <Button variant="outlined" sx={{ marginTop: '28px' }}>...</Button>
                                              </Grid>
                                         </Grid>
                                    </Stack>
