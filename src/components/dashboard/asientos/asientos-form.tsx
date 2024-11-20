@@ -252,8 +252,8 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
 
      const handleTransaccionChange = React.useCallback(
           (selectedTransaccion: string) => {
-               const selectedTransaccionData = transacciones.find((transaccion: TransaccionContableResponseType) => transaccion.nombre === selectedTransaccion);
-               console.log(selectedTransaccionData)
+               const selectedTransaccionData = transacciones.find((transaccion: TransaccionContableResponseType) => transaccion.codigo_transaccion === selectedTransaccion);
+               //console.log(selectedTransaccion);
                if(selectedTransaccionData){
                     const currentYear = new Date().getFullYear();
                     const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;
@@ -261,7 +261,6 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                }else{
                     console.error('Transacción seleccionada no encontrada');
                }
-
           },[transacciones, setValue]
           
      )
@@ -352,7 +351,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                                            <Option value=""><em>Cargando transacciones...</em></Option>
                                                                       ) : (
                                                                            transacciones?.map((transaccion: TransaccionContableResponseType) => (
-                                                                                <Option key={transaccion.id} value={transaccion.nombre}>
+                                                                                <Option key={transaccion.id} value={transaccion.codigo_transaccion}>
                                                                                      {transaccion.nombre}
                                                                                 </Option>
                                                                            ))
