@@ -100,7 +100,18 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handle
                                    {...field}
                                    type="number"
                                    inputProps={{ min: 0, step: 0.01 }}
-                                   onChange={(e) => handleDebeChange(parseFloat(e.target.value) || 0)}
+                                   //onChange={(e) => handleDebeChange(parseFloat(e.target.value) || 0)}
+                                   onChange={(e) => {
+                                        const value = e.target.value;
+                                        const parsedValue = value === '' ? '' : parseFloat(value);
+                                        field.onChange(parsedValue);
+                                   }}
+                                   onBlur={(e) => {
+                                        const value = e.target.value;
+                                        const parsedValue = value === '' ? 0 : parseFloat(value);
+                                        field.onChange(parsedValue);
+                                        handleDebeChange(parsedValue);
+                                   }}
                                    fullWidth
                               />
                          )}
@@ -115,7 +126,17 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, onRemove, handle
                                    {...field}
                                    type="number"
                                    inputProps={{ min: 0, step: 0.01 }}
-                                   onChange={(e) => handleHaberChange(parseFloat(e.target.value) || 0)}
+                                   onChange={(e) => {
+                                        const value = e.target.value;
+                                        const parsedValue = value === '' ? '' : parseFloat(value);
+                                        field.onChange(parsedValue);
+                                   }}
+                                   onBlur={(e) => {
+                                        const value = e.target.value;
+                                        const parsedValue = value === '' ? 0 : parseFloat(value);
+                                        field.onChange(parsedValue);
+                                        handleHaberChange(parsedValue);
+                                   }}                                   
                                    fullWidth
                               />
                          )}

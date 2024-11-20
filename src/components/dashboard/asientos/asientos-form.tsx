@@ -122,7 +122,6 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
 
      const { data: centros = [], isLoading: isLoadingCentros, isError: isErrorCentros } = useGetCentroCosto();
      const { data: transacciones = [], isLoading: isLoadingTransacciones, isError: isErrorTransacciones } = useGetTransaccionContable();
-
      const { mutate: createAsiento } = useCreateAsiento();
      //const { mutate: updateAsiento } = useUpdateAsiento();
 
@@ -302,7 +301,17 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                        render={({ field }) => (
                                                             <FormControl fullWidth>
                                                                  <InputLabel>Numero:</InputLabel>
-                                                                 <OutlinedInput {...field} />
+                                                                 <OutlinedInput 
+                                                                      {...field} 
+                                                                      readOnly
+                                                                      sx={{
+                                                                           backgroundColor: '#f5f5f5',
+                                                                           color: '#777777', // Texto gris
+                                                                           '& .MuiOutlinedInput-notchedOutline': {
+                                                                             borderColor: '#bdbdbd', // Borde gris
+                                                                           },
+                                                                      }}
+                                                                 />
                                                             </FormControl>
                                                        )}
                                                   />
@@ -564,6 +573,7 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
                                                             <FormControl fullWidth>
                                                                  <OutlinedInput
                                                                       {...field}
+                                                                      readOnly
                                                                       sx={{
                                                                            fontWeight: 'bold',
                                                                            textAlign: 'right',
