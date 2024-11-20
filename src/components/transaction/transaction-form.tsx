@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useRef } from 'react';
 import { TableRow, TableCell, TextField, Button, Checkbox } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { TransaccionContableRequestType } from '@/api/transaccion_contable/transaccion-contable.types';
@@ -12,9 +12,9 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
     const [newTransaction, setNewTransaction] = useState<TransaccionContableRequestType>({
         codigo_transaccion: '',
         nombre: '',
-        secuencial: '000000001', // Valor inicial cambiado a 000000001
-        lectura: 0,
-        activo: false
+        secuencial: '000000001',
+        lectura: 1,
+        activo: true
     });
 
     const [errors, setErrors] = useState({
@@ -23,6 +23,14 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
         secuencial: '',
         lectura: '',
     });
+
+    // Referencias más específicas
+    const codigoRef = useRef<HTMLInputElement>(null);
+    const nombreRef = useRef<HTMLInputElement>(null);
+    const secuencialRef = useRef<HTMLInputElement>(null);
+    const lecturaRef = useRef<HTMLInputElement>(null);
+    const checkboxRef = useRef<HTMLButtonElement>(null);
+    const submitButtonRef = useRef<HTMLButtonElement>(null);
 
     const validateField = useCallback((field: keyof typeof newTransaction, value: any) => {
         switch (field) {
@@ -74,6 +82,37 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
         });
     }, []);
 
+    const focusNextElement = useCallback(() => {
+        const refs = [
+            codigoRef, 
+            nombreRef, 
+            secuencialRef, 
+            lecturaRef, 
+            checkboxRef, 
+            submitButtonRef
+        ];
+
+        const currentRef = document.activeElement;
+        
+        const currentIndex = refs.findIndex(ref => 
+            ref.current === currentRef || 
+            ref.current?.contains(currentRef as Node)
+        );
+
+        if (currentIndex !== -1 && currentIndex < refs.length - 1) {
+            refs[currentIndex + 1].current?.focus();
+        }
+    }, []);
+
+    const handleKeyDown = useCallback((
+        e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>
+    ) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            focusNextElement();
+        }
+    }, [focusNextElement]);
+
     const handleSubmit = useCallback(() => {
         const newErrors = {
             codigo_transaccion: validateField('codigo_transaccion', newTransaction.codigo_transaccion),
@@ -93,53 +132,75 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
             codigo_transaccion: '', 
             nombre: '', 
             secuencial: '000000001', // Reset a 000000001
-            lectura: 0, 
-            activo: false 
+            lectura: 1, 
+            activo: true 
         });
         setErrors({ codigo_transaccion: '', nombre: '', secuencial: '', lectura: '' });
+        
+        // Volver al primer campo después de submit
+        codigoRef.current?.focus();
     }, [newTransaction, onSubmit, validateField]);
 
     return (
         <TableRow>
             <TableCell>
                 <TextField
+                    inputRef={codigoRef}
                     placeholder="Nuevo código"
                     value={newTransaction.codigo_transaccion}
                     onChange={handleInputChange('codigo_transaccion')}
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     size="small"
                     error={!!errors.codigo_transaccion}
                     helperText={errors.codigo_transaccion}
+                    InputProps={{
+                        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => 
+                            handleKeyDown(e)
+                    }}
                 />
             </TableCell>
             <TableCell>
                 <TextField
+                    inputRef={nombreRef}
                     placeholder="Nuevo nombre"
                     value={newTransaction.nombre}
                     onChange={handleInputChange('nombre')}
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     size="small"
                     error={!!errors.nombre}
                     helperText={errors.nombre}
+                    InputProps={{
+                        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => 
+                            handleKeyDown(e)
+                    }}
                 />
             </TableCell>
             <TableCell>
                 <TextField
+                    inputRef={secuencialRef}
                     placeholder="Secuencial"
                     value={newTransaction.secuencial}
-                    onKeyDown={handleSecuencialKeyDown}
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     size="small"
                     error={!!errors.secuencial}
                     helperText={errors.secuencial}
-
+                    InputProps={{
+                        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+                            if (e.key === 'Enter') {
+                                handleKeyDown(e);
+                            } else {
+                                handleSecuencialKeyDown(e);
+                            }
+                        }
+                    }}
                 />
             </TableCell>
             <TableCell>
                 <TextField
+                    inputRef={lecturaRef}
                     type="number"
                     placeholder="Lectura"
                     value={newTransaction.lectura}
@@ -155,10 +216,15 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
                     size="small"
                     error={!!errors.lectura}
                     helperText={errors.lectura}
+                    InputProps={{
+                        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => 
+                            handleKeyDown(e)
+                    }}
                 />
             </TableCell>
             <TableCell align="center">
                 <Checkbox
+                    ref={checkboxRef}
                     checked={newTransaction.activo}
                     onChange={(e, checked) => {
                         setNewTransaction(prev => ({
@@ -166,13 +232,22 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(({ onSubmit, existi
                             activo: checked
                         }));
                     }}
+                    onKeyDown={(e) => handleKeyDown(e)}
                 />
             </TableCell>
             <TableCell>
                 <Button
+                    ref={submitButtonRef}
                     variant="contained"
                     color="primary"
                     onClick={handleSubmit}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSubmit();
+                        } else {
+                            handleKeyDown(e);
+                        }
+                    }}
                     startIcon={<AddIcon />}
                     fullWidth
                 >
