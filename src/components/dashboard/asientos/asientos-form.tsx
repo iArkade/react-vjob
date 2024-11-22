@@ -48,51 +48,51 @@ import { TransaccionContableResponseType } from "@/api/transaccion_contable/tran
 import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccion-contable-request";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 
-const schema = zod.object({
-  nro_asiento: zod.string().max(255),
-  codigo_transaccion: zod.string().max(255),
-  fecha_emision: zod.date(),
-  comentario: zod.string().max(1500),
-  secuencial: zod.string().max(255),
-  nro_referencia: zod.string().max(255),
-  codigo_centro: zod.string().max(255),
-  estado: zod.string().max(255),
-  lineItems: zod.array(
-    zod.object({
-      id_asiento_item: zod.string(),
-      codigo_centro: zod.string(),
-      cta: zod.string(),
-      cta_nombre: zod.string(),
-      debe: zod.number().default(0),
-      haber: zod.number().default(0),
-      nota: zod.string(),
-    })
-  ),
-  total_debe: zod
-    .number()
-    .min(0, "El total de debe tiene que ser mayor o igual que 0")
-    .transform((val) => parseFloat(val.toFixed(2))),
-  total_haber: zod
-    .number()
-    .min(0, "El total de haber tiene que ser mayor o igual que 0")
-    .transform((val) => parseFloat(val.toFixed(2))),
-  total: zod.number(),
+const getCurrentDate = (): string => {
+  const today = new Date();
+  return today?.toISOString()?.split("T")?.[0]; // Devuelve 'YYYY-MM-DD'
+};
+
+const asientoItemSchema = zod.object({
+  //   id: zod.number().optional(),
+  //   uuid: zod.string().optional(), // UUID generado en frontend
+  codigo_centro: zod.string().min(1, "Código centro es requerido"),
+  cta: zod.string().min(1, "Cuenta es requerida"),
+  cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
+  debe: zod.number().min(0, "Debe debe ser un número válido"),
+  haber: zod.number().min(0, "Haber debe ser un número válido"),
+  nota: zod.string().optional(),
 });
 
-type Values = zod.infer<typeof schema>;
+const asientoSchema = zod.object({
+  //   id: zod.number().optional(),
+  fecha_emision: zod.string().min(1, "Fecha de emisión es requerida"),
+  nro_asiento: zod.string().min(1, "Número de asiento es requerido"),
+  comentario: zod.string().default(""),
+  codigo_transaccion: zod.string().min(1, "Código de transacción es requerido"),
+  estado: zod.string().min(1, "Estado es requerido"),
+  nro_referencia: zod.string().min(1, "Número de referencia es requerido"),
+  codigo_centro: zod.string().min(1, "Código centro es requerido"),
+  codigo_empresa: zod.string().optional(),
+  total_debe: zod.number().min(0, "Total debe es requerido"),
+  total_haber: zod.number().min(0, "Total haber es requerido"),
+  total: zod.number().optional(),
+  lineItems: zod.array(asientoItemSchema).min(1, "Debe haber al menos un ítem"),
+});
+
+type Values = zod.infer<typeof asientoSchema>;
 
 const defaultValues: Values = {
   nro_asiento: "",
   codigo_transaccion: "",
-  fecha_emision: new Date(),
+  fecha_emision: getCurrentDate(),
   comentario: "",
-  secuencial: "",
   nro_referencia: "",
   codigo_centro: "",
   estado: "Activo",
   lineItems: [
     {
-      id_asiento_item: "LI-1",
+      //  uuid: "LI-1",
       codigo_centro: "",
       cta: "",
       cta_nombre: "",
@@ -107,13 +107,15 @@ const defaultValues: Values = {
 };
 
 type AsientosFormProps = {
-  //asiento?: Omit<Values, 'total'>
   asiento?: Omit<Values, "total">;
 };
 
 export function AsientosForm({
   asiento,
 }: AsientosFormProps): React.JSX.Element {
+  const [formErrors, setFormErrors] = React.useState<
+    { field: string; message: string }[]
+  >([]);
   const navigate = useNavigate();
 
   const handleCancel = () => {
@@ -122,7 +124,7 @@ export function AsientosForm({
 
   const methods = useForm<Values>({
     defaultValues: asiento || defaultValues,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(asientoSchema),
   });
 
   const {
@@ -180,7 +182,6 @@ export function AsientosForm({
         "No se puede enviar un asiento sin valores en Debe o Haber.",
         "error"
       );
-      //console.log("Error: Tanto Debe como Haber están en cero.");
       return false;
     }
     return true;
@@ -189,6 +190,8 @@ export function AsientosForm({
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
       try {
+        console.log("pass here");
+        console.log(data);
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
         const totalHaber = parseFloat(
           (getValues("total_haber") || 0).toFixed(2)
@@ -196,25 +199,39 @@ export function AsientosForm({
 
         if (!validateTotals(totalDebe, totalHaber)) return;
 
-        const { total, total_debe, total_haber, lineItems, ...asientoData } =
-          data;
-
-        const fechaEmisionISO =
-          data.fecha_emision instanceof Date
-            ? data.fecha_emision.toISOString().split("T")[0] // Convierte la fecha a ISO 8601
-            : dayjs(data.fecha_emision).format("YYYY-MM-DD");
-
+        const { total, lineItems, ...asientoData } = data;
         const dataToSend = {
           ...asientoData,
-          //fecha_emision: new Date(data.fecha_emision).toISOString().split('T')[0],
-          fecha_emision: fechaEmisionISO,
-          total_debe: parseFloat(total_debe.toFixed(2)),
-          total_haber: parseFloat(total_haber.toFixed(2)),
-          lineItems: lineItems.map(({ id_asiento_item, ...rest }) => ({
-            ...rest,
-            debe: parseFloat(rest.debe.toFixed(2)),
-            haber: parseFloat(rest.haber.toFixed(2)),
-          })),
+          total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
+          total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
+          lineItems: lineItems
+            .filter((item) => item !== undefined) // Filtra elementos inválidos
+            .map((item) => {
+              // Diferencia entre filas existentes y nuevas
+              if (item?.id) {
+                // Fila existente, mantén el `id`
+                return {
+                  id: item.id,
+                  codigo_centro: item.codigo_centro,
+                  cta: item.cta,
+                  cta_nombre: item.cta_nombre,
+                  debe: parseFloat(item.debe.toFixed(2)),
+                  haber: parseFloat(item.haber.toFixed(2)),
+                  nota: item.nota,
+                };
+              } else {
+                // Fila nueva, no tiene `id`, pero tiene `uuid` temporal
+                return {
+                  codigo_centro: item.codigo_centro,
+                  cta: item.cta,
+                  cta_nombre: item.cta_nombre,
+                  debe: parseFloat(item.debe.toFixed(2)),
+                  haber: parseFloat(item.haber.toFixed(2)),
+                  nota: item.nota,
+                };
+              }
+              throw new Error("Fila inválida en lineItems");
+            }),
         };
 
         await createAsiento(dataToSend);
@@ -235,7 +252,7 @@ export function AsientosForm({
       if (lineItems.length === 0) {
         setValue("lineItems", [
           {
-            id_asiento_item: `LI-1`,
+            //   uuid: `LI-1`,
             codigo_centro: selectedCentro,
             cta: "",
             cta_nombre: "",
@@ -258,7 +275,7 @@ export function AsientosForm({
     setValue("lineItems", [
       ...lineItems,
       {
-        id_asiento_item: `LI-${lineItems.length + 1}`,
+        //    uuid: `LI-${lineItems.length + 1}`,
         codigo_centro: currentCentro,
         cta: "",
         cta_nombre: "",
@@ -270,11 +287,9 @@ export function AsientosForm({
   }, [getValues, setValue]);
 
   const handleRemoveLineItem = React.useCallback(
-    (lineItemId: string) => {
+    (index: number) => {
       const lineItems = getValues("lineItems") || [];
-      const newLineItems = lineItems.filter(
-        (lineItem) => lineItem.id_asiento_item !== lineItemId
-      );
+      const newLineItems = lineItems.filter((_, i) => i !== index);
       setValue("lineItems", newLineItems);
     },
     [getValues, setValue]
@@ -286,12 +301,12 @@ export function AsientosForm({
     if (!lineItems) return;
 
     const totalDebe: number = lineItems.reduce(
-      (acc, item) => acc + (Number(item.debe) || 0),
+      (acc, item) => acc + (Number(item?.debe) || 0),
       0
     );
 
     const totalHaber: number = lineItems.reduce(
-      (acc, item) => acc + Number(item.haber) || 0,
+      (acc, item) => acc + Number(item?.haber) || 0,
       0
     );
     const totalCombined = parseFloat((totalDebe - totalHaber).toFixed(2));
@@ -338,6 +353,8 @@ export function AsientosForm({
     }
     handleCloseModal();
   };
+
+  console.log(errors);
 
   return (
     <FormProvider {...methods}>
@@ -586,7 +603,7 @@ export function AsientosForm({
                       <TableBody>
                         {lineItems.map((item, index) => (
                           <LineItemRow
-                            key={item.id_asiento_item}
+                            key={index}
                             item={item}
                             index={index}
                             onRemove={handleRemoveLineItem}
