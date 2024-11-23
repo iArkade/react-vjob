@@ -63,7 +63,6 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                               <TableRow>
                                    <TableCell>Asiento</TableCell>
                                    <TableCell>Comentario</TableCell>
-                                   <TableCell>Tipo Transacción</TableCell>
                                    <TableCell>Estado</TableCell>
                                    <TableCell>Total Debe</TableCell>
                                    <TableCell>Total Haber</TableCell>
@@ -82,7 +81,6 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                                              </Box>
                                         </TableCell>
                                         <TableCell>{asiento.comentario}</TableCell>
-                                        <TableCell>{asiento.tipo_transaccion}</TableCell>
                                         {/* <TableCell>{asiento.estado}</TableCell> */}
                                         <TableCell>
                                              <Chip

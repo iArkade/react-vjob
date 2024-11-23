@@ -102,7 +102,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                                             key: 'Tipo de Transacción',
                                                             value: (
                                                                  <Typography variant="subtitle2">
-                                                                      {asiento?.tipo_transaccion}
+                                                                      {asiento?.codigo_transaccion}
                                                                  </Typography>
                                                             ),
                                                        },
