@@ -49,7 +49,7 @@ export const useAsiento = (id: number) => {
 
 
 
-const createAsiento = async (data: any) => {
+const createAsiento = async (data: Asiento) => {
      //console.log(data)
      const response = await http.post('/asientos', data);
      return response.data;

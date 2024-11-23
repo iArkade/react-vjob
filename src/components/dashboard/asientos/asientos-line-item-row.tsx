@@ -39,6 +39,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].debe = value;
     setValue("lineItems", updatedItems);
+    
     if (value !== 0) setValue(`lineItems.${index}.haber`, 0);
   };
 
@@ -46,11 +47,12 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].haber = value;
     setValue("lineItems", updatedItems);
+    
     if (value !== 0) setValue(`lineItems.${index}.debe`, 0);
   };
 
   return (
-    <TableRow key={item.id_asiento_item}>
+    <TableRow key={item.index}>
       <TableCell>
         <IconButton
           onClick={() => onRemove(index)}

@@ -14,23 +14,6 @@ export function Page(): React.JSX.Element {
 
   const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
   //console.log(asiento, asientoId);
-  const transformedAsiento = asiento
-    ? {
-        ...asiento,
-        fecha_emision: new Date(asiento.fecha_emision),
-        lineItems: asiento.lineItems
-          ? asiento.lineItems.map((item, index) => ({
-              id_asiento_item: index || "",
-              codigo_centro: item.codigo_centro || "",
-              cta: item.cta || "",
-              cta_nombre: item.cta_nombre || "",
-              debe: item.debe || 0,
-              haber: item.haber || 0,
-              nota: item.nota || "",
-            }))
-          : [],
-      }
-    : undefined;
 
   return (
     <React.Fragment>
@@ -49,7 +32,7 @@ export function Page(): React.JSX.Element {
             </div>
           </Stack>
           {!isLoading && !isError && asiento && (
-            <AsientosForm asiento={transformedAsiento} />
+            <AsientosForm asiento={asiento} />
           )}
         </Stack>
       </Box>

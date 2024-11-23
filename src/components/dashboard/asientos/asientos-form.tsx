@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { z as zod } from "zod";
 
 import { paths } from "@/paths";
-import { dayjs } from "@/lib/dayjs";
+
 import { logger } from "@/lib/default-logger";
 import { Option } from "@/components/core/option";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider/LocalizationProvider";
@@ -47,6 +46,10 @@ import LineItemRow from "./asientos-line-item-row";
 import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable.types";
 import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccion-contable-request";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
+import { dayjs } from "@/lib/dayjs";
+import 'dayjs/locale/es';
+
+dayjs.locale('es');
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -54,8 +57,6 @@ const getCurrentDate = (): string => {
 };
 
 const asientoItemSchema = zod.object({
-  //   id: zod.number().optional(),
-  //   uuid: zod.string().optional(), // UUID generado en frontend
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
@@ -65,7 +66,6 @@ const asientoItemSchema = zod.object({
 });
 
 const asientoSchema = zod.object({
-  //   id: zod.number().optional(),
   fecha_emision: zod.string().min(1, "Fecha de emisión es requerida"),
   nro_asiento: zod.string().min(1, "Número de asiento es requerido"),
   comentario: zod.string().default(""),
@@ -90,9 +90,11 @@ const defaultValues: Values = {
   nro_referencia: "",
   codigo_centro: "",
   estado: "Activo",
+  total_debe: 0,
+  total_haber: 0,
+  total: 0,
   lineItems: [
     {
-      //  uuid: "LI-1",
       codigo_centro: "",
       cta: "",
       cta_nombre: "",
@@ -101,23 +103,18 @@ const defaultValues: Values = {
       nota: "",
     },
   ],
-  total_debe: 0,
-  total_haber: 0,
-  total: 0,
 };
 
 type AsientosFormProps = {
-  asiento?: Omit<Values, "total">;
+  asiento?: Values;
 };
+
 
 export function AsientosForm({
   asiento,
 }: AsientosFormProps): React.JSX.Element {
-  const [formErrors, setFormErrors] = React.useState<
-    { field: string; message: string }[]
-  >([]);
+  
   const navigate = useNavigate();
-
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
   };
@@ -141,11 +138,13 @@ export function AsientosForm({
     isLoading: isLoadingCentros,
     isError: isErrorCentros,
   } = useGetCentroCosto();
+
   const {
     data: transacciones = [],
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
   } = useGetTransaccionContable();
+
   const { mutate: createAsiento } = useCreateAsiento();
   //const { mutate: updateAsiento } = useUpdateAsiento();
 
@@ -173,7 +172,6 @@ export function AsientosForm({
         "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
         "error"
       );
-      //console.log("Error: La diferencia entre Debe y Haber no es cero.");
       return false;
     }
 
@@ -190,12 +188,9 @@ export function AsientosForm({
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
       try {
-        console.log("pass here");
-        console.log(data);
+
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
-        const totalHaber = parseFloat(
-          (getValues("total_haber") || 0).toFixed(2)
-        );
+        const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 
         if (!validateTotals(totalDebe, totalHaber)) return;
 
@@ -204,34 +199,13 @@ export function AsientosForm({
           ...asientoData,
           total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
           total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
-          lineItems: lineItems
-            .filter((item) => item !== undefined) // Filtra elementos inválidos
-            .map((item) => {
-              // Diferencia entre filas existentes y nuevas
-              if (item?.id) {
-                // Fila existente, mantén el `id`
-                return {
-                  id: item.id,
-                  codigo_centro: item.codigo_centro,
-                  cta: item.cta,
-                  cta_nombre: item.cta_nombre,
-                  debe: parseFloat(item.debe.toFixed(2)),
-                  haber: parseFloat(item.haber.toFixed(2)),
-                  nota: item.nota,
-                };
-              } else {
-                // Fila nueva, no tiene `id`, pero tiene `uuid` temporal
-                return {
-                  codigo_centro: item.codigo_centro,
-                  cta: item.cta,
-                  cta_nombre: item.cta_nombre,
-                  debe: parseFloat(item.debe.toFixed(2)),
-                  haber: parseFloat(item.haber.toFixed(2)),
-                  nota: item.nota,
-                };
-              }
-              throw new Error("Fila inválida en lineItems");
-            }),
+          lineItems: lineItems.map(({ ...rest }) => {
+            return {
+              ...rest,
+              debe: parseFloat(rest.debe.toFixed(2)),
+              haber: parseFloat(rest.haber.toFixed(2)),
+            };
+          }),
         };
 
         await createAsiento(dataToSend);
@@ -252,7 +226,6 @@ export function AsientosForm({
       if (lineItems.length === 0) {
         setValue("lineItems", [
           {
-            //   uuid: `LI-1`,
             codigo_centro: selectedCentro,
             cta: "",
             cta_nombre: "",
@@ -275,7 +248,6 @@ export function AsientosForm({
     setValue("lineItems", [
       ...lineItems,
       {
-        //    uuid: `LI-${lineItems.length + 1}`,
         codigo_centro: currentCentro,
         cta: "",
         cta_nombre: "",
@@ -322,7 +294,6 @@ export function AsientosForm({
         (transaccion: TransaccionContableResponseType) =>
           transaccion.codigo_transaccion === selectedTransaccion
       );
-      //console.log(selectedTransaccion);
       if (selectedTransaccionData) {
         const currentYear = new Date().getFullYear();
         const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;
@@ -354,8 +325,6 @@ export function AsientosForm({
     handleCloseModal();
   };
 
-  console.log(errors);
-
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -364,41 +333,6 @@ export function AsientosForm({
             <Stack spacing={4}>
               <Stack spacing={3}>
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Controller
-                      control={control}
-                      name="nro_asiento"
-                      render={({ field }) => (
-                        <FormControl fullWidth>
-                          <InputLabel>Número:</InputLabel>
-                          <OutlinedInput
-                            {...field}
-                            readOnly
-                            sx={{
-                              backgroundColor: "#f5f5f5",
-                              color: "#777777", // Texto gris
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#bdbdbd", // Borde gris
-                              },
-                            }}
-                          />
-                        </FormControl>
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Controller
-                      control={control}
-                      name="estado"
-                      render={({ field }) => (
-                        <FormControl fullWidth>
-                          <InputLabel>Estado:</InputLabel>
-                          <OutlinedInput {...field} />
-                        </FormControl>
-                      )}
-                    />
-                  </Grid>
 
                   <Grid size={{ xs: 12, md: 4 }}>
                     <Controller
@@ -449,24 +383,70 @@ export function AsientosForm({
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 4 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Controller
+                      control={control}
+                      name="estado"
+                      render={({ field }) => (
+                        <FormControl fullWidth>
+                          <InputLabel>Estado:</InputLabel>
+                          <OutlinedInput {...field} />
+                        </FormControl>
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <Controller
+                      control={control}
+                      name="nro_asiento"
+                      render={({ field }) => (
+                        <FormControl fullWidth>
+                          <InputLabel>Número:</InputLabel>
+                          <OutlinedInput
+                            {...field}
+                            readOnly
+                            sx={{
+                              backgroundColor: "#f5f5f5",
+                              color: "#777777", // Texto gris
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#bdbdbd", // Borde gris
+                              },
+                            }}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                       <Controller
                         control={control}
                         name="fecha_emision"
                         render={({ field }) => (
                           <DatePicker
                             {...field}
-                            format="YYYY-MM-DD"
                             label="Fecha Tr"
-                            onChange={(date) => field.onChange(date?.toDate())}
+                            format="YYYY-MM-DD"
+                            value={field.value ? dayjs(field.value, "YYYY-MM-DD") : null}
+                            onChange={(date) => {
+                              field.onChange(date ? date.format("YYYY-MM-DD") : "");
+                            }}
                             slotProps={{
                               textField: {
                                 error: Boolean(errors.fecha_emision),
                                 fullWidth: true,
                                 helperText: errors.fecha_emision?.message,
+                                InputProps: {
+                                  value: field.value
+                                    ? dayjs(field.value).format("DD [de] MMMM [del] YYYY")
+                                    : "",
+                                  onChange: (e) => {
+                                    field.onChange(e.target.value);
+                                  },
+                                },
                               },
                             }}
-                            value={field.value ? dayjs(field.value) : null}
                           />
                         )}
                       />
