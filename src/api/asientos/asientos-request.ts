@@ -48,7 +48,6 @@ export const useAsiento = (id: number) => {
 };
 
 
-
 const createAsiento = async (data: Asiento) => {
      //console.log(data)
      const response = await http.post('/asientos', data);
@@ -57,6 +56,23 @@ const createAsiento = async (data: Asiento) => {
 
 export const useCreateAsiento = () => {
      return useMutation(createAsiento, {
+          onSuccess: () => {
+               console.log('Asiento creado exitosamente');
+          },
+          onError: (error) => {
+               console.error('Error al crear el asiento:', error);
+          },
+     });
+};
+
+const updateAsiento = async (data: Asiento) => {
+     //console.log(data)
+     const response = await http.post('/asientos', data);
+     return response.data;
+};
+
+export const useUpdateAsiento = () => {
+     return useMutation(updateAsiento, {
           onSuccess: () => {
                console.log('Asiento creado exitosamente');
           },
