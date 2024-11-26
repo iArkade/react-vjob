@@ -57,6 +57,7 @@ const getCurrentDate = (): string => {
 };
 
 const asientoItemSchema = zod.object({
+  id: zod.number().optional(),
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
@@ -188,7 +189,7 @@ export function AsientosForm({
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
       try {
-
+        console.log('aqui si llega esta mrd');
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
         const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 

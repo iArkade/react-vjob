@@ -24,7 +24,7 @@ const getAsientos = async () => {
 
 export const useAsientos = () => {
      return useQuery<Asiento[]>({
-          queryKey: ['asientos'], 
+          queryKey: ['asientos'],
           queryFn: getAsientos,
           onError: (error) => {
                console.error('Error al obtener los asientos:', error);
@@ -39,7 +39,7 @@ const getAsiento = async (id: number) => {
 
 export const useAsiento = (id: number) => {
      return useQuery<Asiento>({
-          queryKey: ['asiento', id], 
+          queryKey: ['asiento', id],
           queryFn: () => getAsiento(id),
           onError: (error) => {
                console.error('Error al obtener los asientos:', error);
@@ -65,19 +65,18 @@ export const useCreateAsiento = () => {
      });
 };
 
-const updateAsiento = async (data: Asiento) => {
-     //console.log(data)
-     const response = await http.post('/asientos', data);
+const updateAsiento = async ({ id, data }: { id: number; data: Asiento }) => {
+     const response = await http.put(`/asientos/${id}`, data);
      return response.data;
 };
 
 export const useUpdateAsiento = () => {
      return useMutation(updateAsiento, {
           onSuccess: () => {
-               console.log('Asiento creado exitosamente');
+               console.log('Asiento actualizado exitosamente');
           },
           onError: (error) => {
-               console.error('Error al crear el asiento:', error);
+               console.error('Error al actualizar el asiento:', error);
           },
      });
 };
