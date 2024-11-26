@@ -14,16 +14,25 @@ export interface LayoutConfig {
 export const layoutConfig = {
      navItems: [
           {
+               key: 'contabilidad',
+               title: 'Contabilidad',
+               items: [
+                    { key: 'plan-cuentas', title: 'Plan de Cuentas', href: paths.dashboard.planCuentas, icon: 'read-cv-logo' },
+                    { key: 'transaction', title: 'Transacciones', href: paths.dashboard.transacciones, icon: 'cube' },
+                    { key: 'costCenter', title: 'Centro de Costos', href: paths.dashboard.centroCostos, icon: 'cube' },
+                    { key: 'asiento', title: 'Asientos', href: paths.dashboard.asientos.index, icon: 'cube' },
+               ],
+          },
+          {
                key: 'dashboards',
                title: 'Dashboards',
                items: [
                     { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'house' },
                     { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics, icon: 'chart-pie' },
-                    { key: 'transaction', title: 'Transaction', href: paths.dashboard.transaction, icon: 'cube' },
-                    { key: 'costCenter', title: 'CostCenter', href: paths.dashboard.costCenter, icon: 'cube' },
+                    // { key: 'costCenter', title: 'CostCenter', href: paths.dashboard.costCenter, icon: 'cube' },
                     { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },
                     { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto, icon: 'currency-eth' },
-                    { key: 'asiento', title: 'Asientos', href: paths.dashboard.asientos.index, icon: 'cube' },
+                    // { key: 'asiento', title: 'Asientos', href: paths.dashboard.asientos.index, icon: 'cube' },
                ],
           },
           {
