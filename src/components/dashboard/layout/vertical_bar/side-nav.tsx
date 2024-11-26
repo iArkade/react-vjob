@@ -32,9 +32,7 @@ export interface SideNavProps {
 
 export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.JSX.Element {
   const pathname = usePathname();
-
   
-
   const {
     settings: { colorScheme = 'light' },
   } = useSettings();
