@@ -7,7 +7,17 @@ import { Provider } from 'react-redux'
 import { CustomThemeProvider } from '@/components/core/theme-provider/theme-provider';
 import { QueryClient, QueryClientProvider } from 'react-query'
 
-const queryClient = new QueryClient()
+//const queryClient = new QueryClient()
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+      queries: {
+          staleTime: 5 * 60 * 1000, // 5 minutos
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+      },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>

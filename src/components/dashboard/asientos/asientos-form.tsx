@@ -17,7 +17,7 @@ import Grid from "@mui/material/Grid2";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { PlusCircle as PlusCircleIcon } from "@phosphor-icons/react/dist/ssr/PlusCircle";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { z as zod } from "zod";
 
 import { paths } from "@/paths";
@@ -39,7 +39,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { useCreateAsiento } from "@/api/asientos/asientos-request";
+import { useCreateAsiento, useUpdateAsiento } from "@/api/asientos/asientos-request";
 import { DatCentro } from "@/api/asientos/asientos-types";
 import { AccountSelectionModal } from "./account-selection";
 import LineItemRow from "./asientos-line-item-row";
@@ -57,7 +57,7 @@ const getCurrentDate = (): string => {
 };
 
 const asientoItemSchema = zod.object({
-  id: zod.number().optional(),
+  // id: zod.number().optional(),
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
@@ -114,7 +114,7 @@ type AsientosFormProps = {
 export function AsientosForm({
   asiento,
 }: AsientosFormProps): React.JSX.Element {
-  
+  const { id } = useParams();
   const navigate = useNavigate();
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
@@ -147,7 +147,7 @@ export function AsientosForm({
   } = useGetTransaccionContable();
 
   const { mutate: createAsiento } = useCreateAsiento();
-  //const { mutate: updateAsiento } = useUpdateAsiento();
+  const { mutate: updateAsiento } = useUpdateAsiento();
 
   const [snackbar, setSnackbar] = React.useState({
     open: false,
@@ -189,7 +189,6 @@ export function AsientosForm({
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
       try {
-        console.log('aqui si llega esta mrd');
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
         const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 
@@ -208,16 +207,23 @@ export function AsientosForm({
             };
           }),
         };
-
-        await createAsiento(dataToSend);
-        showSnackbar("Asiento creado exitosamente", "success");
+        
+        if (id) {
+          console.log(asiento)
+          await updateAsiento({ id: Number(id),  data: dataToSend });
+          showSnackbar("Asiento actualizado exitosamente", "success");
+        } else {
+          await createAsiento(dataToSend);
+          showSnackbar("Asiento creado exitosamente", "success");
+        }
+    
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
         logger.error(err);
         showSnackbar("Algo salió mal!", "error");
       }
     },
-    [navigate, createAsiento, getValues]
+    [asiento, navigate, createAsiento, updateAsiento, getValues]
   );
 
   const handleCentroChange = React.useCallback(

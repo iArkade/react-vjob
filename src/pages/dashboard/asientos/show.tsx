@@ -13,7 +13,7 @@ export function Page(): React.JSX.Element {
   const asientoId = id ? parseInt(id, 10) : undefined;
 
   const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
-  console.log(asiento, asientoId);
+  //console.log(asiento, asientoId);
 
   return (
     <React.Fragment>
