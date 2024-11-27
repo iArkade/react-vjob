@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@mui/material/Button";
@@ -39,7 +38,10 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { useCreateAsiento, useUpdateAsiento } from "@/api/asientos/asientos-request";
+import {
+  useCreateAsiento,
+  useUpdateAsiento,
+} from "@/api/asientos/asientos-request";
 import { DatCentro } from "@/api/asientos/asientos-types";
 import { AccountSelectionModal } from "./account-selection";
 import LineItemRow from "./asientos-line-item-row";
@@ -47,9 +49,9 @@ import { TransaccionContableResponseType } from "@/api/transaccion_contable/tran
 import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccion-contable-request";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 import { dayjs } from "@/lib/dayjs";
-import 'dayjs/locale/es';
+import "dayjs/locale/es";
 
-dayjs.locale('es');
+dayjs.locale("es");
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -61,8 +63,14 @@ const asientoItemSchema = zod.object({
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
-  debe: zod.number().min(0, "Debe debe ser un número válido"),
-  haber: zod.number().min(0, "Haber debe ser un número válido"),
+  debe: zod
+    .union([zod.string(), zod.number()])
+    .transform((value) => parseFloat(value as string) || 0)
+    .pipe(zod.number().min(0, "Debe debe ser un número válido")),
+  haber: zod
+    .union([zod.string(), zod.number()])
+    .transform((value) => parseFloat(value as string) || 0)
+    .pipe(zod.number().min(0, "Haber debe ser un número válido")),
   nota: zod.string().optional(),
 });
 
@@ -74,7 +82,6 @@ const asientoSchema = zod.object({
   estado: zod.string().min(1, "Estado es requerido"),
   nro_referencia: zod.string().min(1, "Número de referencia es requerido"),
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
-  codigo_empresa: zod.string().optional(),
   total_debe: zod.number().min(0, "Total debe es requerido"),
   total_haber: zod.number().min(0, "Total haber es requerido"),
   total: zod.number().optional(),
@@ -110,7 +117,6 @@ type AsientosFormProps = {
   asiento?: Values;
 };
 
-
 export function AsientosForm({
   asiento,
 }: AsientosFormProps): React.JSX.Element {
@@ -133,6 +139,8 @@ export function AsientosForm({
     setValue,
     watch,
   } = methods;
+
+  console.log(errors);
 
   const {
     data: centros = [],
@@ -190,7 +198,9 @@ export function AsientosForm({
     async (data: Values): Promise<void> => {
       try {
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
-        const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
+        const totalHaber = parseFloat(
+          (getValues("total_haber") || 0).toFixed(2)
+        );
 
         if (!validateTotals(totalDebe, totalHaber)) return;
 
@@ -199,24 +209,24 @@ export function AsientosForm({
           ...asientoData,
           total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
           total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
-          lineItems: lineItems.map(({ ...rest }) => {
+          lineItems: lineItems.map((item) => {
             return {
-              ...rest,
-              debe: parseFloat(rest.debe.toFixed(2)),
-              haber: parseFloat(rest.haber.toFixed(2)),
+              ...item,
+              debe: parseFloat(item?.debe?.toFixed(2)) || 0,
+              haber: parseFloat(item?.haber?.toFixed(2)) || 0,
             };
           }),
         };
-        
+
         if (id) {
-          console.log(asiento)
-          await updateAsiento({ id: Number(id),  data: dataToSend });
+          // console.log(asiento);
+          await updateAsiento({ id: Number(id), data: dataToSend });
           showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
-          await createAsiento(dataToSend);
+          createAsiento(dataToSend);
           showSnackbar("Asiento creado exitosamente", "success");
         }
-    
+
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
         logger.error(err);
@@ -269,12 +279,24 @@ export function AsientosForm({
     (index: number) => {
       const lineItems = getValues("lineItems") || [];
       const newLineItems = lineItems.filter((_, i) => i !== index);
-      setValue("lineItems", newLineItems);
+      setValue(
+        "lineItems",
+        newLineItems.map((item) => ({
+          ...item,
+          debe: Number(item.debe),
+          haber: Number(item.haber),
+        }))
+      );
     },
     [getValues, setValue]
   );
 
-  const lineItems = watch("lineItems") || [];
+  let lineItems = watch("lineItems") || [];
+  lineItems = lineItems.map((item) => ({
+    ...item,
+    debe: Number(item.debe),
+    haber: Number(item.haber),
+  }));
 
   React.useEffect(() => {
     if (!lineItems) return;
@@ -340,7 +362,6 @@ export function AsientosForm({
             <Stack spacing={4}>
               <Stack spacing={3}>
                 <Grid container spacing={3}>
-
                   <Grid size={{ xs: 12, md: 4 }}>
                     <Controller
                       control={control}
@@ -426,7 +447,10 @@ export function AsientosForm({
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 4 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                    <LocalizationProvider
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale="es"
+                    >
                       <Controller
                         control={control}
                         name="fecha_emision"
@@ -435,9 +459,15 @@ export function AsientosForm({
                             {...field}
                             label="Fecha Tr"
                             format="YYYY-MM-DD"
-                            value={field.value ? dayjs(field.value, "YYYY-MM-DD") : null}
+                            value={
+                              field.value
+                                ? dayjs(field.value, "YYYY-MM-DD")
+                                : null
+                            }
                             onChange={(date) => {
-                              field.onChange(date ? date.format("YYYY-MM-DD") : "");
+                              field.onChange(
+                                date ? date.format("YYYY-MM-DD") : ""
+                              );
                             }}
                             slotProps={{
                               textField: {
@@ -446,7 +476,9 @@ export function AsientosForm({
                                 helperText: errors.fecha_emision?.message,
                                 InputProps: {
                                   value: field.value
-                                    ? dayjs(field.value).format("DD [de] MMMM [del] YYYY")
+                                    ? dayjs(field.value).format(
+                                        "DD [de] MMMM [del] YYYY"
+                                      )
                                     : "",
                                   onChange: (e) => {
                                     field.onChange(e.target.value);

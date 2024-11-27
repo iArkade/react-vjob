@@ -39,7 +39,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].debe = value;
     setValue("lineItems", updatedItems);
-    
+
     if (value !== 0) setValue(`lineItems.${index}.haber`, 0);
   };
 
@@ -47,7 +47,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].haber = value;
     setValue("lineItems", updatedItems);
-    
+
     if (value !== 0) setValue(`lineItems.${index}.debe`, 0);
   };
 
@@ -121,23 +121,24 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.debe`}
+          defaultValue={item?.debe || 0}
           render={({ field }) => (
             <OutlinedInput
               {...field}
               type="number"
               inputProps={{ min: 0, step: 0.01 }}
-              //onChange={(e) => handleDebeChange(parseFloat(e.target.value) || 0)}
               onChange={(e) => {
                 const value = e.target.value;
-                const parsedValue = value === "" ? "" : parseFloat(value);
-                field.onChange(parsedValue);
+                const parsedValue = value === "" ? 0 : parseFloat(value);
+                field.onChange(parsedValue); // Update the field value
               }}
               onBlur={(e) => {
                 const value = e.target.value;
                 const parsedValue = value === "" ? 0 : parseFloat(value);
-                field.onChange(parsedValue);
-                handleDebeChange(parsedValue);
+                field.onChange(parsedValue); // Ensure the field value is updated on blur
+                handleDebeChange(parsedValue); // Notify the change
               }}
+              value={field.value ?? ""} // Ensure the controlled input remains in sync
               fullWidth
             />
           )}
@@ -147,6 +148,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.haber`}
+          defaultValue={item?.debe || 0}
           render={({ field }) => (
             <OutlinedInput
               {...field}
@@ -154,7 +156,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               inputProps={{ min: 0, step: 0.01 }}
               onChange={(e) => {
                 const value = e.target.value;
-                const parsedValue = value === "" ? "" : parseFloat(value);
+                const parsedValue = value === "" ? 0 : parseFloat(value);
                 field.onChange(parsedValue);
               }}
               onBlur={(e) => {
