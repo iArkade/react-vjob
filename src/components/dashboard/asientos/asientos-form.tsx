@@ -122,6 +122,7 @@ export function AsientosForm({
 }: AsientosFormProps): React.JSX.Element {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
   };
@@ -129,7 +130,6 @@ export function AsientosForm({
   const methods = useForm<Values>({
     defaultValues: asiento || defaultValues,
     resolver: zodResolver(asientoSchema),
-    reValidateMode: "onChange",
   });
 
   const {
@@ -200,9 +200,8 @@ export function AsientosForm({
     async (data: Values): Promise<void> => {
       try {
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
-        const totalHaber = parseFloat(
-          (getValues("total_haber") || 0).toFixed(2)
-        );
+        const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
+
 
         if (!validateTotals(totalDebe, totalHaber)) return;
 
@@ -221,21 +220,21 @@ export function AsientosForm({
         };
 
         if (id) {
-          // console.log(asiento);
-          await updateAsiento({ id: Number(id), data: dataToSend });
-          showSnackbar("Asiento actualizado exitosamente", "success");
+          console.log(data)
+          //await updateAsiento({ id: Number(id), data: dataToSend });
+          //showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
-          createAsiento(dataToSend);
-          showSnackbar("Asiento creado exitosamente", "success");
+          // createAsiento(dataToSend);
+          // showSnackbar("Asiento creado exitosamente", "success");
         }
 
-        navigate(paths.dashboard.asientos.index);
+        //navigate(paths.dashboard.asientos.index);
       } catch (err) {
         logger.error(err);
         showSnackbar("Algo salió mal!", "error");
       }
     },
-    [asiento, navigate, createAsiento, updateAsiento, getValues]
+    [id, navigate, createAsiento, updateAsiento, getValues, validateTotals]
   );
 
   const handleCentroChange = React.useCallback(
@@ -258,7 +257,7 @@ export function AsientosForm({
         clearErrors(`lineItems.0.codigo_centro`);
       }
     },
-    [getValues, setValue]
+    [getValues, setValue, clearErrors]
   );
 
   const handleAddLineItem = React.useCallback(() => {
