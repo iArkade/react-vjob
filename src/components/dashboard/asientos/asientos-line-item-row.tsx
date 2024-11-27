@@ -33,9 +33,16 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     control,
     setValue,
     getValues,
+    register,
     formState: { errors },
-    clearErrors 
+    clearErrors
   } = useFormContext<{ lineItems: AsientoItem[] }>();
+
+  React.useEffect(() => {
+    if (item?.id !== undefined) {
+      setValue(`lineItems.${index}.id`, item.id);
+    }
+  }, [item?.id, index, setValue]);
 
   const {
     data: centros = [],
@@ -71,6 +78,9 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           <TrashIcon />
         </IconButton>
       </TableCell>
+      {item?.id !== undefined && (
+        <input type="hidden" {...register(`lineItems.${index}.id`)} />
+      )}
       <TableCell>
         <Controller
           control={control}
@@ -148,10 +158,10 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           name={`lineItems.${index}.cta_nombre`}
           render={({ field }) => (
             <>
-              <OutlinedInput 
-                {...field} 
+              <OutlinedInput
+                {...field}
                 //error={!!lineItemErrors?.cta_nombre}
-                fullWidth 
+                fullWidth
               />
               {/* {lineItemErrors?.cta_nombre && (
                 <FormHelperText error>
@@ -237,10 +247,10 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           name={`lineItems.${index}.nota`}
           render={({ field }) => (
             <>
-              <OutlinedInput 
-                {...field} 
+              <OutlinedInput
+                {...field}
                 fullWidth
-                error={!!lineItemErrors?.nota} 
+                error={!!lineItemErrors?.nota}
               />
               {lineItemErrors?.nota && (
                 <FormHelperText error>

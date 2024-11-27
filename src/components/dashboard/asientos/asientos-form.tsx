@@ -59,7 +59,7 @@ const getCurrentDate = (): string => {
 };
 
 const asientoItemSchema = zod.object({
-  // id: zod.number().optional(),
+  id: zod.number().optional(),
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
@@ -199,6 +199,7 @@ export function AsientosForm({
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
       try {
+        //console.log("Datos enviados:",data)
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
         const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 
@@ -220,15 +221,15 @@ export function AsientosForm({
         };
 
         if (id) {
-          console.log(data)
-          //await updateAsiento({ id: Number(id), data: dataToSend });
-          //showSnackbar("Asiento actualizado exitosamente", "success");
+          //console.log(data)
+          await updateAsiento({ id: Number(id), data: dataToSend });
+          showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
-          // createAsiento(dataToSend);
-          // showSnackbar("Asiento creado exitosamente", "success");
+          createAsiento(dataToSend);
+          showSnackbar("Asiento creado exitosamente", "success");
         }
 
-        //navigate(paths.dashboard.asientos.index);
+        navigate(paths.dashboard.asientos.index);
       } catch (err) {
         logger.error(err);
         showSnackbar("Algo salió mal!", "error");
