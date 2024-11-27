@@ -129,18 +129,20 @@ export function AsientosForm({
   const methods = useForm<Values>({
     defaultValues: asiento || defaultValues,
     resolver: zodResolver(asientoSchema),
+    reValidateMode: "onChange",
   });
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    clearErrors,
     getValues,
     setValue,
     watch,
   } = methods;
 
-  console.log(errors);
+  //console.log(errors);
 
   const {
     data: centros = [],
@@ -253,6 +255,7 @@ export function AsientosForm({
         ]);
       } else {
         setValue(`lineItems.0.codigo_centro`, selectedCentro);
+        clearErrors(`lineItems.0.codigo_centro`);
       }
     },
     [getValues, setValue]
@@ -292,11 +295,11 @@ export function AsientosForm({
   );
 
   let lineItems = watch("lineItems") || [];
-  lineItems = lineItems.map((item) => ({
-    ...item,
-    debe: Number(item.debe),
-    haber: Number(item.haber),
-  }));
+  // lineItems = lineItems.map((item) => ({
+  //   ...item,
+  //   debe: Number(item.debe),
+  //   haber: Number(item.haber),
+  // }));
 
   React.useEffect(() => {
     if (!lineItems) return;
@@ -323,6 +326,7 @@ export function AsientosForm({
         (transaccion: TransaccionContableResponseType) =>
           transaccion.codigo_transaccion === selectedTransaccion
       );
+      //console.log(selectedTransaccionData);
       if (selectedTransaccionData) {
         const currentYear = new Date().getFullYear();
         const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;

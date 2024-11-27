@@ -4,7 +4,6 @@ import {
      TablePagination,
      CircularProgress,
      Alert,
-     Button,
 } from '@mui/material';
 import { Visibility } from '@mui/icons-material';
 import { useState } from 'react';
@@ -24,10 +23,9 @@ type AsientoTableProps = {
      isLoading: boolean;
      isError: boolean;
      onOpenModal: (asiento: Asiento) => void;
-     refetch: () => void;
 };
 
-export default function AsientoTable({ asientos, isLoading, isError, onOpenModal, refetch }: AsientoTableProps) {
+export default function AsientoTable({ asientos, isLoading, isError, onOpenModal }: AsientoTableProps) {
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -51,12 +49,6 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
      }
      return (
           <>
-               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mr={2} mt={2}>
-                    <Typography variant="h5" ml={2}>Lista de Asientos</Typography>
-                    <Button variant="contained" onClick={refetch}>
-                         Recargar Asientos
-                    </Button>
-               </Box>
                <TableContainer component={Paper}>
                     <Table>
                          <TableHead>

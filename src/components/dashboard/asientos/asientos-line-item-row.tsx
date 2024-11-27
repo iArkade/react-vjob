@@ -7,10 +7,11 @@ import {
   TableRow,
   IconButton,
   Select,
+  FormHelperText,
 } from "@mui/material";
 import { Trash as TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { Option } from "@/components/core/option";
-import { DatCentro } from "@/api/asientos/asientos-types";
+import { AsientoItem, DatCentro } from "@/api/asientos/asientos-types";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 
 interface LineItemRowProps {
@@ -28,7 +29,14 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
   handleOpenModal,
   handleCentroChange,
 }) => {
-  const { control, setValue, getValues } = useFormContext();
+  const {
+    control,
+    setValue,
+    getValues,
+    formState: { errors },
+    clearErrors 
+  } = useFormContext<{ lineItems: AsientoItem[] }>();
+
   const {
     data: centros = [],
     isLoading: isLoadingCentros,
@@ -51,6 +59,8 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     if (value !== 0) setValue(`lineItems.${index}.debe`, 0);
   };
 
+  const lineItemErrors = errors.lineItems?.[index];
+
   return (
     <TableRow key={item.index}>
       <TableCell>
@@ -66,34 +76,42 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           control={control}
           name={`lineItems.${index}.codigo_centro`}
           render={({ field }) => (
-            <Select
-              {...field}
-              label="Centro"
-              disabled={isLoadingCentros || isErrorCentros}
-              value={field.value || ""}
-              onChange={(e) => {
-                field.onChange(e);
-                handleCentroChange(e.target.value);
-              }}
-            >
-              {isErrorCentros && (
-                <Option value="">
-                  <em>Error cargando centros</em>
-                </Option>
-              )}
-
-              {isLoadingCentros ? (
-                <Option value="">
-                  <em>Cargando centros...</em>
-                </Option>
-              ) : (
-                centros?.map((centro: DatCentro) => (
-                  <Option key={centro.id} value={centro.codigo}>
-                    {centro.nombre}
+            <>
+              <Select
+                {...field}
+                label="Centro"
+                disabled={isLoadingCentros || isErrorCentros}
+                value={field.value || ""}
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleCentroChange(e.target.value);
+                }}
+                error={!!lineItemErrors?.codigo_centro}
+              >
+                {isErrorCentros && (
+                  <Option value="">
+                    <em>Error cargando centros</em>
                   </Option>
-                ))
+                )}
+
+                {isLoadingCentros ? (
+                  <Option value="">
+                    <em>Cargando centros...</em>
+                  </Option>
+                ) : (
+                  centros?.map((centro: DatCentro) => (
+                    <Option key={centro.id} value={centro.codigo}>
+                      {centro.nombre}
+                    </Option>
+                  ))
+                )}
+              </Select>
+              {lineItemErrors?.codigo_centro && (
+                <FormHelperText error>
+                  {lineItemErrors.codigo_centro.message}
+                </FormHelperText>
               )}
-            </Select>
+            </>
           )}
         />
       </TableCell>
@@ -102,11 +120,25 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           control={control}
           name={`lineItems.${index}.cta`}
           render={({ field }) => (
-            <OutlinedInput
-              {...field}
-              fullWidth
-              onClick={() => handleOpenModal(index)}
-            />
+            <>
+              <OutlinedInput
+                {...field}
+                fullWidth
+                error={!!lineItemErrors?.cta}
+                onClick={() => {
+                  handleOpenModal(index)
+
+                  if (lineItemErrors?.cta) {
+                    clearErrors(`lineItems.${index}.cta`);
+                  }
+                }}
+              />
+              {lineItemErrors?.cta && (
+                <FormHelperText error>
+                  {lineItemErrors.cta.message}
+                </FormHelperText>
+              )}
+            </>
           )}
         />
       </TableCell>
@@ -114,7 +146,20 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.cta_nombre`}
-          render={({ field }) => <OutlinedInput {...field} fullWidth />}
+          render={({ field }) => (
+            <>
+              <OutlinedInput 
+                {...field} 
+                //error={!!lineItemErrors?.cta_nombre}
+                fullWidth 
+              />
+              {/* {lineItemErrors?.cta_nombre && (
+                <FormHelperText error>
+                  {lineItemErrors.cta_nombre.message}
+                </FormHelperText>
+              )} */}
+            </>
+          )}
         />
       </TableCell>
       <TableCell>
@@ -123,24 +168,32 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           name={`lineItems.${index}.debe`}
           defaultValue={item?.debe || 0}
           render={({ field }) => (
-            <OutlinedInput
-              {...field}
-              type="number"
-              inputProps={{ min: 0, step: 0.01 }}
-              onChange={(e) => {
-                const value = e.target.value;
-                const parsedValue = value === "" ? 0 : parseFloat(value);
-                field.onChange(parsedValue); // Update the field value
-              }}
-              onBlur={(e) => {
-                const value = e.target.value;
-                const parsedValue = value === "" ? 0 : parseFloat(value);
-                field.onChange(parsedValue); // Ensure the field value is updated on blur
-                handleDebeChange(parsedValue); // Notify the change
-              }}
-              value={field.value ?? ""} // Ensure the controlled input remains in sync
-              fullWidth
-            />
+            <>
+              <OutlinedInput
+                {...field}
+                type="number"
+                inputProps={{ min: 0, step: 0.01 }}
+                error={!!lineItemErrors?.debe}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const parsedValue = value === "" ? 0 : parseFloat(value);
+                  field.onChange(parsedValue); // Update the field value
+                }}
+                onBlur={(e) => {
+                  const value = e.target.value;
+                  const parsedValue = value === "" ? 0 : parseFloat(value);
+                  field.onChange(parsedValue); // Ensure the field value is updated on blur
+                  handleDebeChange(parsedValue);
+                }}
+                value={field.value ?? ""}
+                fullWidth
+              />
+              {lineItemErrors?.debe && (
+                <FormHelperText error>
+                  {lineItemErrors.debe.message}
+                </FormHelperText>
+              )}
+            </>
           )}
         />
       </TableCell>
@@ -150,23 +203,31 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
           name={`lineItems.${index}.haber`}
           defaultValue={item?.debe || 0}
           render={({ field }) => (
-            <OutlinedInput
-              {...field}
-              type="number"
-              inputProps={{ min: 0, step: 0.01 }}
-              onChange={(e) => {
-                const value = e.target.value;
-                const parsedValue = value === "" ? 0 : parseFloat(value);
-                field.onChange(parsedValue);
-              }}
-              onBlur={(e) => {
-                const value = e.target.value;
-                const parsedValue = value === "" ? 0 : parseFloat(value);
-                field.onChange(parsedValue);
-                handleHaberChange(parsedValue);
-              }}
-              fullWidth
-            />
+            <>
+              <OutlinedInput
+                {...field}
+                type="number"
+                inputProps={{ min: 0, step: 0.01 }}
+                error={!!lineItemErrors?.haber}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const parsedValue = value === "" ? 0 : parseFloat(value);
+                  field.onChange(parsedValue);
+                }}
+                onBlur={(e) => {
+                  const value = e.target.value;
+                  const parsedValue = value === "" ? 0 : parseFloat(value);
+                  field.onChange(parsedValue);
+                  handleHaberChange(parsedValue);
+                }}
+                fullWidth
+              />
+              {lineItemErrors?.haber && (
+                <FormHelperText error>
+                  {lineItemErrors.haber.message}
+                </FormHelperText>
+              )}
+            </>
           )}
         />
       </TableCell>
@@ -174,7 +235,20 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.nota`}
-          render={({ field }) => <OutlinedInput {...field} fullWidth />}
+          render={({ field }) => (
+            <>
+              <OutlinedInput 
+                {...field} 
+                fullWidth
+                error={!!lineItemErrors?.nota} 
+              />
+              {lineItemErrors?.nota && (
+                <FormHelperText error>
+                  {lineItemErrors.nota.message}
+                </FormHelperText>
+              )}
+            </>
+          )}
         />
       </TableCell>
     </TableRow>
