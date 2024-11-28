@@ -203,7 +203,6 @@ export function AsientosForm({
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
         const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 
-
         if (!validateTotals(totalDebe, totalHaber)) return;
 
         const { total, lineItems, ...asientoData } = data;
@@ -221,7 +220,7 @@ export function AsientosForm({
         };
 
         if (id) {
-          //console.log(data)
+          console.log(data)
           await updateAsiento({ id: Number(id), data: dataToSend });
           showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
