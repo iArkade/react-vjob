@@ -7,6 +7,8 @@ import Typography from "@mui/material/Typography";
 import { AsientosForm } from "../../../components/dashboard/asientos/asientos-form";
 import { useAsiento } from "@/api/asientos/asientos-request";
 import { useParams } from "react-router-dom";
+import { Button } from "@mui/material";
+import { paths } from '@/paths';
 
 export function Page(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -27,9 +29,21 @@ export function Page(): React.JSX.Element {
       >
         <Stack spacing={4}>
           <Stack spacing={3}>
-            <div>
-              <Typography variant="h4">Asiento Diario Contable</Typography>
-            </div>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: 'flex-start' }}>
+              <Box sx={{ flex: '1 1 auto' }}>
+                <Typography variant="h4">Asiento Diario Contable</Typography>
+              </Box>
+              <div>
+                <Button
+                  component="a"
+                  href={asientoId ? paths.dashboard.asientos.pdf(asientoId) : "#"}
+                  target="_blank"
+                  variant="contained"
+                >
+                  Vista Previa
+                </Button>
+              </div>
+            </Stack>
           </Stack>
           {!isLoading && !isError && asiento && (
             <AsientosForm asiento={asiento} />
@@ -39,3 +53,4 @@ export function Page(): React.JSX.Element {
     </React.Fragment>
   );
 }
+

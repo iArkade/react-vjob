@@ -70,6 +70,7 @@ export const paths = {
                create: '/dashboard/asientos/create',
                preview: (asientoId: string) => `/dashboard/asientos?previewId=${asientoId}`,
                details: (asientoId: string) => `/dashboard/asientos/${asientoId}`,
+               pdf: (asientoId: number) => `/dashboard/asientos/pdf/${asientoId}`
           },
           blank: '/dashboard/blank',
           analytics: '/dashboard/analytics',
@@ -132,7 +133,10 @@ export const paths = {
           },
           tasks: '/dashboard/tasks',
      },
-     pdf: { invoice: (invoiceId: string) => `/pdf/invoices/${invoiceId}` },
+     pdf: { 
+          invoice: (invoiceId: string) => `/pdf/invoices/${invoiceId}`,
+          //asiento: (asientoId: number) => `/pdf/asientos/${asientoId}`
+     },
      components: {
           index: '/components',
           buttons: '/components/buttons',

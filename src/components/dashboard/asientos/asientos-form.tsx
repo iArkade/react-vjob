@@ -294,11 +294,6 @@ export function AsientosForm({
   );
 
   let lineItems = watch("lineItems") || [];
-  // lineItems = lineItems.map((item) => ({
-  //   ...item,
-  //   debe: Number(item.debe),
-  //   haber: Number(item.haber),
-  // }));
 
   React.useEffect(() => {
     if (!lineItems) return;

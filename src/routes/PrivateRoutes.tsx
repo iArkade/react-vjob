@@ -9,6 +9,7 @@ import {Page as CostCenter} from '@/pages/dashboard/costCenter'
 import {Page as Asientos} from '@/pages/dashboard/asientos/index'
 import {Page as AsientosCreate} from '@/pages/dashboard/asientos/create'
 import {Page as AsientosShow} from '@/pages/dashboard/asientos/show'
+import {Page as AsientosPDF} from '@/pages/dashboard/asientos/pdf'
 
 export const PrivateRoutes = () => {
      
@@ -22,6 +23,7 @@ export const PrivateRoutes = () => {
                     <Route path='asientos' element={ <Asientos /> }/>
                     <Route path='asientos/:id' element={ <AsientosShow /> }/>
                     <Route path='asientos/create' element={ <AsientosCreate /> }/>
+                    <Route path='asientos/pdf/:id' element={ <AsientosPDF /> }/>
                     {/* <Route path='blank' element={ <Blank /> }/> */}
                     {/* <Route path='analytics' element={ <Analytics /> }/> */}            
                </Route>
