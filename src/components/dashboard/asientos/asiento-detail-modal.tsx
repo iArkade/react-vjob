@@ -63,7 +63,6 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                         <Button
                                              color="secondary"
                                              component={RouterLink}
-                                             //href={paths.dashboard.orders.details('1')}
                                              href={`${paths.dashboard.asientos.details(previewId || '')}`}
                                              startIcon={<PencilSimpleIcon />}
                                         >

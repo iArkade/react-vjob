@@ -45,13 +45,13 @@ import {
 import { DatCentro } from "@/api/asientos/asientos-types";
 import { AccountSelectionModal } from "./account-selection";
 import LineItemRow from "./asientos-line-item-row";
-import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable.types";
+import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable-types";
 import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccion-contable-request";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 import { dayjs } from "@/lib/dayjs";
-import "dayjs/locale/es";
+// import "dayjs/locale/es";
 
-dayjs.locale("es");
+// dayjs.locale("es");
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -472,16 +472,16 @@ export function AsientosForm({
                                 error: Boolean(errors.fecha_emision),
                                 fullWidth: true,
                                 helperText: errors.fecha_emision?.message,
-                                InputProps: {
-                                  value: field.value
-                                    ? dayjs(field.value).format(
-                                        "DD [de] MMMM [del] YYYY"
-                                      )
-                                    : "",
-                                  onChange: (e) => {
-                                    field.onChange(e.target.value);
-                                  },
-                                },
+                                // InputProps: {
+                                //   value: field.value
+                                //     ? dayjs(field.value).format(
+                                //         "DD [de] MMMM [del] YYYY"
+                                //       )
+                                //     : "",
+                                //   onChange: (e) => {
+                                //     field.onChange(e.target.value);
+                                //   },
+                                // },
                               },
                             }}
                           />

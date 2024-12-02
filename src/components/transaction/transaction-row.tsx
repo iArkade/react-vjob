@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo, useEffect } from "react";
 import { TableRow, TableCell, TextField, IconButton, Checkbox } from "@mui/material";
 import { FloppyDisk, Trash } from "@phosphor-icons/react";
-import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable.types";
+import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable-types";
 
 interface TransactionRowProps {
     transaction: TransaccionContableResponseType;

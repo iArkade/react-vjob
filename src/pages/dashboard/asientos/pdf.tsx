@@ -1,11 +1,46 @@
 import * as React from 'react';
 
+import { PDFViewer } from '@react-pdf/renderer';
+import { AsientoPDFDocument } from '@/components/dashboard/asientos/asientos-pdf-document';
+import { useParams } from 'react-router-dom';
+import { useAsiento } from '@/api/asientos/asientos-request';
+import { useGetCentroCosto } from '@/api/centro_costo/centro-costo-request';
+import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
+
 export function Page(): React.JSX.Element {
+     const { id } = useParams<{ id: string }>();
+     const asientoId = id ? parseInt(id, 10) : undefined;
+
+     const { data: asiento } = useAsiento(asientoId as number);
+     const { data: centros = [] } = useGetCentroCosto();
+     const { data: transacciones = [] } = useGetTransaccionContable();
+
+     if (!asiento) {
+          return <div>Cargando asiento...</div>;
+
+     }
+     const transformedAsiento = {
+          ...asiento,
+          codigo_transaccion: transacciones.find(
+               (t) => t.codigo_transaccion === asiento.codigo_transaccion
+          )?.nombre || asiento.codigo_transaccion, // Mostrar el nombre si existe, de lo contrario el código
+          
+          codigo_centro: centros.find(
+               (c) => c.codigo === asiento.codigo_centro
+          )?.nombre || asiento.codigo_centro, // Mostrar el nombre si existe, de lo contrario el código
+          
+          lineItems: asiento.lineItems.map((item) => {
+               const itemCentro = centros.find((c) => c.codigo === item.codigo_centro);
+               return {
+                    ...item,
+                    codigo_centro: itemCentro ? itemCentro.nombre : item.codigo_centro, // Mostrar el nombre si existe
+               };
+          }),
+     };
+
      return (
-          <>
-               <Document>
-                    
-               </Document>
-          </>
-     )
+          <PDFViewer style={{ border: 'none', height: '100vh', width: '100vw' }}>
+               <AsientoPDFDocument asiento={transformedAsiento} />
+          </PDFViewer>
+     );
 }

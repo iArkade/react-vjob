@@ -160,14 +160,8 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
             <>
               <OutlinedInput
                 {...field}
-                //error={!!lineItemErrors?.cta_nombre}
                 fullWidth
               />
-              {/* {lineItemErrors?.cta_nombre && (
-                <FormHelperText error>
-                  {lineItemErrors.cta_nombre.message}
-                </FormHelperText>
-              )} */}
             </>
           )}
         />
@@ -182,13 +176,13 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 type="number"
-                inputProps={{ min: 0, step: 0.01 }}
+                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
                 error={!!lineItemErrors?.debe}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue); // Update the field value
-                }}
+                // onChange={(e) => {
+                //   const value = e.target.value;
+                //   const parsedValue = value === "" ? 0 : parseFloat(value);
+                //   field.onChange(parsedValue); // Update the field value
+                // }}
                 onBlur={(e) => {
                   const value = e.target.value;
                   const parsedValue = value === "" ? 0 : parseFloat(value);
@@ -217,13 +211,13 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 type="number"
-                inputProps={{ min: 0, step: 0.01 }}
+                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
                 error={!!lineItemErrors?.haber}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue);
-                }}
+                // onChange={(e) => {
+                //   const value = e.target.value;
+                //   const parsedValue = value === "" ? 0 : parseFloat(value);
+                //   field.onChange(parsedValue);
+                // }}
                 onBlur={(e) => {
                   const value = e.target.value;
                   const parsedValue = value === "" ? 0 : parseFloat(value);

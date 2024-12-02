@@ -5,9 +5,11 @@ import {
      CircularProgress,
      Alert,
 } from '@mui/material';
-import { Visibility } from '@mui/icons-material';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useState } from 'react';
 import { Asiento } from '@/api/asientos/asientos-types';
+import Swal from 'sweetalert2';
 
 type OrderStatus = 'Pendiente' | 'Activo' | 'Cancelado' | 'Rechazado';
 
@@ -40,6 +42,28 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
 
      const paginatedAsientos = asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
 
+     const onDelete = (asiento) => {
+          Swal.fire({
+               title: '¿Estás seguro?',
+               text: 'No podrás revertir esta acción.',
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#d33', // Rojo para el botón de confirmación
+               cancelButtonColor: '#3085d6', // Azul para el botón de cancelar
+               confirmButtonText: 'Sí, borrar',
+               cancelButtonText: 'Cancelar',
+          }).then((result) => {
+               if (result.isConfirmed) {
+                    Swal.fire(
+                         '¡Borrado!',
+                         'El registro ha sido eliminado correctamente.',
+                         'success'
+                    );
+               }
+          });
+     };
+
+
      if (isLoading) {
           return <CircularProgress />;
      }
@@ -69,7 +93,6 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                                                   <Typography variant="body2" color="textSecondary">{asiento.fecha_emision}</Typography>
                                                   <Typography variant="subtitle2">#{asiento.nro_asiento}</Typography>
                                                   <Typography variant="body2" color="textSecondary">ID-{asiento.id}</Typography>
-
                                              </Box>
                                         </TableCell>
                                         <TableCell>{asiento.comentario}</TableCell>
@@ -85,16 +108,28 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                                         <TableCell>{asiento.total_debe}</TableCell>
                                         <TableCell>{asiento.total_haber}</TableCell>
                                         <TableCell align="center">
-                                             <Visibility
+                                             <VisibilityOutlinedIcon
                                                   fontSize="small"
                                                   sx={{
                                                        color: 'action.active',
                                                        cursor: 'pointer',
+                                                       marginRight: 1,
                                                        '&:hover': {
                                                             color: 'primary.main',
                                                        },
                                                   }}
                                                   onClick={() => onOpenModal(asiento)}
+                                             />
+                                             <DeleteOutlineOutlinedIcon
+                                                  fontSize="small"
+                                                  sx={{
+                                                       color: 'action.active',
+                                                       cursor: 'pointer',
+                                                       '&:hover': {
+                                                            color: 'error.main',
+                                                       },
+                                                  }}
+                                                  onClick={() => onDelete(asiento)}
                                              />
                                         </TableCell>
                                    </TableRow>

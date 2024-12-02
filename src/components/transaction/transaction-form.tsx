@@ -7,7 +7,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { TransaccionContableRequestType } from "@/api/transaccion_contable/transaccion-contable.types";
+import { TransaccionContableRequestType } from "@/api/transaccion_contable/transaccion-contable-types";
 
 interface TransactionFormProps {
   onSubmit: (transaction: TransaccionContableRequestType) => void;

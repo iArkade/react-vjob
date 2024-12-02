@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUpdateTransaccionContable, useDeleteTransaccionContable, useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
-import { TransaccionContableRequestType, TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable.types';
+import { TransaccionContableRequestType, TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable-types';
 import { normalizeCode } from '@/utils/validators';
 
 const useTransaccionContable = (page: number, rowsPerPage: number) => {
