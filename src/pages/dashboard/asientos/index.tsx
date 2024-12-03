@@ -19,7 +19,7 @@ export function Page(): React.JSX.Element {
      const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
      const [openModal, setOpenModal] = React.useState(false);
 
-     const { data: asientos, isLoading, isError, refetch } = useAsientos();
+     const { data: asientos, isLoading, isError } = useAsientos();
      const [searchParams, setSearchParams] = useSearchParams();
      const navigate = useNavigate();
 
@@ -54,7 +54,6 @@ export function Page(): React.JSX.Element {
           }
      }, [searchParams, asientos, openModal]);
 
-
      return (
           <React.Fragment>
                <Box
@@ -88,7 +87,6 @@ export function Page(): React.JSX.Element {
                                         isLoading={isLoading}      // Estado de carga
                                         isError={isError}          // Estado de error
                                         onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal  
-                                        refetch = {refetch}
                                    />
                               </Box>
                               <Divider />

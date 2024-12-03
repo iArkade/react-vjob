@@ -11,15 +11,14 @@ export interface Asiento {
      fecha_emision: string;
      nro_asiento: string;
      comentario: string;
-     tipo_transaccion: string;
+     codigo_transaccion: string;
      estado: string;
      nro_referencia: string;
-     secuencial: string;
      codigo_centro: string;
-     codigo_empresa: string;
+     codigo_empresa?: string;
      total_debe: number;
      total_haber: number;
-     lineItems?:  AsientoItem[];
+     lineItems:  AsientoItem[];
 }
 
 export interface AsientoItem {

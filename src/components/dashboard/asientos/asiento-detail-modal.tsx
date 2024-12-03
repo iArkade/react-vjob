@@ -36,7 +36,7 @@ interface AsientoDetailsModalProps {
 }
 
 const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose, asiento, previewId }) => {
-     console.log(previewId);
+     //console.log(previewId);
      return (
           <Dialog
                open={open}
@@ -63,7 +63,6 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                         <Button
                                              color="secondary"
                                              component={RouterLink}
-                                             //href={paths.dashboard.orders.details('1')}
                                              href={`${paths.dashboard.asientos.details(previewId || '')}`}
                                              startIcon={<PencilSimpleIcon />}
                                         >
@@ -102,7 +101,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                                             key: 'Tipo de Transacción',
                                                             value: (
                                                                  <Typography variant="subtitle2">
-                                                                      {asiento?.tipo_transaccion}
+                                                                      {asiento?.codigo_transaccion}
                                                                  </Typography>
                                                             ),
                                                        },

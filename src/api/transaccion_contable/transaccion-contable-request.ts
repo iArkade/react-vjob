@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "../http";
-import { TransaccionContableResponseType, TransaccionContableRequestType } from "./transaccion-contable.types";
+import { TransaccionContableResponseType, TransaccionContableRequestType } from "./transaccion-contable-types";
 
 interface ApiError {
     response?: {

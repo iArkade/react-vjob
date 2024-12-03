@@ -4,11 +4,13 @@ import {
      TablePagination,
      CircularProgress,
      Alert,
-     Button,
 } from '@mui/material';
-import { Visibility } from '@mui/icons-material';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useState } from 'react';
 import { Asiento } from '@/api/asientos/asientos-types';
+import Swal from 'sweetalert2';
+import { useDeleteAsiento } from '@/api/asientos/asientos-request';
 
 type OrderStatus = 'Pendiente' | 'Activo' | 'Cancelado' | 'Rechazado';
 
@@ -24,12 +26,14 @@ type AsientoTableProps = {
      isLoading: boolean;
      isError: boolean;
      onOpenModal: (asiento: Asiento) => void;
-     refetch: () => void;
 };
 
-export default function AsientoTable({ asientos, isLoading, isError, onOpenModal, refetch }: AsientoTableProps) {
+export default function AsientoTable({ asientos, isLoading, isError, onOpenModal }: AsientoTableProps) {
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
+
+     const { mutate: deleteAsiento } = useDeleteAsiento();
+
 
      const handleChangePage = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
           setPage(newPage);
@@ -42,6 +46,36 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
 
      const paginatedAsientos = asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
 
+     const onDelete = (asiento: Asiento) => {
+          if (!asiento.id) {
+               Swal.fire('Error', 'El ID del asiento es inválido.', 'error');
+               return;
+          }
+
+          Swal.fire({
+               title: '¿Estás seguro?',
+               text: 'No podrás revertir esta acción.',
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#635bff',
+               cancelButtonColor: 'rgb(223, 51, 51)',
+               confirmButtonText: 'Sí, borrar',
+               cancelButtonText: 'Cancelar',
+          }).then((result) => {
+               if (result.isConfirmed) {
+                    deleteAsiento(asiento.id!, {
+                         onSuccess: () => {
+                              Swal.fire('¡Borrado!', 'El registro ha sido eliminado correctamente.', 'success');
+                         },
+                         onError: (error) => {
+                              Swal.fire('Error', 'No se pudo eliminar el asiento. Intenta nuevamente.', 'error');
+                         },
+                    });
+               }
+          });
+     };
+
+
      if (isLoading) {
           return <CircularProgress />;
      }
@@ -51,19 +85,12 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
      }
      return (
           <>
-               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mr={2} mt={2}>
-                    <Typography variant="h5" ml={2}>Lista de Asientos</Typography>
-                    <Button variant="contained" onClick={refetch}>
-                         Recargar Asientos
-                    </Button>
-               </Box>
                <TableContainer component={Paper}>
                     <Table>
                          <TableHead>
                               <TableRow>
                                    <TableCell>Asiento</TableCell>
                                    <TableCell>Comentario</TableCell>
-                                   <TableCell>Tipo Transacción</TableCell>
                                    <TableCell>Estado</TableCell>
                                    <TableCell>Total Debe</TableCell>
                                    <TableCell>Total Haber</TableCell>
@@ -78,11 +105,9 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                                                   <Typography variant="body2" color="textSecondary">{asiento.fecha_emision}</Typography>
                                                   <Typography variant="subtitle2">#{asiento.nro_asiento}</Typography>
                                                   <Typography variant="body2" color="textSecondary">ID-{asiento.id}</Typography>
-
                                              </Box>
                                         </TableCell>
                                         <TableCell>{asiento.comentario}</TableCell>
-                                        <TableCell>{asiento.tipo_transaccion}</TableCell>
                                         {/* <TableCell>{asiento.estado}</TableCell> */}
                                         <TableCell>
                                              <Chip
@@ -95,16 +120,28 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                                         <TableCell>{asiento.total_debe}</TableCell>
                                         <TableCell>{asiento.total_haber}</TableCell>
                                         <TableCell align="center">
-                                             <Visibility
+                                             <VisibilityOutlinedIcon
                                                   fontSize="small"
                                                   sx={{
                                                        color: 'action.active',
                                                        cursor: 'pointer',
+                                                       marginRight: 1,
                                                        '&:hover': {
                                                             color: 'primary.main',
                                                        },
                                                   }}
                                                   onClick={() => onOpenModal(asiento)}
+                                             />
+                                             <DeleteOutlineOutlinedIcon
+                                                  fontSize="small"
+                                                  sx={{
+                                                       color: 'action.active',
+                                                       cursor: 'pointer',
+                                                       '&:hover': {
+                                                            color: 'error.main',
+                                                       },
+                                                  }}
+                                                  onClick={() => onDelete(asiento)}
                                              />
                                         </TableCell>
                                    </TableRow>

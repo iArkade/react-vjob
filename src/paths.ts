@@ -62,16 +62,18 @@ export const paths = {
                team: '/dashboard/settings/team',
           },
           academy: { browse: '/dashboard/academy', details: (courseId: string) => `/dashboard/academy/courses/${courseId}` },
-          analytics: '/dashboard/analytics',
-          transaction: '/dashboard/transaction',
-          costCenter: '/dashboard/costCenter',
-          blank: '/dashboard/blank',
+          planCuentas:'/dashboard/plan-cuentas',
+          transacciones: '/dashboard/transacciones',
+          centroCostos: '/dashboard/centro-costos',
           asientos: {
                index: '/dashboard/asientos',
                create: '/dashboard/asientos/create',
                preview: (asientoId: string) => `/dashboard/asientos?previewId=${asientoId}`,
                details: (asientoId: string) => `/dashboard/asientos/${asientoId}`,
+               pdf: (asientoId: number) => `/dashboard/asientos/pdf/${asientoId}`
           },
+          blank: '/dashboard/blank',
+          analytics: '/dashboard/analytics',
           blog: {
                list: '/dashboard/blog',
                details: (postId: string) => `/dashboard/blog/${postId}`,
@@ -131,7 +133,10 @@ export const paths = {
           },
           tasks: '/dashboard/tasks',
      },
-     pdf: { invoice: (invoiceId: string) => `/pdf/invoices/${invoiceId}` },
+     pdf: { 
+          invoice: (invoiceId: string) => `/pdf/invoices/${invoiceId}`,
+          //asiento: (asientoId: number) => `/pdf/asientos/${asientoId}`
+     },
      components: {
           index: '/components',
           buttons: '/components/buttons',
