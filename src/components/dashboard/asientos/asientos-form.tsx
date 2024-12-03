@@ -35,8 +35,8 @@ import {
   TableContainer,
   Paper,
   Box,
-  Snackbar,
-  Alert,
+  // Snackbar,
+  // Alert,
 } from "@mui/material";
 import {
   useCreateAsiento,
@@ -49,6 +49,9 @@ import { TransaccionContableResponseType } from "@/api/transaccion_contable/tran
 import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccion-contable-request";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 import { dayjs } from "@/lib/dayjs";
+import { setFeedback } from "@/state/slices/feedBackSlice";
+import { useDispatch } from "react-redux";
+
 // import "dayjs/locale/es";
 
 // dayjs.locale("es");
@@ -155,42 +158,27 @@ export function AsientosForm({
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
   } = useGetTransaccionContable();
+  const dispatch = useDispatch();
 
   const { mutate: createAsiento } = useCreateAsiento();
   const { mutate: updateAsiento } = useUpdateAsiento();
-
-  const [snackbar, setSnackbar] = React.useState({
-    open: false,
-    message: "",
-    severity: "success" as "success" | "error",
-  });
-
-  const handleSnackbarClose = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
-
-  const showSnackbar = (
-    message: string,
-    severity: "success" | "error" = "success"
-  ) => {
-    setSnackbar({ open: true, message, severity });
-  };
 
   const validateTotals = (totalDebe: number, totalHaber: number) => {
     const totalCombined = Math.abs(totalDebe - totalHaber);
 
     if (totalCombined !== 0) {
-      showSnackbar(
-        "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
-        "error"
-      );
+      // showSnackbar(
+      //   "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
+      //   "error"
+      // );
       return false;
     }
 
     if (totalDebe === 0 && totalHaber === 0) {
-      showSnackbar(
-        "No se puede enviar un asiento sin valores en Debe o Haber.",
-        "error"
-      );
+      // showSnackbar(
+      //   "No se puede enviar un asiento sin valores en Debe o Haber.",
+      //   "error"
+      // );
       return false;
     }
     return true;
@@ -201,7 +189,9 @@ export function AsientosForm({
       try {
         //console.log("Datos enviados:",data)
         const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
-        const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
+        const totalHaber = parseFloat(
+          (getValues("total_haber") || 0).toFixed(2)
+        );
 
         if (!validateTotals(totalDebe, totalHaber)) return;
 
@@ -220,18 +210,39 @@ export function AsientosForm({
         };
 
         if (id) {
-          console.log(data)
+          console.log(data);
           await updateAsiento({ id: Number(id), data: dataToSend });
-          showSnackbar("Asiento actualizado exitosamente", "success");
+
+          dispatch(
+            setFeedback({
+              message: "Asiento actualizado exitosamente",
+              severity: "success",
+              isError: false,
+            })
+          );
+
+          // showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
           createAsiento(dataToSend);
-          showSnackbar("Asiento creado exitosamente", "success");
+          dispatch(
+            setFeedback({
+              message: "Asiento creado exitosamente",
+              severity: "success",
+              isError: false,
+            })
+          );
         }
 
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
         logger.error(err);
-        showSnackbar("Algo salió mal!", "error");
+        dispatch(
+          setFeedback({
+            message: "Algo salió mal!",
+            severity: "error",
+            isError: false,
+          })
+        );
       }
     },
     [id, navigate, createAsiento, updateAsiento, getValues, validateTotals]
@@ -638,8 +649,7 @@ export function AsientosForm({
                   />
                 </Stack>
               </Stack>
-
-              <Snackbar
+              {/* <Snackbar
                 open={snackbar.open}
                 autoHideDuration={snackbar.severity === "error" ? 6000 : 3000}
                 onClose={handleSnackbarClose}
@@ -652,7 +662,7 @@ export function AsientosForm({
                 >
                   {snackbar.message}
                 </Alert>
-              </Snackbar>
+              </Snackbar> */}
 
               <Stack spacing={3}>
                 <Grid
