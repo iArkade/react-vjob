@@ -67,7 +67,7 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
                          onSuccess: () => {
                               Swal.fire('¡Borrado!', 'El registro ha sido eliminado correctamente.', 'success');
                          },
-                         onError: (_) => {
+                         onError: (error) => {
                               Swal.fire('Error', 'No se pudo eliminar el asiento. Intenta nuevamente.', 'error');
                          },
                     });
