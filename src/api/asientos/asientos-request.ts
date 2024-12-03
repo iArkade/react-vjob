@@ -86,3 +86,23 @@ export const useUpdateAsiento = () => {
     },
   });
 };
+
+const deleteAsiento = async (id: number) => {
+  const response = await http.delete(`asientos/${id}`);
+  return response.data;
+};
+
+export const useDeleteAsiento = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteAsiento, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["asientos"]);
+      console.log("Asiento eliminado exitosamente");
+    },
+    onError: (error) => {
+      console.error("Error al eliminar el asiento:", error);
+    },
+  });
+};
+

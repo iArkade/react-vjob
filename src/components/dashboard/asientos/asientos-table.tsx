@@ -10,6 +10,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useState } from 'react';
 import { Asiento } from '@/api/asientos/asientos-types';
 import Swal from 'sweetalert2';
+import { useDeleteAsiento } from '@/api/asientos/asientos-request';
 
 type OrderStatus = 'Pendiente' | 'Activo' | 'Cancelado' | 'Rechazado';
 
@@ -31,6 +32,9 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
      const [page, setPage] = useState(0);
      const [rowsPerPage, setRowsPerPage] = useState(5);
 
+     const { mutate: deleteAsiento } = useDeleteAsiento();
+
+
      const handleChangePage = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
           setPage(newPage);
      };
@@ -42,23 +46,31 @@ export default function AsientoTable({ asientos, isLoading, isError, onOpenModal
 
      const paginatedAsientos = asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
 
-     const onDelete = (asiento) => {
+     const onDelete = (asiento: Asiento) => {
+          if (!asiento.id) {
+               Swal.fire('Error', 'El ID del asiento es inválido.', 'error');
+               return;
+          }
+
           Swal.fire({
                title: '¿Estás seguro?',
                text: 'No podrás revertir esta acción.',
                icon: 'warning',
                showCancelButton: true,
-               confirmButtonColor: '#d33', // Rojo para el botón de confirmación
-               cancelButtonColor: '#3085d6', // Azul para el botón de cancelar
+               confirmButtonColor: '#635bff',
+               cancelButtonColor: 'rgb(223, 51, 51)',
                confirmButtonText: 'Sí, borrar',
                cancelButtonText: 'Cancelar',
           }).then((result) => {
                if (result.isConfirmed) {
-                    Swal.fire(
-                         '¡Borrado!',
-                         'El registro ha sido eliminado correctamente.',
-                         'success'
-                    );
+                    deleteAsiento(asiento.id!, {
+                         onSuccess: () => {
+                              Swal.fire('¡Borrado!', 'El registro ha sido eliminado correctamente.', 'success');
+                         },
+                         onError: (_) => {
+                              Swal.fire('Error', 'No se pudo eliminar el asiento. Intenta nuevamente.', 'error');
+                         },
+                    });
                }
           });
      };

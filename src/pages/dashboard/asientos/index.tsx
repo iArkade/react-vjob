@@ -19,6 +19,8 @@ export function Page(): React.JSX.Element {
      const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
      const [openModal, setOpenModal] = React.useState(false);
 
+     console.log(selectedAsiento);
+
      const { data: asientos, isLoading, isError } = useAsientos();
      const [searchParams, setSearchParams] = useSearchParams();
      const navigate = useNavigate();
