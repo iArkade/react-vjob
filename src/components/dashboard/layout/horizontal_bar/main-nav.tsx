@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -181,15 +180,6 @@ function NotificationsButton(): React.JSX.Element {
   );
 }
 
-
-
-const user = {
-  id: 'USR-000',
-  name: 'Sofia Rivers',
-  avatar: '/assets/avatar.png',
-  email: 'sofia@devias.io',
-  role: 'string',
-} satisfies UserProfile;
 
 function UserButton(): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();

@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 
 interface DecodedToken {
      exp: number;
-     id?: string;
+     id?: number;
      name?: string;
      lastname?: string;
      avatar?: string;
@@ -33,14 +33,15 @@ const useAuth = () => {
                     dispatch(logout());
                     navigate('/auth/login');
                } else {
+                    console.log(decodedToken)
                     dispatch(setUser({
-                         id: decodedToken.id || '', 
+                         id: decodedToken.id || 0, 
                          email: decodedToken.email || '',  
                          name: decodedToken.name || '', 
                          lastname: decodedToken.lastname || '',  
                          role: decodedToken.role || '',
                     }));
-                    dispatch(setAuthenticated({ isAuthenticated: true }));
+                    // dispatch(setAuthenticated({ isAuthenticated: true }));
                }
           }
      }, [dispatch, navigate]);
