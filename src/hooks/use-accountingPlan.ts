@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting-plan/account-request';
 import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
 
-const useAccountingPlan = (page: number, rowsPerPage: number) => {
+const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: number) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const { data: accountsData, isLoading, isError, refetch } = useGetAccountingPlanPaginated(page, rowsPerPage);
+    const { data: accountsData, isLoading, isError, refetch } = useGetAccountingPlanPaginated(page, rowsPerPage, refreshTrigger);
     const accounts = accountsData?.data || [];
     const totalAccounts = accountsData?.total || 0;
+
+    useEffect(() => {
+        // Refetch cuando cambie refreshTrigger
+        refetch();
+    }, [refreshTrigger, refetch]);
 
     const { data: allAccounts } = useGetAccountingPlan();
 
@@ -117,7 +122,8 @@ const useAccountingPlan = (page: number, rowsPerPage: number) => {
         deleteAccount,
         error,
         success,
-        clearMessages
+        clearMessages,
+        refetch
     };
 };
 

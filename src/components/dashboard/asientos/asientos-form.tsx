@@ -241,10 +241,18 @@ export function AsientosForm({ asiento }: AsientosFormProps): React.JSX.Element 
 
      React.useEffect(() => {
           if (!lineItems) return;
-          const totalDebe = lineItems.reduce((acc, item) => acc + parseFloat((item.debe || 0).toFixed(2)), 0);
-          const totalHaber = lineItems.reduce((acc, item) => acc + parseFloat((item.haber || 0).toFixed(2)), 0);
-          const totalCombined = parseFloat((totalDebe - totalHaber).toFixed(2));
-
+          const totalDebe = lineItems.reduce((acc, item) => {
+               const debe = Number(item.debe || 0);
+               return acc + Number(debe.toFixed(2));
+          }, 0);
+          
+          const totalHaber = lineItems.reduce((acc, item) => {
+               const haber = Number(item.haber || 0);
+               return acc + Number(haber.toFixed(2));
+          }, 0);
+          
+          const totalCombined = Number((totalDebe - totalHaber).toFixed(2));
+     
           setValue('total_debe', totalDebe);
           setValue('total_haber', totalHaber);
           setValue('total', totalCombined);

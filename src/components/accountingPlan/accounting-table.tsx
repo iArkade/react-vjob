@@ -15,8 +15,11 @@ import AccountRow from './accounting-row';
 import AccountForm from './accounting-form';
 import useAccountingPlan from '@/hooks/use-accountingPlan';
 import PDFReportGenerator from './pdf-report';
+interface AccountingPlanTableProps {
+    refreshTrigger: number;
+}
 
-const AccountingPlanTable: React.FC = () => {
+const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigger }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -32,8 +35,9 @@ const AccountingPlanTable: React.FC = () => {
         deleteAccount,
         error,
         success,
-        clearMessages
-    } = useAccountingPlan(page + 1, rowsPerPage);
+        clearMessages,
+        refetch
+    } = useAccountingPlan(page + 1, rowsPerPage, refreshTrigger);
 
     const memoizedAccounts = useMemo(() => allAccounts || [], [allAccounts]);
 

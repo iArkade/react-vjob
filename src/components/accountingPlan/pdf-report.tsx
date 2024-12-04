@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         backgroundColor: '#ffffff',
         padding: 30,
+        paddingBottom: 50,
         fontFamily: 'Roboto',
     },
     header: {
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         borderColor: '#bfbfbf',
-        marginBottom: 20,
+        marginBottom: 10,
     },
     tableRow: {
         flexDirection: 'row',
@@ -75,7 +76,7 @@ interface PDFReportProps {
     accounts: AccountingPlanResponseType[];
 }
 
-const ItemsPerPage = 25; 
+const ItemsPerPage = 20; 
 
 const PDFReport: React.FC<PDFReportProps> = ({ accounts }) => {
     const pageCount = Math.ceil(accounts.length / ItemsPerPage);

@@ -13,14 +13,14 @@ export function Page(): React.JSX.Element {
      const asientoId = id ? parseInt(id, 10) : undefined;
 
      const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
-     //console.log(asiento, asientoId);
+     
      const transformedAsiento = asiento
           ? {
                ...asiento,
                fecha_emision: new Date(asiento.fecha_emision),
                lineItems: asiento.lineItems
                     ? asiento.lineItems.map((item) => ({
-                         id_asiento_item: item.id_asiento_item || '',
+                         id_asiento_item: String(item.id || ''),
                          codigo_centro: item.codigo_centro || '',
                          cta: item.cta || '',
                          cta_nombre: item.cta_nombre || '',
@@ -28,10 +28,11 @@ export function Page(): React.JSX.Element {
                          haber: item.haber || 0,
                          nota: item.nota || '',
                     }))
+               
                     : [],
           }
           : undefined;
-
+     console.log(transformedAsiento);
 
      return (
           <React.Fragment>
