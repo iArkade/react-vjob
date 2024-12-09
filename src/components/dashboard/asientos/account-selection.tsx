@@ -49,8 +49,8 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                          <Table>
                               <TableHead>
                                    <TableRow>
-                                        <TableCell>Code</TableCell>
-                                        <TableCell>Name</TableCell>
+                                        <TableCell>Codigo</TableCell>
+                                        <TableCell>Nombre</TableCell>
                                    </TableRow>
                               </TableHead>
                               <TableBody>

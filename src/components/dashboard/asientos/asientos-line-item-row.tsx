@@ -161,6 +161,14 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 fullWidth
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  color: "#777777", // Texto gris
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#bdbdbd", // Borde gris
+                  },
+                }}
+                readOnly
               />
             </>
           )}

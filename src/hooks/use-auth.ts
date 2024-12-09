@@ -31,7 +31,7 @@ const useAuth = () => {
         dispatch(logout());
         navigate("/auth/login");
       } else {
-        console.log(decodedToken);
+        //console.log(decodedToken);
         dispatch(
           setUser({
             id: decodedToken.id || 0,

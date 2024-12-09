@@ -52,9 +52,8 @@ import { dayjs } from "@/lib/dayjs";
 import { setFeedback } from "@/state/slices/feedBackSlice";
 import { useDispatch } from "react-redux";
 
-// import "dayjs/locale/es";
-
-// dayjs.locale("es");
+import "dayjs/locale/es";
+dayjs.locale("es");
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -126,14 +125,28 @@ export function AsientosForm({
   const { id } = useParams();
   const navigate = useNavigate();
 
+  console.log("asiento recibido:", asiento);
+
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
   };
 
   const methods = useForm<Values>({
-    defaultValues: asiento || defaultValues,
+    defaultValues: asiento 
+    ? {
+        ...defaultValues,
+        ...asiento,
+        lineItems: asiento.lineItems && asiento.lineItems.length > 0 
+          ? asiento.lineItems 
+          : defaultValues.lineItems
+      }
+    : defaultValues,
+
     resolver: zodResolver(asientoSchema),
   });
+
+  console.log("valores iniciales editar",defaultValues)
+
 
   const {
     control,
@@ -158,6 +171,7 @@ export function AsientosForm({
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
   } = useGetTransaccionContable();
+
   const dispatch = useDispatch();
 
   const { mutate: createAsiento } = useCreateAsiento();
@@ -167,18 +181,24 @@ export function AsientosForm({
     const totalCombined = Math.abs(totalDebe - totalHaber);
 
     if (totalCombined !== 0) {
-      // showSnackbar(
-      //   "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
-      //   "error"
-      // );
+      dispatch(
+        setFeedback({
+          message: "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
+          severity: "error",
+          isError: false,
+        })
+      );
       return false;
     }
 
     if (totalDebe === 0 && totalHaber === 0) {
-      // showSnackbar(
-      //   "No se puede enviar un asiento sin valores en Debe o Haber.",
-      //   "error"
-      // );
+      dispatch(
+        setFeedback({
+          message: "No se puede enviar un asiento sin valores en Debe o Haber.",
+          severity: "error",
+          isError: false,
+        })
+      );
       return false;
     }
     return true;
@@ -220,8 +240,6 @@ export function AsientosForm({
               isError: false,
             })
           );
-
-          // showSnackbar("Asiento actualizado exitosamente", "success");
         } else {
           createAsiento(dataToSend);
           dispatch(
@@ -587,11 +605,11 @@ export function AsientosForm({
                     />
                   </Grid>
 
-                  <Grid size={{ xs: 2, md: 2 }}>
+                  {/* <Grid size={{ xs: 2, md: 2 }}>
                     <Button variant="outlined" sx={{ marginTop: "28px" }}>
                       ...
                     </Button>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               </Stack>
 
@@ -604,7 +622,7 @@ export function AsientosForm({
                   alignItems="center"
                   mb={0}
                 >
-                  <Typography variant="h6">Line items</Typography>
+                  <Typography variant="h6">Items</Typography>
                   <Button
                     color="secondary"
                     onClick={handleAddLineItem}

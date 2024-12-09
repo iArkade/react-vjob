@@ -2,7 +2,8 @@ import * as React from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAuthenticated, setUser } from "../../state/slices/authSlice";
 import { useCreateUser } from "../../api/user-request";
@@ -79,7 +80,7 @@ export default function RegisterPage() {
           subheader={
             <Typography color="text.secondary" variant="body2">
               Ya tiene una cuenta?{" "}
-              <Link href="/auth/login" variant="subtitle2">
+              <Link  component={RouterLink} to="/auth/login" variant="subtitle2">
                 Iniciar Sesión
               </Link>
             </Typography>

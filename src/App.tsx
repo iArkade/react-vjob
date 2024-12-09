@@ -2,7 +2,6 @@ import "./styles/global.css";
 import { BrowserRouter } from "react-router-dom";
 import { AppRouter } from "./routes/AppRouter";
 import { Alert, Snackbar } from "@mui/material";
-import { SyntheticEvent } from "react";
 import { useSelector } from "react-redux";
 
 import { setFeedback } from "./state/slices/feedBackSlice";
@@ -27,9 +26,9 @@ function App() {
       {message !== null && (
         <Snackbar
           open={message !== null}
-          onClose={handleSnackbarClose}
           autoHideDuration={6000}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >
           <Alert
             onClose={handleSnackbarClose}

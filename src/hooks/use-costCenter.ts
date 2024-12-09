@@ -11,7 +11,7 @@ const useCentroCosto = (page: number, rowsPerPage: number) => {
     const costCenters = costCentersData?.data || [];
     const totalcostCenters = costCentersData?.total || 0;
 
-    const { data: allcostCenters } = useGetCentroCosto();
+    //const { data: allcostCenters } = useGetCentroCosto();
 
     const createCentroCosto = useCreateCentroCosto();
     const updateCentroCosto = useUpdateCentroCosto();
@@ -72,7 +72,7 @@ const useCentroCosto = (page: number, rowsPerPage: number) => {
     return {
         costCenters,
         totalcostCenters,
-        allcostCenters,
+        //allcostCenters,
         isLoading,
         isError,
         addcostCenter,

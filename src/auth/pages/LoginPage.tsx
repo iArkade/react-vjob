@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
 import { setAuthenticated, setUser } from "../../state/slices/authSlice";
 import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -74,7 +74,7 @@ export default function LoginPage() {
                     <CardHeader
                          subheader={
                               <Typography color="text.secondary" variant="body2">
-                                   No tiene una cuenta? <Link href="/auth/register" variant="subtitle2">Registrarse</Link>
+                                   No tiene una cuenta? <Link component={RouterLink} to="/auth/register" variant="subtitle2">Registrarse</Link>
                               </Typography>
                          }
                          title="Iniciar Sesión"
