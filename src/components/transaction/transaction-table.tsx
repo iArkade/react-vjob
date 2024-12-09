@@ -12,12 +12,13 @@ import {
     CircularProgress,
     Alert,
     TablePagination,
-    Snackbar
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import TransactionRow from './transaction-row';
 import TransactionForm from './transaction-form';
 import useTransaccionContable from '@/hooks/use-transaction';
+import { useDispatch } from 'react-redux';
+import { setFeedback } from '@/state/slices/feedBackSlice';
 
 const TransactionTable: React.FC = () => {
     const [page, setPage] = useState(0);
@@ -27,7 +28,7 @@ const TransactionTable: React.FC = () => {
     const {
         transactions,
         totaltransactions,
-        alltransactions,
+        //alltransactions,
         isLoading,
         isError,
         addTransaction,
@@ -38,14 +39,46 @@ const TransactionTable: React.FC = () => {
         clearMessages
     } = useTransaccionContable(page + 1, rowsPerPage);
 
-    const filteredTransactions = transactions.filter(item =>
-        item.codigo_transaccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    // const filteredTransactions = transactions.filter(item =>
+    //     item.codigo_transaccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
+
+    const filteredTransactions = useMemo(() => 
+        transactions.filter(item =>
+            item.codigo_transaccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        ),[transactions, searchTerm]
     );
 
-    const memoizedAccounts = useMemo(() => alltransactions || [], [alltransactions]);
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+        if (error) {
+            dispatch(
+                setFeedback({
+                    message: error,
+                    severity: "error",
+                    isError: true,
+                })
+            );
+            clearMessages();
+        }
 
-    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+        if (success) {
+            dispatch(
+                setFeedback({
+                    message: success,
+                    severity: "success",
+                    isError: false,
+                })
+            );
+            clearMessages();
+        }
+    }, [error, success, dispatch, clearMessages]);
+
+    //const memoizedAccounts = useMemo(() => alltransactions || [], [alltransactions]);
+
+    const handleChangePage = useCallback((_: unknown, newPage: number) => {
         setPage(newPage);
     }, []);
 
@@ -65,7 +98,6 @@ const TransactionTable: React.FC = () => {
     if (isError) {
         return <Alert severity="error">Error al cargar las transacciones</Alert>;
     }
-
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -123,17 +155,6 @@ const TransactionTable: React.FC = () => {
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
-
-                <Snackbar open={!!error} autoHideDuration={6000} onClose={clearMessages}>
-                    <Alert onClose={clearMessages} severity="error" sx={{ width: '100%' }}>
-                        {error}
-                    </Alert>
-                </Snackbar>
-                <Snackbar open={!!success} autoHideDuration={6000} onClose={clearMessages}>
-                    <Alert onClose={clearMessages} severity="success" sx={{ width: '100%' }}>
-                        {success}
-                    </Alert>
-                </Snackbar>
             </TableContainer>
         </Paper>
     );

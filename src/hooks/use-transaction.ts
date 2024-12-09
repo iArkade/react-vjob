@@ -11,7 +11,7 @@ const useTransaccionContable = (page: number, rowsPerPage: number) => {
     const transactions = transactionsData?.data || [];
     const totaltransactions = transactionsData?.total || 0;
 
-    const { data: alltransactions } = useGetTransaccionContable();
+    //const { data: alltransactions } = useGetTransaccionContable();
 
     const createTransaccionContable = useCreateTransaccionContable();
     const updateTransaccionContable = useUpdateTransaccionContable();
@@ -72,7 +72,7 @@ const useTransaccionContable = (page: number, rowsPerPage: number) => {
     return {
         transactions,
         totaltransactions,
-        alltransactions,
+        //alltransactions,
         isLoading,
         isError,
         addTransaction,

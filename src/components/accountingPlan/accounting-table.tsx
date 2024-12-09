@@ -6,7 +6,6 @@ import {
     TableHead,
     TableRow,
     TablePagination,
-    Snackbar,
     Alert,
     CircularProgress,
     Paper
@@ -15,6 +14,8 @@ import AccountRow from './accounting-row';
 import AccountForm from './accounting-form';
 import useAccountingPlan from '@/hooks/use-accountingPlan';
 import PDFReportGenerator from './pdf-report';
+import { useDispatch } from 'react-redux';
+import { setFeedback } from '@/state/slices/feedBackSlice';
 
 const AccountingPlanTable: React.FC = () => {
     const [page, setPage] = useState(0);
@@ -37,7 +38,32 @@ const AccountingPlanTable: React.FC = () => {
 
     const memoizedAccounts = useMemo(() => allAccounts || [], [allAccounts]);
 
-    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+        if (error) {
+            dispatch(
+                setFeedback({
+                    message: error,
+                    severity: "error",
+                    isError: true,
+                })
+            );
+            clearMessages();
+        }
+
+        if (success) {
+            dispatch(
+                setFeedback({
+                    message: success,
+                    severity: "success",
+                    isError: false,
+                })
+            );
+            clearMessages();
+        }
+    }, [error, success, dispatch, clearMessages]);
+
+    const handleChangePage = useCallback((_: unknown, newPage: number) => {
         setPage(newPage);
     }, []);
 
@@ -94,7 +120,7 @@ const AccountingPlanTable: React.FC = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
 
-            <Snackbar open={!!error} autoHideDuration={6000} onClose={clearMessages}>
+            {/* <Snackbar open={!!error} autoHideDuration={6000} onClose={clearMessages}>
                 <Alert onClose={clearMessages} severity="error" sx={{ width: '100%' }}>
                     {error}
                 </Alert>
@@ -103,7 +129,7 @@ const AccountingPlanTable: React.FC = () => {
                 <Alert onClose={clearMessages} severity="success" sx={{ width: '100%' }}>
                     {success}
                 </Alert>
-            </Snackbar>
+            </Snackbar> */}
         </Paper>
     );
 };
