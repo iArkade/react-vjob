@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../../state/slices/authSlice';
+import { setAuthenticated, setUser } from '../../state/slices/authSlice';
 import { useCreateUser } from '../../api/user-request';
 import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from '@mui/material';
 
@@ -44,8 +44,15 @@ export default function RegisterPage() {
                     const response = await createUser.mutateAsync({email, name, lastname, password, role, active});
                     localStorage.setItem("token", response.data.tokens);
                     console.log('Create successful:', response.data);
-                    dispatch(setUser({email, name, lastname}));
-                    navigate('/dashboard');
+                    dispatch(setUser({
+                         id: response.data.id,
+                         email: response.data.email,
+                         name: response.data.name,
+                         lastname: response.data.lastname,
+                         role: response.data.role,
+                    }));
+                    dispatch(setAuthenticated({ isAuthenticated: true }));
+                    navigate('/empresa');
                }
           } catch (error) {
                console.log(error);

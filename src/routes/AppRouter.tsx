@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import useAuth from '../hooks/use-auth';
 import { useState, useEffect } from 'react';
+import {Page as Empresa} from '@/pages/core/empresa'
 
 export const AppRouter = () => {
      const [loading, setLoading] = useState(true);
@@ -25,8 +26,9 @@ export const AppRouter = () => {
           <Routes>
                {isAuthenticated ? (
                     <>
-                         <Route path="/dashboard/*" element={<PrivateRoutes />} />
-                         <Route path="*" element={<Navigate to="/dashboard" />} />
+                         <Route path="/empresa" element={<Empresa />} />
+                         <Route path="/dashboard/*" element={<PrivateRoutes />} />                         
+                         <Route path="*" element={<Navigate to="/empresa" />} />
                     </>
                ) : (
                     <>
