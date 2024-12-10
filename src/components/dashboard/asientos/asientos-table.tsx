@@ -13,8 +13,10 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { useState } from "react";
 import { Asiento } from "@/api/asientos/asientos-types";
@@ -124,7 +126,7 @@ export default function AsientoTable({
               <TableCell>Estado</TableCell>
               <TableCell>Total Debe</TableCell>
               <TableCell>Total Haber</TableCell>
-              <TableCell align="right">Acciones</TableCell>
+              <TableCell align="center">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -156,33 +158,46 @@ export default function AsientoTable({
                 <TableCell>{asiento.total_debe}</TableCell>
                 <TableCell>{asiento.total_haber}</TableCell>
                 <TableCell align="center">
-                  <Tooltip title="Editar" arrow>
-                    <VisibilityOutlinedIcon
-                      fontSize="small"
-                      sx={{
-                        color: "action.active",
-                        cursor: "pointer",
-                        marginRight: 1,
-                        "&:hover": {
-                          color: "primary.main",
-                        },
-                      }}
-                      onClick={() => onOpenModal(asiento)}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Eliminar" arrow>
-                    <DeleteOutlineOutlinedIcon
-                      fontSize="small"
-                      sx={{
-                        color: "action.active",
-                        cursor: "pointer",
-                        "&:hover": {
-                          color: "error.main",
-                        },
-                      }}
-                      onClick={() => onDelete(asiento)}
-                    />
-                  </Tooltip>
+                  <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+                    <Tooltip title="Editar" arrow>
+                      <VisibilityOutlinedIcon
+                        fontSize="small"
+                        sx={{
+                          color: "action.active",
+                          cursor: "pointer",
+                          "&:hover": {
+                            color: "primary.main",
+                          },
+                        }}
+                        onClick={() => onOpenModal(asiento)}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Eliminar" arrow>
+                      <DeleteOutlineOutlinedIcon
+                        fontSize="small"
+                        sx={{
+                          color: "action.active",
+                          cursor: "pointer",
+                          "&:hover": {
+                            color: "error.main",
+                          },
+                        }}
+                        onClick={() => onDelete(asiento)}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Imprimir" arrow>
+                      <PrintOutlinedIcon
+                        fontSize="small"
+                        sx={{
+                          color: "action.active",
+                          cursor: "pointer",
+                          "&:hover": {
+                            color: "secondary.main",
+                          },
+                        }}
+                      />
+                    </Tooltip>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
