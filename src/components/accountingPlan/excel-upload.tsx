@@ -83,7 +83,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({ onSuccessfulUpload }) => {
                 onClick={handleUpload}
                 style={{ marginLeft: '16px', width: '30%', borderRadius: '4px' }}
             >
-                Upload
+                Cargar
             </Button>
             {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
             {successMessage && <Alert severity="success" sx={{ mt: 2 }}>{successMessage}</Alert>}
