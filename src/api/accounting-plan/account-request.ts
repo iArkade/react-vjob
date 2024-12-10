@@ -41,7 +41,7 @@ export const useCreateAccountingPlan = () => {
     });
 };
 
-const getAccountingPlanPaginatedRequest = async (page: number, limit: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
+const getAccountingPlanPaginatedRequest = async (page: number, limit: number, refreshTrigger?: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
     try {
         const response = await http.get(`accounting-plan/paginated?page=${page}&limit=${limit}`);
         return response.data;
@@ -50,11 +50,13 @@ const getAccountingPlanPaginatedRequest = async (page: number, limit: number): P
     }
 };
 
-export const useGetAccountingPlanPaginated = (page: number, limit: number) =>
+export const useGetAccountingPlanPaginated = (page: number, limit: number, refreshTrigger?: number) =>
     useQuery({
-        queryKey: ['GetAccountingPlan', page, limit],
+        queryKey: ['GetAccountingPlan', page, limit, refreshTrigger],
         queryFn: () => getAccountingPlanPaginatedRequest(page, limit),
         keepPreviousData: true,
+        staleTime: 0, // Ensure fresh data
+        refetchOnWindowFocus: false
     });
 
 const getAccountingPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {

@@ -1,21 +1,24 @@
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
-import { useNavigate } from "react-router-dom";
-import { Link as RouterLink } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setAuthenticated, setUser } from "../../state/slices/authSlice";
-import { useCreateUser } from "../../api/user-request";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-} from "@mui/material";
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setAuthenticated, setUser } from '../../state/slices/authSlice';
+import { useCreateUser } from '../../api/user-request';
+import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from '@mui/material';
+
+// function Copyright(props: any) {
+//      return (
+//           <Typography variant="body2" color="text.secondary" align="center" {...props}>
+//                {'Copyright ©  VisualJob '}
+//                {new Date().getFullYear()}
+//                {'.'}
+//           </Typography>
+//      );
+// }
+
+// const defaultTheme = createTheme();
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
@@ -37,34 +40,24 @@ export default function RegisterPage() {
       const role = "USER";
       const active = true;
 
-      if (validPassword) {
-        const response = await createUser.mutateAsync({
-          email,
-          name,
-          lastname,
-          password,
-          role,
-          active,
-        });
-        localStorage.setItem("token", response.data.tokens);
-        console.log("Create successful:", response.data);
-        dispatch(
-          setUser({
-            id: response.data.id,
-            email: response.data.email,
-            name: response.data.name,
-            lastname: response.data.lastname,
-            role: response.data.role,
-          })
-        );
-        dispatch(setAuthenticated({ isAuthenticated: true }));
-
-        navigate("/auth/empresa");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+               if(validPassword){
+                    const response = await createUser.mutateAsync({email, name, lastname, password, role, active});
+                    localStorage.setItem("token", response.data.tokens);
+                    console.log('Create successful:', response.data);
+                    dispatch(setUser({
+                         id: response.data.id,
+                         email: response.data.email,
+                         name: response.data.name,
+                         lastname: response.data.lastname,
+                         role: response.data.role,
+                    }));
+                    dispatch(setAuthenticated({ isAuthenticated: true }));
+                    navigate('/empresa');
+               }
+          } catch (error) {
+               console.log(error);
+          }    
+     };
 
   const validatePassword = (
     password: string,

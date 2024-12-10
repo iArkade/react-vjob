@@ -53,7 +53,8 @@ export default function LoginPage() {
                     role: response.data.role,
                }));
                dispatch(setAuthenticated({ isAuthenticated: true }));
-               navigate('/dashboard');
+               
+               navigate('/empresa');
 
           } catch (error: any) {
                //setError('Validaciones Incorrectas');
