@@ -68,8 +68,8 @@ export const paths = {
           asientos: {
                index: '/dashboard/asientos',
                create: '/dashboard/asientos/create',
-               preview: (asientoId: string) => `/dashboard/asientos?previewId=${asientoId}`,
-               details: (asientoId: string) => `/dashboard/asientos/${asientoId}`,
+               preview: (asientoId: number) => `/dashboard/asientos?previewId=${asientoId}`,
+               details: (asientoId: number) => `/dashboard/asientos/${asientoId}`,
                pdf: (asientoId: number) => `/dashboard/asientos/pdf/${asientoId}`
           },
           blank: '/dashboard/blank',

@@ -22,6 +22,8 @@ import { useState } from "react";
 import { Asiento } from "@/api/asientos/asientos-types";
 import Swal from "sweetalert2";
 import { useDeleteAsiento } from "@/api/asientos/asientos-request";
+import { useNavigate } from "react-router-dom";
+import { paths } from "@/paths";
 
 type OrderStatus = "Pendiente" | "Activo" | "Cancelado" | "Rechazado";
 
@@ -39,15 +41,18 @@ type AsientoTableProps = {
   asientos: Asiento[] | undefined;
   isLoading: boolean;
   isError: boolean;
-  onOpenModal: (asiento: Asiento) => void;
+  //onOpenModal: (asiento: Asiento) => void;
 };
 
 export default function AsientoTable({
   asientos,
   isLoading,
   isError,
-  onOpenModal,
+  //onOpenModal,
 }: AsientoTableProps) {
+
+
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -70,43 +75,117 @@ export default function AsientoTable({
   const paginatedAsientos =
     asientos?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
 
-  const onDelete = (asiento: Asiento) => {
-    if (!asiento.id) {
-      Swal.fire("Error", "El ID del asiento es inválido.", "error");
-      return;
-    }
-
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esta acción.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#635bff",
-      cancelButtonColor: "rgb(223, 51, 51)",
-      confirmButtonText: "Sí, borrar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteAsiento(asiento.id!, {
-          onSuccess: () => {
-            Swal.fire(
-              "¡Borrado!",
-              "El registro ha sido eliminado correctamente.",
-              "success"
-            );
-          },
-          onError: (error) => {
-            console.error(error);
-            Swal.fire(
-              "Error",
-              "No se pudo eliminar el asiento. Intenta nuevamente.",
-              "error"
-            );
-          },
-        });
+    const handleAction = (
+      asiento: Asiento,
+      action: "edit" | "delete" | "print"
+    ) => {
+      if (!asiento.id) {
+        Swal.fire("Error", "El ID del asiento es inválido.", "error");
+        return;
       }
-    });
-  };
+  
+      switch (action) {
+        case "edit":
+          navigate(`${paths.dashboard.asientos.details(asiento.id)}`);
+          break;
+  
+        case "delete":
+          Swal.fire({
+            title: "¿Estás seguro?",
+            text: "No podrás revertir esta acción.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#635bff",
+            cancelButtonColor: "rgb(223, 51, 51)",
+            confirmButtonText: "Sí, borrar",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              deleteAsiento(asiento.id!, {
+                onSuccess: () => {
+                  Swal.fire(
+                    "¡Borrado!",
+                    "El registro ha sido eliminado correctamente.",
+                    "success"
+                  );
+                },
+                onError: (error) => {
+                  console.error(error);
+                  Swal.fire(
+                    "Error",
+                    "No se pudo eliminar el asiento. Intenta nuevamente.",
+                    "error"
+                  );
+                },
+              });
+            }
+          });
+          break;
+  
+        case "print":
+          navigate(paths.dashboard.asientos.pdf(asiento.id));
+          break;
+  
+        default:
+          break;
+      }
+    };
+
+  // const onEdit = (asiento: Asiento) =>{
+  //   if (!asiento.id) {
+  //     Swal.fire("Error", "El ID del asiento es inválido.", "error");
+  //     return;
+  //   }
+  //   navigate(`${paths.dashboard.asientos.details(asiento.id)}`);
+  // }
+
+  // const onDelete = (asiento: Asiento) => {
+  //   if (!asiento.id) {
+  //     Swal.fire("Error", "El ID del asiento es inválido.", "error");
+  //     return;
+  //   }
+
+  //   Swal.fire({
+  //     title: "¿Estás seguro?",
+  //     text: "No podrás revertir esta acción.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#635bff",
+  //     cancelButtonColor: "rgb(223, 51, 51)",
+  //     confirmButtonText: "Sí, borrar",
+  //     cancelButtonText: "Cancelar",
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       deleteAsiento(asiento.id!, {
+  //         onSuccess: () => {
+  //           Swal.fire(
+  //             "¡Borrado!",
+  //             "El registro ha sido eliminado correctamente.",
+  //             "success"
+  //           );
+  //         },
+  //         onError: (error) => {
+  //           console.error(error);
+  //           Swal.fire(
+  //             "Error",
+  //             "No se pudo eliminar el asiento. Intenta nuevamente.",
+  //             "error"
+  //           );
+  //         },
+  //       });
+  //     }
+  //   });
+  // };
+
+  // const onPrint = (asiento: Asiento) => {
+  //   if (!asiento.id) {
+  //     Swal.fire("Error", "El ID del asiento es inválido.", "error");
+  //     return;
+  //   }
+  //   navigate(
+  //     asiento.id ? paths.dashboard.asientos.pdf(asiento.id) : "#"
+  //   )
+  // }
 
   if (isLoading) {
     return <CircularProgress />;
@@ -169,7 +248,8 @@ export default function AsientoTable({
                             color: "primary.main",
                           },
                         }}
-                        onClick={() => onOpenModal(asiento)}
+                        //onClick={() => onOpenModal(asiento)}
+                        onClick={() => handleAction(asiento, "edit")}
                       />
                     </Tooltip>
                     <Tooltip title="Eliminar" arrow>
@@ -182,7 +262,7 @@ export default function AsientoTable({
                             color: "error.main",
                           },
                         }}
-                        onClick={() => onDelete(asiento)}
+                        onClick={() => handleAction(asiento, "delete")}
                       />
                     </Tooltip>
                     <Tooltip title="Imprimir" arrow>
@@ -195,6 +275,7 @@ export default function AsientoTable({
                             color: "secondary.main",
                           },
                         }}
+                        onClick={() => handleAction(asiento, "print")}
                       />
                     </Tooltip>
                   </Stack>

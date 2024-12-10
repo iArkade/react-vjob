@@ -38,7 +38,7 @@ export function Page(): React.JSX.Element {
               <Box sx={{ flex: "1 1 auto" }}>
                 <Typography variant="h4">Asiento Diario Contable</Typography>
               </Box>
-              <div>
+              {/* <div>
                 <Button
                   variant="contained"
                   onClick={() =>
@@ -49,7 +49,7 @@ export function Page(): React.JSX.Element {
                 >
                   Vista Previa
                 </Button>
-              </div>
+              </div> */}
             </Stack>
           </Stack>
           {!isLoading && !isError && asiento && (

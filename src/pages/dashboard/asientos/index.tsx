@@ -9,50 +9,48 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import AsientoTable from '@/components/dashboard/asientos/asientos-table';
 import { RouterLink } from '@/components/core/link';
 import { paths } from '@/paths';
-import { Asiento } from '@/api/asientos/asientos-types';
 import { useAsientos } from '@/api/asientos/asientos-request';
-import AsientoDetailsModal from '@/components/dashboard/asientos/asiento-detail-modal';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
 
 export function Page(): React.JSX.Element {
 
-     const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
-     const [openModal, setOpenModal] = React.useState(false);
+     // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
+     // const [openModal, setOpenModal] = React.useState(false);
 
      const { data: asientos, isLoading, isError } = useAsientos();
-     const [searchParams, setSearchParams] = useSearchParams();
-     const navigate = useNavigate();
+     // const [searchParams, setSearchParams] = useSearchParams();
+     // const navigate = useNavigate();
 
-     const handleOpenModal = (asiento: Asiento) => {
-          if (asiento?.id) {
-               setSelectedAsiento(asiento);
-               setOpenModal(true);
-               navigate(`/dashboard/asientos?previewId=${asiento.id}`);
-          }
-     };
+     // const handleOpenModal = (asiento: Asiento) => {
+     //      if (asiento?.id) {
+     //           setSelectedAsiento(asiento);
+     //           setOpenModal(true);
+     //           navigate(`/dashboard/asientos?previewId=${asiento.id}`);
+     //      }
+     // };
 
-     const handleCloseModal = () => {
-          setSelectedAsiento(null);
-          setOpenModal(false);
-          navigate('/dashboard/asientos');
-     };
+     // const handleCloseModal = () => {
+     //      setSelectedAsiento(null);
+     //      setOpenModal(false);
+     //      navigate('/dashboard/asientos');
+     // };
 
-     React.useEffect(() => {
-          const previewId = searchParams.get('previewId');
+     // React.useEffect(() => {
+     //      const previewId = searchParams.get('previewId');
 
-          // Si hay un previewId en la URL y tenemos asientos cargados
-          if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
-               const asiento = asientos.find(a => a?.id?.toString() === previewId);
+     //      // Si hay un previewId en la URL y tenemos asientos cargados
+     //      if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
+     //           const asiento = asientos.find(a => a?.id?.toString() === previewId);
 
-               if (asiento) {
-                    setSelectedAsiento(asiento);
-                    setOpenModal(true);
-               } else {
-                    //console.error(`Asiento con ID ${previewId} no encontrado.`);
-                    navigate('/dashboard/asientos');
-               }
-          }
-     }, [searchParams, asientos, openModal]);
+     //           if (asiento) {
+     //                setSelectedAsiento(asiento);
+     //                setOpenModal(true);
+     //           } else {
+     //                //console.error(`Asiento con ID ${previewId} no encontrado.`);
+     //                navigate('/dashboard/asientos');
+     //           }
+     //      }
+     // }, [searchParams, asientos, openModal]);
 
      return (
           <React.Fragment>
@@ -86,19 +84,19 @@ export function Page(): React.JSX.Element {
                                         asientos={asientos}        // Pasamos los datos
                                         isLoading={isLoading}      // Estado de carga
                                         isError={isError}          // Estado de error
-                                        onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal  
+                                        //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal       
                                    />
                               </Box>
                               <Divider />
                          </Card>
                     </Stack>
                </Box>
-               <AsientoDetailsModal
+               {/* <AsientoDetailsModal
                     open={openModal}
                     onClose={handleCloseModal}
                     asiento={selectedAsiento}
                     previewId={searchParams.get('previewId') || ''}
-               />
+               /> */}
           </React.Fragment>
      );
 }
