@@ -66,7 +66,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                              href={`${paths.dashboard.asientos.details(previewId || '')}`}
                                              startIcon={<PencilSimpleIcon />}
                                         >
-                                             Edit
+                                             Editar
                                         </Button>
                                    </Stack>
                                    <Card sx={{ borderRadius: 1 }} variant="outlined">

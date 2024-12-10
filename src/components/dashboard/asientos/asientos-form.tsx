@@ -125,8 +125,6 @@ export function AsientosForm({
   const { id } = useParams();
   const navigate = useNavigate();
 
-  console.log("asiento recibido:", asiento);
-
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
   };
@@ -144,9 +142,6 @@ export function AsientosForm({
 
     resolver: zodResolver(asientoSchema),
   });
-
-  console.log("valores iniciales editar",defaultValues)
-
 
   const {
     control,
