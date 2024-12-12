@@ -1,4 +1,3 @@
-// LineItemRow.tsx
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import {
@@ -13,6 +12,7 @@ import { Trash as TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { Option } from "@/components/core/option";
 import { AsientoItem, DatCentro } from "@/api/asientos/asientos-types";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
+import { formatNumberValue } from "@/utils/numbers";
 
 interface LineItemRowProps {
   item: any;
@@ -35,7 +35,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     getValues,
     register,
     formState: { errors },
-    clearErrors
+    clearErrors,
   } = useFormContext<{ lineItems: AsientoItem[] }>();
 
   React.useEffect(() => {
@@ -50,20 +50,20 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     isError: isErrorCentros,
   } = useGetCentroCosto();
 
-  const handleDebeChange = (value: number) => {
+  const handleDebeChange = (value: string) => {
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].debe = value;
     setValue("lineItems", updatedItems);
 
-    if (value !== 0) setValue(`lineItems.${index}.haber`, 0);
+    if (value !== "0") setValue(`lineItems.${index}.haber`, "0");
   };
 
-  const handleHaberChange = (value: number) => {
+  const handleHaberChange = (value: string) => {
     const updatedItems = [...getValues("lineItems")];
     updatedItems[index].haber = value;
     setValue("lineItems", updatedItems);
 
-    if (value !== 0) setValue(`lineItems.${index}.debe`, 0);
+    if (value !== "0") setValue(`lineItems.${index}.debe`, "0");
   };
 
   const lineItemErrors = errors.lineItems?.[index];
@@ -136,7 +136,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
                 fullWidth
                 error={!!lineItemErrors?.cta}
                 onClick={() => {
-                  handleOpenModal(index)
+                  handleOpenModal(index);
 
                   if (lineItemErrors?.cta) {
                     clearErrors(`lineItems.${index}.cta`);
@@ -183,19 +183,13 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
             <>
               <OutlinedInput
                 {...field}
-                type="number"
                 inputProps={{ min: 0, step: 1 }}
                 error={!!lineItemErrors?.debe}
                 onChange={(e) => {
-
-                  let value = e.target.value.startsWith('0') && e.target.value.length > 1
-                    ? e.target.value.slice(1)
-                    : e.target.value;
-
-                  field.onChange(value);
-                  handleDebeChange(parseFloat(value));
+                  const value = e.target.value;
+                  handleDebeChange(value.replace(/[^0-9,.-]/g, "0"));
                 }}
-                value={field.value ?? ""}
+                value={field.value.toString()}
                 fullWidth
               />
               {lineItemErrors?.debe && (
@@ -216,20 +210,19 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
             <>
               <OutlinedInput
                 {...field}
-                type="number"
                 inputProps={{ min: 0, step: 1, style: { appearance: "none" } }}
                 error={!!lineItemErrors?.haber}
-                // onChange={(e) => {
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleHaberChange(value.replace(/[^0-9,.-]/g, "0"));
+                }}
+                value={field.value.toString()}
+                // onBlur={(e) => {
                 //   const value = e.target.value;
                 //   const parsedValue = value === "" ? 0 : parseFloat(value);
                 //   field.onChange(parsedValue);
+                //   handleHaberChange(parsedValue);
                 // }}
-                onBlur={(e) => {
-                  const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue);
-                  handleHaberChange(parsedValue);
-                }}
                 fullWidth
               />
               {lineItemErrors?.haber && (
