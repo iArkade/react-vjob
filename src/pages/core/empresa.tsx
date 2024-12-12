@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     FormControl,
     MenuItem,
     Modal,
@@ -106,7 +109,41 @@ export function Page(): React.JSX.Element {
             </Button>
 
             {/* Modal para crear empresa */}
-            <Modal open={open} onClose={handleClose}>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="sm"
+                sx={{
+                    '& .MuiDialog-container': { justifyContent: 'center' },
+                    '& .MuiDialog-paper': { height: '100%', width: '100%' },
+                }}
+            >
+                <DialogTitle>
+                    <Typography variant="h6">Crear Empresa</Typography>
+                </DialogTitle>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: 0 }}>
+                    {['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'].map((field) => (
+                        <TextField
+                            key={field}
+                            label={field.charAt(0).toUpperCase() + field.slice(1)}
+                            name={field}
+                            fullWidth
+                            value={(formData as any)[field]}
+                            onChange={handleInputChange}
+                            margin="normal"
+                        />
+                    ))}
+                    <Box display="flex" justifyContent="space-between" mt={2}>
+                        <Button variant="contained" color="primary" onClick={handleAddCompany}>
+                            Guardar
+                        </Button>
+                        <Button variant="outlined" color="secondary" onClick={handleClose}>
+                            Cancelar
+                        </Button>
+                    </Box>
+                </DialogContent>
+            </Dialog>
+            {/* <Modal open={open} onClose={handleClose}>
                 <Box sx={style}>
                     <Typography variant="h6" component="h2" gutterBottom>
                         Crear Empresa
@@ -131,7 +168,7 @@ export function Page(): React.JSX.Element {
                         </Button>
                     </Box>
                 </Box>
-            </Modal>
+            </Modal> */}
         </Box>
     );
 };

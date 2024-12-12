@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting-plan/account-request';
 import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
-import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
+import { normalizeCode,  validateHierarchy } from '@/utils/validators';
 
 const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: number) => {
     const [error, setError] = useState<string | null>(null);
@@ -23,10 +23,10 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
     const deleteAccountingPlan = useDeleteAccountingPlan();
 
     const addAccount = async (newAccount: AccountingPlanRequestType) => {
-        if (!validateCode(newAccount.code)) {
-            setError('El código debe contener números y puede terminar en punto.');
-            return;
-        }
+        // if (!validateCode(newAccount.code)) {
+        //     setError('El código debe contener números y puede terminar en punto.');
+        //     return;
+        // }
 
         if (newAccount.code && newAccount.name) {
             const existingCode = accounts.some((account: AccountingPlanResponseType) => 
@@ -63,14 +63,14 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
         );
 
         if (hasChildren) {
-            setError('No se puede editar una cuenta que tiene subcuentas.');
+            setError('  No se puede editar una cuenta que tiene subcuentas.');
             return;
         }
 
-        if (!validateCode(data.code)) {
-            setError('El código debe contener números y puede terminar en punto.');
-            return;
-        }
+        // if (!validateCode(data.code)) {
+        //     setError('El código debe contener números y puede terminar en punto.');
+        //     return;
+        // }
 
         const hierarchyValidation = validateHierarchy(data.code, accounts);
         if (!hierarchyValidation.isValid) {

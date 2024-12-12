@@ -1,9 +1,9 @@
 import { AccountingPlanResponseType } from "@/api/accounting-plan/account-types";
 
-export const validateCode = (code: string): boolean => {
-    const regex = /^(\d+\.)*\d+\.?$/;
-    return regex.test(code);
-};
+// export const validateCode = (code: string): boolean => {
+//     const regex = /^(\d+\.)*\d+\.?$/;
+//     return regex.test(code);
+// };
 
 export const validateHierarchy = (code: string, accounts: AccountingPlanResponseType[]): { isValid: boolean; error?: string } => {
     const parts = code.split('.').filter(Boolean);

@@ -123,17 +123,6 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
-
-            {/* <Snackbar open={!!error} autoHideDuration={6000} onClose={clearMessages}>
-                <Alert onClose={clearMessages} severity="error" sx={{ width: '100%' }}>
-                    {error}
-                </Alert>
-            </Snackbar>
-            <Snackbar open={!!success} autoHideDuration={6000} onClose={clearMessages}>
-                <Alert onClose={clearMessages} severity="success" sx={{ width: '100%' }}>
-                    {success}
-                </Alert>
-            </Snackbar> */}
         </Paper>
     );
 };

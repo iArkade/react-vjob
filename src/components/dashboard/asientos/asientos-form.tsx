@@ -130,15 +130,15 @@ export function AsientosForm({
   };
 
   const methods = useForm<Values>({
-    defaultValues: asiento 
-    ? {
+    defaultValues: asiento
+      ? {
         ...defaultValues,
         ...asiento,
-        lineItems: asiento.lineItems && asiento.lineItems.length > 0 
-          ? asiento.lineItems 
+        lineItems: asiento.lineItems && asiento.lineItems.length > 0
+          ? asiento.lineItems
           : defaultValues.lineItems
       }
-    : defaultValues,
+      : defaultValues,
 
     resolver: zodResolver(asientoSchema),
   });
@@ -384,8 +384,8 @@ export function AsientosForm({
             <Stack spacing={4}>
               <Stack spacing={3}>
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Controller
+                  <Grid size={{ md: 6, xs: 12 }}>
+                  <Controller
                       control={control}
                       name="codigo_transaccion"
                       render={({ field }) => (
@@ -431,8 +431,7 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="estado"
@@ -444,9 +443,8 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Controller
+                  <Grid size={{ md: 6, xs: 12 }}>
+                  <Controller
                       control={control}
                       name="nro_asiento"
                       render={({ field }) => (
@@ -467,55 +465,43 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <LocalizationProvider
-                      dateAdapter={AdapterDayjs}
-                      adapterLocale="es"
-                    >
-                      <Controller
-                        control={control}
-                        name="fecha_emision"
-                        render={({ field }) => (
-                          <DatePicker
-                            {...field}
-                            label="Fecha Tr"
-                            format="YYYY-MM-DD"
-                            value={
-                              field.value
-                                ? dayjs(field.value, "YYYY-MM-DD")
-                                : null
-                            }
-                            onChange={(date) => {
-                              field.onChange(
-                                date ? date.format("YYYY-MM-DD") : ""
-                              );
-                            }}
-                            slotProps={{
-                              textField: {
-                                error: Boolean(errors.fecha_emision),
-                                fullWidth: true,
-                                helperText: errors.fecha_emision?.message,
-                                // InputProps: {
-                                //   value: field.value
-                                //     ? dayjs(field.value).format(
-                                //         "DD [de] MMMM [del] YYYY"
-                                //       )
-                                //     : "",
-                                //   onChange: (e) => {
-                                //     field.onChange(e.target.value);
-                                //   },
-                                // },
-                              },
-                            }}
-                          />
-                        )}
-                      />
-                    </LocalizationProvider>
+                        dateAdapter={AdapterDayjs}
+                        adapterLocale="es"
+                      >
+                        <Controller
+                          control={control}
+                          name="fecha_emision"
+                          render={({ field }) => (
+                            <DatePicker
+                              {...field}
+                              label="Fecha Tr"
+                              format="YYYY-MM-DD"
+                              value={
+                                field.value
+                                  ? dayjs(field.value, "YYYY-MM-DD")
+                                  : null
+                              }
+                              onChange={(date) => {
+                                field.onChange(
+                                  date ? date.format("YYYY-MM-DD") : ""
+                                );
+                              }}
+                              slotProps={{
+                                textField: {
+                                  error: Boolean(errors.fecha_emision),
+                                  fullWidth: true,
+                                  helperText: errors.fecha_emision?.message,
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                      </LocalizationProvider>
                   </Grid>
-
-                  <Grid size={{ xs: 12 }}>
-                    <Controller
+                  <Grid size={{ md: 6, xs: 12 }}>
+                  <Controller
                       control={control}
                       name="comentario"
                       render={({ field }) => (
@@ -537,8 +523,7 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="nro_referencia"
@@ -555,9 +540,8 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 10, md: 6 }}>
-                    <Controller
+                  <Grid size={{ md: 6, xs: 12 }}>
+                  <Controller
                       control={control}
                       name="codigo_centro"
                       render={({ field }) => (
@@ -586,7 +570,7 @@ export function AsientosForm({
                             ) : (
                               centros?.map(
                                 (
-                                  centro: DatCentro //value={JSON.stringify({ codigo: centro.codigo, nombre: centro.nombre })}>
+                                  centro: DatCentro 
                                 ) => (
                                   <Option key={centro.id} value={centro.codigo}>
                                     {centro.nombre}
@@ -604,12 +588,6 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  {/* <Grid size={{ xs: 2, md: 2 }}>
-                    <Button variant="outlined" sx={{ marginTop: "28px" }}>
-                      ...
-                    </Button>
-                  </Grid> */}
                 </Grid>
               </Stack>
 
@@ -667,20 +645,7 @@ export function AsientosForm({
                   />
                 </Stack>
               </Stack>
-              {/* <Snackbar
-                open={snackbar.open}
-                autoHideDuration={snackbar.severity === "error" ? 6000 : 3000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-              >
-                <Alert
-                  onClose={handleSnackbarClose}
-                  severity={snackbar.severity}
-                  sx={{ width: "100%" }}
-                >
-                  {snackbar.message}
-                </Alert>
-              </Snackbar> */}
+
 
               <Stack spacing={3}>
                 <Grid
