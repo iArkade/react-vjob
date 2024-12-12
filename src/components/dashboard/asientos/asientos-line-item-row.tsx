@@ -184,18 +184,16 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 type="number"
-                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
+                inputProps={{ min: 0, step: 1 }}
                 error={!!lineItemErrors?.debe}
-                // onChange={(e) => {
-                //   const value = e.target.value;
-                //   const parsedValue = value === "" ? 0 : parseFloat(value);
-                //   field.onChange(parsedValue); // Update the field value
-                // }}
-                onBlur={(e) => {
-                  const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue); // Ensure the field value is updated on blur
-                  handleDebeChange(parsedValue);
+                onChange={(e) => {
+
+                  let value = e.target.value.startsWith('0') && e.target.value.length > 1
+                    ? e.target.value.slice(1)
+                    : e.target.value;
+
+                  field.onChange(value);
+                  handleDebeChange(parseFloat(value));
                 }}
                 value={field.value ?? ""}
                 fullWidth
@@ -219,7 +217,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 type="number"
-                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
+                inputProps={{ min: 0, step: 1, style: { appearance: "none" } }}
                 error={!!lineItemErrors?.haber}
                 // onChange={(e) => {
                 //   const value = e.target.value;

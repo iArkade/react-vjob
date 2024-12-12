@@ -546,6 +546,11 @@ export function AsientosForm({
                         <FormControl fullWidth>
                           <InputLabel>Nro. Ref</InputLabel>
                           <OutlinedInput {...field} />
+                          {errors.nro_referencia && (
+                            <FormHelperText>
+                              {errors.nro_referencia.message}
+                            </FormHelperText>
+                          )}
                         </FormControl>
                       )}
                     />

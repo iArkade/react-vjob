@@ -16,6 +16,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
     const [editingName, setEditingName] = useState(account.name);
     const [isChanged, setIsChanged] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
+    const [errorCode, setErrorCode] = useState<string | null>(null);
 
     useEffect(() => {
         // Detecta si el sistema está usando el tema oscuro
@@ -48,6 +49,19 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
         return codigo.split('.').filter(Boolean).length - 1;
     }, []);
 
+    const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+    
+        // Validar que solo sean números
+        const regex =  /^[0-9.]*$/;
+        if (regex.test(value) || value === '') {
+            setEditingCode(value); 
+            setErrorCode(null);
+        } else {
+            setErrorCode("El código debe contener solo números y puntos."); // Mensaje de error
+        }
+    };
+
     return (
         <TableRow
             onClick={() => onRowClick(account.id)}
@@ -63,7 +77,10 @@ const AccountRow: React.FC<AccountRowProps> = memo(({ account, onUpdate, onDelet
             <TableCell sx={{ paddingLeft: `${calcularNivel(account.code) * 20}px` }}>
                 <TextField
                     value={editingCode}
-                    onChange={(e) => setEditingCode(e.target.value)}
+                    //onChange={(e) => setEditingCode(e.target.value)}
+                    onChange={handleCodeChange}
+                    error={!!errorCode} // Si errorCode no es null, se activa el error
+                    helperText={errorCode || ""} // Most
                     variant="standard"
                     fullWidth
                 />

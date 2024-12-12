@@ -12,10 +12,32 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
     code: "",
     name: "",
   });
-  const [error, setError] = useState({ code: false, name: false });
+  const [error, setError] = useState({ code: false, name: false, codeMessage: "" });
 
   const handleInputChange = useCallback(
     (field: "code" | "name") => (e: React.ChangeEvent<HTMLInputElement>) => {
+      
+      const value = e.target.value;
+
+      if (field === "code") {
+        const regex = /^[0-9.]*$/; // Permite números y puntos
+        if (!regex.test(value)) {
+          setError((prev) => ({
+            ...prev,
+            code: true,
+            codeMessage: "Solo se permiten números y puntos en el código",
+          }));
+          return; // No actualizamos el estado si el valor es inválido
+        }
+
+        // Si el valor es válido, limpiamos el error
+        setError((prev) => ({
+          ...prev,
+          code: false,
+          codeMessage: "",
+        }));
+      }
+      
       setNewAccount((prev) => ({ ...prev, [field]: e.target.value }));
       setError((prev) => ({ ...prev, [field]: false }));
     },
@@ -27,6 +49,7 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
       setError({
         code: newAccount.code.trim() === "",
         name: newAccount.name.trim() === "",
+        codeMessage: "",
       });
       return;
     }
@@ -55,7 +78,7 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
           variant="outlined"
           fullWidth
           error={error.code}
-          helperText={error.code ? "El código es obligatorio" : ""}
+          helperText={error.code ? error.codeMessage  : ""}
           onKeyUp={handleKeyPress}
         />
       </TableCell>
