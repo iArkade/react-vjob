@@ -6,20 +6,30 @@ interface ApiError {
     response?: {
         data?: {
             message?: string;
+            errors?: string[]; // Agrega la propiedad errors
         };
     };
 }
+
 
 const isApiError = (error: unknown): error is ApiError => {
     return typeof error === 'object' && error !== null && 'response' in error;
 };
 
 const handleError = (error: unknown): never => {
-    if (isApiError(error) && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+    if (isApiError(error)) {
+        const apiError = error.response?.data;
+        if (apiError?.errors) {
+            // Lanzamos los errores directamente como un array
+            throw new Error(JSON.stringify(apiError.errors)); // Mantén la estructura para manejarla como lista
+        }
+        if (apiError?.message) {
+            throw new Error(apiError.message);
+        }
     }
     throw error;
 };
+
 
 const createAccountingPlanRequest = async (data: AccountingPlanRequestType) => {
     try {
@@ -112,7 +122,7 @@ export const useDeleteAccountingPlan = () => {
         onSuccess: () => {
             queryClient.invalidateQueries('GetAccountingPlan');
         },
-    });
+    }); 
 };
 
 const uploadExcelRequest = async (formData: FormData) => {

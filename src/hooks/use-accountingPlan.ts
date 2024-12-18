@@ -25,7 +25,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
     const addAccount = async (newAccount: AccountingPlanRequestType) => {
         if (!validateCode(newAccount.code)) {
             setError('El código debe contener números y puede terminar en punto.');
-            return;
+            return { success: false, error: 'El código debe contener números y puede terminar en punto.' };
         }
 
         if (newAccount.code && newAccount.name) {
@@ -35,57 +35,77 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
 
             if (existingCode) {
                 setError('El código de cuenta ya existe. Por favor, use un código diferente.');
-                return;
+                return { success: false, error: 'El código de cuenta ya existe. Por favor, use un código diferente.' };
             }
 
             const hierarchyValidation = validateHierarchy(newAccount.code, accounts);
             if (!hierarchyValidation.isValid) {
                 setError(hierarchyValidation.error || 'Error de jerarquía');
-                return;
+                return { success: false, error: hierarchyValidation.error || 'Error de jerarquía' };
             }
 
             try {
                 await createAccountingPlan.mutateAsync(newAccount);
                 setSuccess('Cuenta agregada exitosamente.');
                 refetch();
+                return { success: true };
             } catch (error) {
-                setError(error instanceof Error ? error.message : 'Error al crear la nueva cuenta');
+                const errorMessage = error instanceof Error ? error.message : 'Error al crear la nueva cuenta';
+                setError(errorMessage);
+                return { success: false, error: errorMessage };
             }
-        }else {
+        } else {
             setError('Por favor, ingrese tanto el código como el nombre de la cuenta.');
+            return { success: false, error: 'Por favor, ingrese tanto el código como el nombre de la cuenta.' };
         }    
     };
 
     const updateAccount = async (id: number, data: { code: string; name: string }) => {
-
-        const hasChildren = accounts.some((account: AccountingPlanResponseType) =>
-            account.code.startsWith(data.code + '.') && account.code !== data.code
+        const existingCode = accounts.some((account: AccountingPlanResponseType) => 
+            account.id !== id && normalizeCode(account.code) === normalizeCode(data.code)
         );
-
+    
+        if (existingCode) {
+            setError('El código de cuenta ya existe. Por favor, use un código diferente.');
+            return { success: false, error: 'El código de cuenta ya existe. Por favor, use un código diferente.' };
+        }
+    
+        const hasChildren = accounts.some((account: AccountingPlanResponseType) => {
+            const normalizedAccountCode = normalizeCode(account.code);
+            const normalizedDataCode = normalizeCode(data.code);
+    
+            return normalizedAccountCode.startsWith(normalizedDataCode + '.') 
+                && normalizedAccountCode.split('.').length > normalizedDataCode.split('.').length;
+        });
+    
         if (hasChildren) {
             setError('No se puede editar una cuenta que tiene subcuentas.');
-            return;
+            return { success: false, error: 'No se puede editar una cuenta que tiene subcuentas.' };
         }
-
+    
         if (!validateCode(data.code)) {
             setError('El código debe contener números y puede terminar en punto.');
-            return;
+            return { success: false, error: 'El código debe contener números y puede terminar en punto.' };
         }
-
+    
         const hierarchyValidation = validateHierarchy(data.code, accounts);
         if (!hierarchyValidation.isValid) {
             setError(hierarchyValidation.error || 'Error de jerarquía');
-            return;
+            return { success: false, error: hierarchyValidation.error || 'Error de jerarquía' };
         }
-
+    
         try {
             await updateAccountingPlan.mutateAsync({ id, data });
             setSuccess('Cambios guardados exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error al actualizar la cuenta');
+            const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la cuenta';
+            setError(errorMessage);
+            return { success: false, error: errorMessage };
         }
     };
+    
 
     const deleteAccount = async (code: string) => {
         const hasChildren = accounts.some((account: AccountingPlanResponseType) =>
@@ -94,15 +114,18 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
 
         if (hasChildren) {
             setError('No se puede eliminar una cuenta que tiene subcuentas.');
-            return;
+            return { success: false, error: 'No se puede eliminar una cuenta que tiene subcuentas.' };
         }
 
         try {
             await deleteAccountingPlan.mutateAsync(code);
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error al eliminar la cuenta');
+            const errorMessage = error instanceof Error ? error.message : 'Error al eliminar la cuenta';
+            setError(errorMessage);
+            return { success: false, error: errorMessage };
         }
     };
 
