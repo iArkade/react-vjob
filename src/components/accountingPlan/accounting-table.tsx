@@ -18,8 +18,9 @@ import AccountRow from './accounting-row';
 import AccountForm from './accounting-form';
 import useAccountingPlan from '@/hooks/use-accountingPlan';
 import PDFReportGenerator from './pdf-report';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setFeedback } from '@/state/slices/feedBackSlice';
+import { RootState } from '@/state/store';
 interface AccountingPlanTableProps {
     refreshTrigger: number;
 }
@@ -29,6 +30,7 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
 
     const {
         allAccounts,
@@ -39,7 +41,7 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
         deleteAccount,
         error,
         success,
-        clearMessages } = useAccountingPlan(page + 1, rowsPerPage, refreshTrigger);
+        clearMessages } = useAccountingPlan(page + 1, rowsPerPage, selectedEmpresa.id, refreshTrigger);
 
     const memoizedAccounts = useMemo(() => allAccounts || [], [allAccounts]);
 

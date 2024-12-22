@@ -33,7 +33,7 @@ const handleError = (error: unknown): never => {
 
 const createAccountingPlanRequest = async (data: AccountingPlanRequestType) => {
     try {
-        const response = await http.post('accounting-plan', { code: data.code, name: data.name });
+        const response = await http.post('accounting-plan', { code: data.code, name: data.name, empresa_id: data.empresa_id });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -51,43 +51,43 @@ export const useCreateAccountingPlan = () => {
     });
 };
 
-const getAccountingPlanPaginatedRequest = async (page: number, limit: number, refreshTrigger?: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
+const getAccountingPlanPaginatedRequest = async (page: number, limit: number, empresa_id: number): Promise<{ data: AccountingPlanResponseType[], total: number }> => {
     try {
-        const response = await http.get(`accounting-plan/paginated?page=${page}&limit=${limit}`);
+        const response = await http.get(`accounting-plan/paginated?page=${page}&limit=${limit}&empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const useGetAccountingPlanPaginated = (page: number, limit: number, refreshTrigger?: number) =>
+export const useGetAccountingPlanPaginated = (page: number, limit: number, empresa_id: number, refreshTrigger?: number, ) =>
     useQuery({
-        queryKey: ['GetAccountingPlan', page, limit, refreshTrigger],
-        queryFn: () => getAccountingPlanPaginatedRequest(page, limit),
+        queryKey: ['GetAccountingPlan', page, limit, empresa_id, refreshTrigger ],
+        queryFn: () => getAccountingPlanPaginatedRequest(page, limit, empresa_id),
         keepPreviousData: true,
         staleTime: 0, // Ensure fresh data
         refetchOnWindowFocus: false
     });
 
-const getAccountingPlanRequest = async (): Promise<AccountingPlanResponseType[]> => {
+const getAccountingPlanRequest = async (empresa_id: number): Promise<AccountingPlanResponseType[]> => {
     try {
-        const response = await http.get(`accounting-plan/all`);
+        const response = await http.get(`accounting-plan/all?empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const useGetAccountingPlan = () =>
+export const useGetAccountingPlan = (empresa_id: number) =>
     useQuery({
-        queryKey: ['GetAccountingPlan'],
-        queryFn: () => getAccountingPlanRequest(),
+        queryKey: ['GetAccountingPlan', empresa_id],
+        queryFn: () => getAccountingPlanRequest(empresa_id),
     });
 
 
-const updateAccountingPlanRequest = async (id: number, data: AccountingPlanRequestType) => {
+const updateAccountingPlanRequest = async (id: number, data: AccountingPlanRequestType, empresa_id: number) => {
     try {
-        const response = await http.put(`accounting-plan/${id}`, { code: data.code, name: data.name });
+        const response = await http.put(`accounting-plan/${id}`, { code: data.code, name: data.name, empresa_id });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -98,16 +98,19 @@ export const useUpdateAccountingPlan = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['UpdateAccountingPlan'],
-        mutationFn: ({ id, data }: { id: number, data: AccountingPlanRequestType }) => updateAccountingPlanRequest(id, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries('GetAccountingPlan');
+        mutationFn: ({ id, data, empresa_id }: { id: number, data: AccountingPlanRequestType, empresa_id: number }) =>
+            updateAccountingPlanRequest(id, data, empresa_id),
+        onSuccess: (_, { empresa_id }) => {
+            queryClient.invalidateQueries(['GetAccountingPlan', empresa_id]); // Invalida la consulta con el empresaId
         },
     });
 };
 
-const deleteAccountingPlanRequest = async (code: string) => {
+const deleteAccountingPlanRequest = async (code: string, empresa_id: number) => {
     try {
-        const response = await http.delete(`accounting-plan/${code}`);
+        const response = await http.delete(`accounting-plan/${code}`, {
+            params: { empresa_id },
+        });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -116,14 +119,17 @@ const deleteAccountingPlanRequest = async (code: string) => {
 
 export const useDeleteAccountingPlan = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationKey: ['DeleteAccountingPlan'],
-        mutationFn: (code: string) => deleteAccountingPlanRequest(code),
+        mutationFn: ({ code, empresa_id }: { code: string; empresa_id: number }) =>
+            deleteAccountingPlanRequest(code, empresa_id),
         onSuccess: () => {
-            queryClient.invalidateQueries('GetAccountingPlan');
+            queryClient.invalidateQueries('GetAccountingPlan'); // Invalida la cache para actualizar la tabla
         },
-    }); 
+    });
 };
+
 
 const uploadExcelRequest = async (formData: FormData) => {
     try {

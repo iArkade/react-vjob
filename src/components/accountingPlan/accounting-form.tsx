@@ -2,15 +2,19 @@ import React, { useState, useCallback, memo } from "react";
 import { TableRow, TableCell, TextField, Button } from "@mui/material";
 import { Plus as PlusIcon } from "@phosphor-icons/react";
 import { AccountingPlanRequestType } from "@/api/accounting-plan/account-types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 interface AccountFormProps {
   onSubmit: (account: AccountingPlanRequestType) => void;
 }
 
 const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
   const [newAccount, setNewAccount] = useState<AccountingPlanRequestType>({
     code: "",
     name: "",
+    empresa_id: selectedEmpresa.id
   });
   const [error, setError] = useState({ code: false, name: false });
 
@@ -32,8 +36,8 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
     }
 
     onSubmit(newAccount);
-    setNewAccount({ code: "", name: "" });
-  }, [newAccount, onSubmit]);
+    setNewAccount({ code: "", name: "", empresa_id: selectedEmpresa.id});
+  }, [newAccount, onSubmit, selectedEmpresa.id]);
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {

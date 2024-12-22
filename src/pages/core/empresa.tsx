@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Button,
@@ -12,9 +12,12 @@ import {
 } from '@mui/material';
 import { useCreateEmpresa, useGetEmpresa } from '@/api/empresas/empresa-request';
 import { EmpresaRequestType } from '@/api/empresas/empresa-types';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setSelectedEmpresa } from '@/state/slices/empresaSlice';
 
 const style = {
-    position: 'absolute' as 'absolute',
+    position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
@@ -25,6 +28,8 @@ const style = {
 };
 
 export function Page(): React.JSX.Element {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<EmpresaRequestType>({
         codigo: '',
@@ -73,7 +78,21 @@ export function Page(): React.JSX.Element {
     };
 
     const handleSelectChange = (event: SelectChangeEvent<string>) => {
-        setSelectedCompany(event.target.value);
+        const selectedCodigo = event.target.value;
+        setSelectedCompany(selectedCodigo);
+    
+        if (selectedCodigo) {
+            const selectedEmpresa = companies?.find((company) => company.codigo === selectedCodigo);
+    
+            // Check if selectedEmpresa exists before dispatching
+            if (selectedEmpresa) {
+                dispatch(setSelectedEmpresa(selectedEmpresa));
+                navigate(`/dashboard`, { state: { empresa: selectedEmpresa } });
+            } else {
+                // Optional: Handle case where no company is found
+                console.error('No company found with the selected code');
+            }
+        }
     };
 
     return (
@@ -134,6 +153,6 @@ export function Page(): React.JSX.Element {
             </Modal>
         </Box>
     );
-};
+}
 
 export default Page;

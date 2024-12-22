@@ -12,8 +12,8 @@ import { validateCode } from '@/utils/validators';
 
 interface AccountRowProps {     
     account: AccountingPlanResponseType;     
-    onUpdate: (id: number, data: { code: string; name: string }) => Promise<{ success: boolean; error?: string }>;     
-    onDelete: (code: string) => void;     
+    onUpdate: (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => Promise<{ success: boolean; error?: string }>;     
+    onDelete: (code: string, empresa_id: number) => void;     
     isSelected: boolean;     
     onRowClick: (id: number) => void; 
 }  
@@ -92,8 +92,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                     try {
                         const updateResult = await onUpdate(account.id, { 
                             code: editingCode, 
-                            name: editingName 
-                        });
+                            name: editingName, 
+                            empresa_id: account.empresa_id
+                        }, account.empresa_id);
 
                         if (updateResult.success) {
                             // Actualización exitosa
@@ -137,14 +138,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                 }
             });
         }
-    }, [
-        isChanged, 
-        onUpdate, 
-        account.id, 
-        editingCode, 
-        editingName, 
-        restoreOriginalValues
-    ]);
+    }, [isChanged, editingCode, editingName, restoreOriginalValues, onUpdate, account.id, account.empresa_id]);
 
     const calcularNivel = useCallback((codigo: string): number => {
         return codigo.split('.').filter(Boolean).length - 1;
@@ -226,7 +220,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                         <IconButton onClick={handleSave} disabled={!isChanged}>
                             <FloppyDisk size={20} weight={isChanged ? 'bold' : 'regular'} />
                         </IconButton>
-                        <IconButton onClick={() => onDelete(account.code)}>
+                        <IconButton onClick={() => onDelete(account.code, account.empresa_id)}>
                             <Trash size={20} />
                         </IconButton>
                     </>

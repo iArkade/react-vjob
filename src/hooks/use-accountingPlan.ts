@@ -3,11 +3,11 @@ import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccoun
 import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
 
-const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: number) => {
+const useAccountingPlan = (page: number, rowsPerPage: number, empresa_id: number, refreshTrigger?: number) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const { data: accountsData, isLoading, isError, refetch } = useGetAccountingPlanPaginated(page, rowsPerPage, refreshTrigger);
+    const { data: accountsData, isLoading, isError, refetch } = useGetAccountingPlanPaginated(page, rowsPerPage, empresa_id, refreshTrigger);
     const accounts = accountsData?.data || [];
     const totalAccounts = accountsData?.total || 0;
 
@@ -16,13 +16,15 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
         refetch();
     }, [refreshTrigger, refetch]);
 
-    const { data: allAccounts } = useGetAccountingPlan();
+    const { data: allAccounts } = useGetAccountingPlan(empresa_id);
 
     const createAccountingPlan = useCreateAccountingPlan();
     const updateAccountingPlan = useUpdateAccountingPlan();
     const deleteAccountingPlan = useDeleteAccountingPlan();
 
     const addAccount = async (newAccount: AccountingPlanRequestType) => {
+        console.log(newAccount);
+        
         if (!validateCode(newAccount.code)) {
             setError('El código debe contener números y puede terminar en punto.');
             return { success: false, error: 'El código debe contener números y puede terminar en punto.' };
@@ -60,7 +62,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
         }    
     };
 
-    const updateAccount = async (id: number, data: { code: string; name: string }) => {
+    const updateAccount = async (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => {
         const existingCode = accounts.some((account: AccountingPlanResponseType) => 
             account.id !== id && normalizeCode(account.code) === normalizeCode(data.code)
         );
@@ -95,7 +97,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
         }
     
         try {
-            await updateAccountingPlan.mutateAsync({ id, data });
+            await updateAccountingPlan.mutateAsync({ id, data, empresa_id });
             setSuccess('Cambios guardados exitosamente.');
             refetch();
             return { success: true };
@@ -107,7 +109,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
     };
     
 
-    const deleteAccount = async (code: string) => {
+    const deleteAccount = async (code: string, empresa_id: number) => {
         const hasChildren = accounts.some((account: AccountingPlanResponseType) =>
             account.code.startsWith(code + '.') && account.code !== code
         );
@@ -118,7 +120,7 @@ const useAccountingPlan = (page: number, rowsPerPage: number, refreshTrigger?: n
         }
 
         try {
-            await deleteAccountingPlan.mutateAsync(code);
+            await deleteAccountingPlan.mutateAsync({ code, empresa_id });
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
             return { success: true };
