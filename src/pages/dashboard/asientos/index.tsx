@@ -18,6 +18,11 @@ export function Page(): React.JSX.Element {
      // const [openModal, setOpenModal] = React.useState(false);
 
      const { data: asientos, isLoading, isError } = useAsientos();
+     //Prueba: esto es para actualizar para cuando le de al botn de edit const handleRefetch = () => {
+     //      refetch(); // Forzar la recarga de datos
+     // };
+
+
      // const [searchParams, setSearchParams] = useSearchParams();
      // const navigate = useNavigate();
 

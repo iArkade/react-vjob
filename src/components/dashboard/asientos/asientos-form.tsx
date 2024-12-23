@@ -53,7 +53,7 @@ import { setFeedback } from "@/state/slices/feedBackSlice";
 import { useDispatch } from "react-redux";
 
 import "dayjs/locale/es";
-import { log } from "console";
+
 dayjs.locale("es");
 
 const getCurrentDate = (): string => {
@@ -66,8 +66,8 @@ const asientoItemSchema = zod.object({
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
-  debe: zod.string(),
-  haber: zod.string(),
+  debe: zod.union([zod.string(), zod.number()]),
+  haber: zod.union([zod.string(), zod.number()]),
   nota: zod.string().optional(),
 });
 
@@ -149,7 +149,7 @@ export function AsientosForm({
     watch,
   } = methods;
 
-  console.log(errors);
+  //console.log(errors);
 
   const {
     data: centros = [],
@@ -165,22 +165,26 @@ export function AsientosForm({
 
   const dispatch = useDispatch();
 
-  const onUpdateSuccess = () => {
-    setFeedback({
-      message: "Asiento actualizado exitosamente",
-      severity: "success",
-      isError: false,
-    });
-  };
+  const onUpdateSuccess = React.useCallback(() => {
+    dispatch(
+      setFeedback({
+        message: "Asiento actualizado exitosamente",
+        severity: "success",
+        isError: false,
+      })
+    );
+  }, [dispatch]);
 
-  const onUpdateError = (error: any) => {
+  const onUpdateError = React.useCallback((error: any) => {
     logger.error("Error al actualizar el asiento:", error);
-    setFeedback({
-      message: "Algo salió mal!",
-      severity: "error",
-      isError: false,
-    });
-  };
+    dispatch(
+      setFeedback({
+        message: "Algo salió mal al actualizar el asiento",
+        severity: "error",
+        isError: true,
+      })
+    );
+  }, [dispatch]);
 
   const { mutate: createAsiento } = useCreateAsiento();
   const { mutate: updateAsiento } = useUpdateAsiento(
@@ -235,17 +239,18 @@ export function AsientosForm({
           lineItems: lineItems.map((item) => {
             return {
               ...item,
-              debe: parseFloat(item?.debe),
-              haber: parseFloat(item?.haber),
+              debe: parseFloat(item?.debe?.toString() || "0"),
+              haber: parseFloat(item?.haber?.toString() || "0"),
             };
           }),
         };
-
+        //id del use Params arriba
         if (id) {
           updateAsiento({
             id: Number(id),
             data: dataToSend,
           });
+
         } else {
           createAsiento(dataToSend);
           dispatch(
@@ -259,12 +264,13 @@ export function AsientosForm({
 
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
+        console.log(err)
         logger.error(err);
         dispatch(
           setFeedback({
             message: "Algo salió mal!",
             severity: "error",
-            isError: false,
+            isError: true,
           })
         );
       }
@@ -408,7 +414,11 @@ export function AsientosForm({
                             disabled={
                               isLoadingTransacciones || isErrorTransacciones
                             }
-                            value={field.value || ""}
+                            value={
+                              transacciones.some((t) => t.codigo_transaccion === field.value)
+                                ? field.value
+                                : ""
+                            }
                             onChange={(e) => {
                               field.onChange(e);
                               handleTransaccionChange(e.target.value);
@@ -438,6 +448,11 @@ export function AsientosForm({
                               )
                             )}
                           </Select>
+                          {errors.codigo_transaccion && (
+                            <FormHelperText error>
+                              {errors.codigo_transaccion.message}
+                            </FormHelperText>
+                          )}
                         </FormControl>
                       )}
                     />
@@ -526,7 +541,7 @@ export function AsientosForm({
                             placeholder="e.g Esto es una Prueba"
                           />
                           {errors.comentario && (
-                            <FormHelperText>
+                            <FormHelperText error>
                               {errors.comentario.message}
                             </FormHelperText>
                           )}
@@ -562,7 +577,11 @@ export function AsientosForm({
                             {...field}
                             label="Centro"
                             disabled={isLoadingCentros || isErrorCentros}
-                            value={field.value || ""}
+                            value={
+                              centros.some((c) => c.codigo === field.value)
+                                ? field.value
+                                : ""
+                            }
                             onChange={(e) => {
                               field.onChange(e);
                               handleCentroChange(e.target.value);

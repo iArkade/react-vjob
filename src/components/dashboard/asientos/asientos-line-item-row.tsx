@@ -12,7 +12,7 @@ import { Trash as TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { Option } from "@/components/core/option";
 import { AsientoItem, DatCentro } from "@/api/asientos/asientos-types";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
-import { formatNumberValue } from "@/utils/numbers";
+import { normalizeNumericValue } from "@/utils/normalize-numbers";
 
 interface LineItemRowProps {
   item: any;
@@ -51,19 +51,21 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
   } = useGetCentroCosto();
 
   const handleDebeChange = (value: string) => {
+    const normalizedValue = normalizeNumericValue(value);
     const updatedItems = [...getValues("lineItems")];
-    updatedItems[index].debe = value;
+    updatedItems[index].debe = normalizedValue;
     setValue("lineItems", updatedItems);
 
-    if (value !== "0") setValue(`lineItems.${index}.haber`, "0");
+    if (normalizedValue !== "0") setValue(`lineItems.${index}.haber`, "0");
   };
 
   const handleHaberChange = (value: string) => {
+    const normalizedValue = normalizeNumericValue(value);
     const updatedItems = [...getValues("lineItems")];
-    updatedItems[index].haber = value;
+    updatedItems[index].haber = normalizedValue;
     setValue("lineItems", updatedItems);
 
-    if (value !== "0") setValue(`lineItems.${index}.debe`, "0");
+    if (normalizedValue !== "0") setValue(`lineItems.${index}.debe`, "0");
   };
 
   const lineItemErrors = errors.lineItems?.[index];
@@ -79,7 +81,9 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         </IconButton>
       </TableCell>
       {item?.id !== undefined && (
-        <input type="hidden" {...register(`lineItems.${index}.id`)} />
+        <TableCell style={{ display: "none" }}> {/* Ocultar celda */}
+          <input type="hidden" {...register(`lineItems.${index}.id`)} />
+        </TableCell>
       )}
       <TableCell>
         <Controller
@@ -91,7 +95,11 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
                 {...field}
                 label="Centro"
                 disabled={isLoadingCentros || isErrorCentros}
-                value={field.value || ""}
+                value={
+                  centros.some((c) => c.codigo === field.value)
+                    ? field.value
+                    : ""
+                }
                 onChange={(e) => {
                   field.onChange(e);
                   handleCentroChange(e.target.value);
@@ -183,13 +191,17 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
             <>
               <OutlinedInput
                 {...field}
-                inputProps={{ min: 0, step: 1 }}
+                inputProps={{ min: 0, step: 1, inputMode: 'decimal' }}
                 error={!!lineItemErrors?.debe}
                 onChange={(e) => {
                   const value = e.target.value;
-                  handleDebeChange(value.replace(/[^0-9,.-]/g, "0"));
+                  if (field.value === 0 || field.value === '0') {
+                    handleDebeChange(value.replace(/^0+/, ''));
+                  } else {
+                    handleDebeChange(value);
+                  }
                 }}
-                value={field.value.toString()}
+                value={field.value === 0 ? '' : field.value}
                 fullWidth
               />
               {lineItemErrors?.debe && (
@@ -205,24 +217,22 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.haber`}
-          defaultValue={item?.debe || 0}
+          defaultValue={item?.haber || 0}
           render={({ field }) => (
             <>
               <OutlinedInput
                 {...field}
-                inputProps={{ min: 0, step: 1, style: { appearance: "none" } }}
+                inputProps={{ min: 0, step: 1, inputMode: 'decimal' }}
                 error={!!lineItemErrors?.haber}
                 onChange={(e) => {
                   const value = e.target.value;
-                  handleHaberChange(value.replace(/[^0-9,.-]/g, "0"));
+                  if (field.value === 0 || field.value === '0') {
+                    handleHaberChange(value.replace(/^0+/, ''));
+                  } else {
+                    handleHaberChange(value);
+                  }
                 }}
-                value={field.value.toString()}
-                // onBlur={(e) => {
-                //   const value = e.target.value;
-                //   const parsedValue = value === "" ? 0 : parseFloat(value);
-                //   field.onChange(parsedValue);
-                //   handleHaberChange(parsedValue);
-                // }}
+                value={field.value === 0 ? '' : field.value}
                 fullWidth
               />
               {lineItemErrors?.haber && (

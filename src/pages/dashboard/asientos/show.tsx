@@ -6,17 +6,15 @@ import Typography from "@mui/material/Typography";
 
 import { AsientosForm } from "../../../components/dashboard/asientos/asientos-form";
 import { useAsiento } from "@/api/asientos/asientos-request";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@mui/material";
-import { paths } from "@/paths";
+import { useParams } from "react-router-dom";
+
 
 export function Page(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const asientoId = id ? parseInt(id, 10) : undefined;
 
   const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
-  //console.log(asiento, asientoId);
+  console.log(asiento, asientoId);
 
   return (
     <React.Fragment>
@@ -38,18 +36,7 @@ export function Page(): React.JSX.Element {
               <Box sx={{ flex: "1 1 auto" }}>
                 <Typography variant="h4">Asiento Diario Contable</Typography>
               </Box>
-              {/* <div>
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    navigate(
-                      asientoId ? paths.dashboard.asientos.pdf(asientoId) : "#"
-                    )
-                  }
-                >
-                  Vista Previa
-                </Button>
-              </div> */}
+
             </Stack>
           </Stack>
           {!isLoading && !isError && asiento && (
