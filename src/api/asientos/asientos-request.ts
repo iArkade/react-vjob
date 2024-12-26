@@ -3,7 +3,7 @@ import http from "../http";
 import { Asiento } from "./asientos-types";
 
 // const getDatCentro = async () => {
-//      const response = await http.get(`dat-centro`)
+//      const response = await http.get(dat-centro)
 //      return response.data;
 // }
 // export const useAccounts = () => {
@@ -17,7 +17,7 @@ import { Asiento } from "./asientos-types";
 // };
 
 const getAsientos = async () => {
-  const response = await http.get(`asientos`);
+  const response = await http.get("asientos");
   return response.data;
 };
 
@@ -72,17 +72,21 @@ const updateAsiento = async ({ id, data }: { id: number; data: Asiento }) => {
   return response.data;
 };
 
-export const useUpdateAsiento = () => {
+export const useUpdateAsiento = (
+  onSuccessF: () => void,
+  onErrorF: (error: any) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(updateAsiento, {
     onSuccess: () => {
       queryClient.invalidateQueries(["asientos"]);
+      onSuccessF();
 
       console.log("Asiento actualizado exitosamente");
     },
     onError: (error) => {
-      console.error("Error al actualizar el asiento:", error);
+      onErrorF(error);
     },
   });
 };
@@ -105,4 +109,3 @@ export const useDeleteAsiento = () => {
     },
   });
 };
-

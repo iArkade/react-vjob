@@ -32,7 +32,7 @@ interface AsientoDetailsModalProps {
      open: boolean;
      onClose: () => void;
      asiento: Asiento | null;
-     previewId?: string; 
+     previewId?: number; 
 }
 
 const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose, asiento, previewId }) => {
@@ -60,14 +60,16 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                          <Stack spacing={3} sx={{ flex: '1 1 auto', overflowY: 'auto' }}>
                               <Stack spacing={3}>
                                    <Stack direction="row" spacing={3} sx={{ alignItems: 'center', justifyContent: 'end' }}>
+                                   {previewId !== undefined && (
                                         <Button
                                              color="secondary"
                                              component={RouterLink}
-                                             href={`${paths.dashboard.asientos.details(previewId || '')}`}
+                                             href={`${paths.dashboard.asientos.details(previewId)}`}
                                              startIcon={<PencilSimpleIcon />}
                                         >
                                              Editar
                                         </Button>
+                                   )}
                                    </Stack>
                                    <Card sx={{ borderRadius: 1 }} variant="outlined">
                                         <PropertyList divider={<Divider />} sx={{ '--PropertyItem-padding': '12px 24px' }}>
