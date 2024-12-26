@@ -31,8 +31,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
     const [originalName, setOriginalName] = useState(account.name);
     const [isChanged, setIsChanged] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorCode, setErrorCode] = useState<string | null>(null);
 
     useEffect(() => {
         // Detecta si el sistema está usando el tema oscuro
@@ -144,23 +143,17 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
         return codigo.split('.').filter(Boolean).length - 1;
     }, []);
 
-    const handleInputChange = (type: 'code' | 'name') => (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (type === 'code') {
-            setEditingCode(e.target.value);
+    const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+    
+        // Validar que solo sean números
+        const regex =  /^[0-9.]*$/;
+        if (regex.test(value) || value === '') {
+            setEditingCode(value); 
+            setErrorCode(null);
         } else {
-            setEditingName(e.target.value);
+            setErrorCode("El código debe contener solo números y puntos."); // Mensaje de error
         }
-        
-        // Iniciar modo edición al cambiar cualquier input
-        if (!isEditing) {
-            setIsEditing(true);
-            setOriginalCode(editingCode);
-            setOriginalName(editingName);
-        }
-    };
-
-    const handleCancelEditing = () => {
-        restoreOriginalValues();
     };
 
     return (
@@ -178,7 +171,10 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
             <TableCell sx={{ paddingLeft: `${calcularNivel(account.code) * 20}px` }}>
                 <TextField
                     value={editingCode}
-                    onChange={handleInputChange('code')}
+                    //onChange={(e) => setEditingCode(e.target.value)}
+                    onChange={handleCodeChange}
+                    error={!!errorCode} // Si errorCode no es null, se activa el error
+                    helperText={errorCode || ""} // Most
                     variant="standard"
                     fullWidth
                     error={!!errorMessage || (isEditing && !validateCode(editingCode))}

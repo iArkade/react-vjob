@@ -72,17 +72,21 @@ const updateAsiento = async ({ id, data }: { id: number; data: Asiento }) => {
   return response.data;
 };
 
-export const useUpdateAsiento = () => {
+export const useUpdateAsiento = (
+  onSuccessF: () => void,
+  onErrorF: (error: any) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(updateAsiento, {
     onSuccess: () => {
       queryClient.invalidateQueries(["asientos"]);
+      onSuccessF();
 
       console.log("Asiento actualizado exitosamente");
     },
     onError: (error) => {
-      console.error("Error al actualizar el asiento:", error);
+      onErrorF(error);
     },
   });
 };
@@ -105,4 +109,3 @@ export const useDeleteAsiento = () => {
     },
   });
 };
-

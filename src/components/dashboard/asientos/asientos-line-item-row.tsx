@@ -1,4 +1,3 @@
-// LineItemRow.tsx
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import {
@@ -13,6 +12,7 @@ import { Trash as TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { Option } from "@/components/core/option";
 import { AsientoItem, DatCentro } from "@/api/asientos/asientos-types";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
+import { normalizeNumericValue } from "@/utils/normalize-numbers";
 
 interface LineItemRowProps {
   item: any;
@@ -35,7 +35,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     getValues,
     register,
     formState: { errors },
-    clearErrors
+    clearErrors,
   } = useFormContext<{ lineItems: AsientoItem[] }>();
 
   React.useEffect(() => {
@@ -50,20 +50,22 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     isError: isErrorCentros,
   } = useGetCentroCosto();
 
-  const handleDebeChange = (value: number) => {
+  const handleDebeChange = (value: string) => {
+    const normalizedValue = normalizeNumericValue(value);
     const updatedItems = [...getValues("lineItems")];
-    updatedItems[index].debe = value;
+    updatedItems[index].debe = normalizedValue;
     setValue("lineItems", updatedItems);
 
-    if (value !== 0) setValue(`lineItems.${index}.haber`, 0);
+    if (normalizedValue !== "0") setValue(`lineItems.${index}.haber`, "0");
   };
 
-  const handleHaberChange = (value: number) => {
+  const handleHaberChange = (value: string) => {
+    const normalizedValue = normalizeNumericValue(value);
     const updatedItems = [...getValues("lineItems")];
-    updatedItems[index].haber = value;
+    updatedItems[index].haber = normalizedValue;
     setValue("lineItems", updatedItems);
 
-    if (value !== 0) setValue(`lineItems.${index}.debe`, 0);
+    if (normalizedValue !== "0") setValue(`lineItems.${index}.debe`, "0");
   };
 
   const lineItemErrors = errors.lineItems?.[index];
@@ -79,7 +81,9 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         </IconButton>
       </TableCell>
       {item?.id !== undefined && (
-        <input type="hidden" {...register(`lineItems.${index}.id`)} />
+        <TableCell style={{ display: "none" }}> {/* Ocultar celda */}
+          <input type="hidden" {...register(`lineItems.${index}.id`)} />
+        </TableCell>
       )}
       <TableCell>
         <Controller
@@ -91,7 +95,11 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
                 {...field}
                 label="Centro"
                 disabled={isLoadingCentros || isErrorCentros}
-                value={field.value || ""}
+                value={
+                  centros.some((c) => c.codigo === field.value)
+                    ? field.value
+                    : ""
+                }
                 onChange={(e) => {
                   field.onChange(e);
                   handleCentroChange(e.target.value);
@@ -136,7 +144,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
                 fullWidth
                 error={!!lineItemErrors?.cta}
                 onClick={() => {
-                  handleOpenModal(index)
+                  handleOpenModal(index);
 
                   if (lineItemErrors?.cta) {
                     clearErrors(`lineItems.${index}.cta`);
@@ -183,21 +191,17 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
             <>
               <OutlinedInput
                 {...field}
-                type="number"
-                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
+                inputProps={{ min: 0, step: 1, inputMode: 'decimal' }}
                 error={!!lineItemErrors?.debe}
-                // onChange={(e) => {
-                //   const value = e.target.value;
-                //   const parsedValue = value === "" ? 0 : parseFloat(value);
-                //   field.onChange(parsedValue); // Update the field value
-                // }}
-                onBlur={(e) => {
+                onChange={(e) => {
                   const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue); // Ensure the field value is updated on blur
-                  handleDebeChange(parsedValue);
+                  if (field.value === 0 || field.value === '0') {
+                    handleDebeChange(value.replace(/^0+/, ''));
+                  } else {
+                    handleDebeChange(value);
+                  }
                 }}
-                value={field.value ?? ""}
+                value={field.value === 0 ? '' : field.value}
                 fullWidth
               />
               {lineItemErrors?.debe && (
@@ -213,25 +217,22 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
         <Controller
           control={control}
           name={`lineItems.${index}.haber`}
-          defaultValue={item?.debe || 0}
+          defaultValue={item?.haber || 0}
           render={({ field }) => (
             <>
               <OutlinedInput
                 {...field}
-                type="number"
-                inputProps={{ min: 0, step: 0.01, style: { appearance: "none" } }}
+                inputProps={{ min: 0, step: 1, inputMode: 'decimal' }}
                 error={!!lineItemErrors?.haber}
-                // onChange={(e) => {
-                //   const value = e.target.value;
-                //   const parsedValue = value === "" ? 0 : parseFloat(value);
-                //   field.onChange(parsedValue);
-                // }}
-                onBlur={(e) => {
+                onChange={(e) => {
                   const value = e.target.value;
-                  const parsedValue = value === "" ? 0 : parseFloat(value);
-                  field.onChange(parsedValue);
-                  handleHaberChange(parsedValue);
+                  if (field.value === 0 || field.value === '0') {
+                    handleHaberChange(value.replace(/^0+/, ''));
+                  } else {
+                    handleHaberChange(value);
+                  }
                 }}
+                value={field.value === 0 ? '' : field.value}
                 fullWidth
               />
               {lineItemErrors?.haber && (

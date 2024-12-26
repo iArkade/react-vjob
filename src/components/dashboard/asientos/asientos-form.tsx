@@ -53,6 +53,7 @@ import { setFeedback } from "@/state/slices/feedBackSlice";
 import { useDispatch } from "react-redux";
 
 import "dayjs/locale/es";
+
 dayjs.locale("es");
 
 const getCurrentDate = (): string => {
@@ -65,14 +66,8 @@ const asientoItemSchema = zod.object({
   codigo_centro: zod.string().min(1, "Código centro es requerido"),
   cta: zod.string().min(1, "Cuenta es requerida"),
   cta_nombre: zod.string().min(1, "Nombre de la cuenta es requerido"),
-  debe: zod
-    .union([zod.string(), zod.number()])
-    .transform((value) => parseFloat(value as string) || 0)
-    .pipe(zod.number().min(0, "Debe debe ser un número válido")),
-  haber: zod
-    .union([zod.string(), zod.number()])
-    .transform((value) => parseFloat(value as string) || 0)
-    .pipe(zod.number().min(0, "Haber debe ser un número válido")),
+  debe: zod.union([zod.string(), zod.number()]),
+  haber: zod.union([zod.string(), zod.number()]),
   nota: zod.string().optional(),
 });
 
@@ -108,8 +103,8 @@ const defaultValues: Values = {
       codigo_centro: "",
       cta: "",
       cta_nombre: "",
-      debe: 0,
-      haber: 0,
+      debe: "0",
+      haber: "0",
       nota: "",
     },
   ],
@@ -130,15 +125,16 @@ export function AsientosForm({
   };
 
   const methods = useForm<Values>({
-    defaultValues: asiento 
-    ? {
-        ...defaultValues,
-        ...asiento,
-        lineItems: asiento.lineItems && asiento.lineItems.length > 0 
-          ? asiento.lineItems 
-          : defaultValues.lineItems
-      }
-    : defaultValues,
+    defaultValues: asiento
+      ? {
+          ...defaultValues,
+          ...asiento,
+          lineItems:
+            asiento.lineItems && asiento.lineItems.length > 0
+              ? asiento.lineItems
+              : defaultValues.lineItems,
+        }
+      : defaultValues,
 
     resolver: zodResolver(asientoSchema),
   });
@@ -169,8 +165,32 @@ export function AsientosForm({
 
   const dispatch = useDispatch();
 
+  const onUpdateSuccess = React.useCallback(() => {
+    dispatch(
+      setFeedback({
+        message: "Asiento actualizado exitosamente",
+        severity: "success",
+        isError: false,
+      })
+    );
+  }, [dispatch]);
+
+  const onUpdateError = React.useCallback((error: any) => {
+    logger.error("Error al actualizar el asiento:", error);
+    dispatch(
+      setFeedback({
+        message: "Algo salió mal al actualizar el asiento",
+        severity: "error",
+        isError: true,
+      })
+    );
+  }, [dispatch]);
+
   const { mutate: createAsiento } = useCreateAsiento();
-  const { mutate: updateAsiento } = useUpdateAsiento();
+  const { mutate: updateAsiento } = useUpdateAsiento(
+    onUpdateSuccess,
+    onUpdateError
+  );
 
   const validateTotals = (totalDebe: number, totalHaber: number) => {
     const totalCombined = Math.abs(totalDebe - totalHaber);
@@ -178,7 +198,8 @@ export function AsientosForm({
     if (totalCombined !== 0) {
       dispatch(
         setFeedback({
-          message: "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
+          message:
+            "El saldo debe estar balanceado. La diferencia entre Debe y Haber debe ser cero.",
           severity: "error",
           isError: false,
         })
@@ -218,23 +239,18 @@ export function AsientosForm({
           lineItems: lineItems.map((item) => {
             return {
               ...item,
-              debe: parseFloat(item?.debe?.toFixed(2)) || 0,
-              haber: parseFloat(item?.haber?.toFixed(2)) || 0,
+              debe: parseFloat(item?.debe?.toString() || "0"),
+              haber: parseFloat(item?.haber?.toString() || "0"),
             };
           }),
         };
-
+        //id del use Params arriba
         if (id) {
-          console.log(data);
-          await updateAsiento({ id: Number(id), data: dataToSend });
+          updateAsiento({
+            id: Number(id),
+            data: dataToSend,
+          });
 
-          dispatch(
-            setFeedback({
-              message: "Asiento actualizado exitosamente",
-              severity: "success",
-              isError: false,
-            })
-          );
         } else {
           createAsiento(dataToSend);
           dispatch(
@@ -248,12 +264,13 @@ export function AsientosForm({
 
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
+        console.log(err)
         logger.error(err);
         dispatch(
           setFeedback({
             message: "Algo salió mal!",
             severity: "error",
-            isError: false,
+            isError: true,
           })
         );
       }
@@ -271,8 +288,8 @@ export function AsientosForm({
             codigo_centro: selectedCentro,
             cta: "",
             cta_nombre: "",
-            debe: 0,
-            haber: 0,
+            debe: "0",
+            haber: "0",
             nota: "",
           },
         ]);
@@ -294,8 +311,8 @@ export function AsientosForm({
         codigo_centro: currentCentro,
         cta: "",
         cta_nombre: "",
-        debe: 0,
-        haber: 0,
+        debe: "0",
+        haber: "0",
         nota: "",
       },
     ]);
@@ -309,8 +326,8 @@ export function AsientosForm({
         "lineItems",
         newLineItems.map((item) => ({
           ...item,
-          debe: Number(item.debe),
-          haber: Number(item.haber),
+          debe: item.debe,
+          haber: item.haber,
         }))
       );
     },
@@ -384,7 +401,7 @@ export function AsientosForm({
             <Stack spacing={4}>
               <Stack spacing={3}>
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="codigo_transaccion"
@@ -397,7 +414,11 @@ export function AsientosForm({
                             disabled={
                               isLoadingTransacciones || isErrorTransacciones
                             }
-                            value={field.value || ""}
+                            value={
+                              transacciones.some((t) => t.codigo_transaccion === field.value)
+                                ? field.value
+                                : ""
+                            }
                             onChange={(e) => {
                               field.onChange(e);
                               handleTransaccionChange(e.target.value);
@@ -427,12 +448,16 @@ export function AsientosForm({
                               )
                             )}
                           </Select>
+                          {errors.codigo_transaccion && (
+                            <FormHelperText error>
+                              {errors.codigo_transaccion.message}
+                            </FormHelperText>
+                          )}
                         </FormControl>
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="estado"
@@ -444,8 +469,7 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="nro_asiento"
@@ -467,8 +491,7 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <LocalizationProvider
                       dateAdapter={AdapterDayjs}
                       adapterLocale="es"
@@ -496,16 +519,6 @@ export function AsientosForm({
                                 error: Boolean(errors.fecha_emision),
                                 fullWidth: true,
                                 helperText: errors.fecha_emision?.message,
-                                // InputProps: {
-                                //   value: field.value
-                                //     ? dayjs(field.value).format(
-                                //         "DD [de] MMMM [del] YYYY"
-                                //       )
-                                //     : "",
-                                //   onChange: (e) => {
-                                //     field.onChange(e.target.value);
-                                //   },
-                                // },
                               },
                             }}
                           />
@@ -513,8 +526,7 @@ export function AsientosForm({
                       />
                     </LocalizationProvider>
                   </Grid>
-
-                  <Grid size={{ xs: 12 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="comentario"
@@ -529,7 +541,7 @@ export function AsientosForm({
                             placeholder="e.g Esto es una Prueba"
                           />
                           {errors.comentario && (
-                            <FormHelperText>
+                            <FormHelperText error>
                               {errors.comentario.message}
                             </FormHelperText>
                           )}
@@ -537,8 +549,7 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="nro_referencia"
@@ -546,12 +557,16 @@ export function AsientosForm({
                         <FormControl fullWidth>
                           <InputLabel>Nro. Ref</InputLabel>
                           <OutlinedInput {...field} />
+                          {errors.nro_referencia && (
+                            <FormHelperText error>
+                              {errors.nro_referencia.message}
+                            </FormHelperText>
+                          )}
                         </FormControl>
                       )}
                     />
                   </Grid>
-
-                  <Grid size={{ xs: 10, md: 6 }}>
+                  <Grid size={{ md: 6, xs: 12 }}>
                     <Controller
                       control={control}
                       name="codigo_centro"
@@ -562,7 +577,11 @@ export function AsientosForm({
                             {...field}
                             label="Centro"
                             disabled={isLoadingCentros || isErrorCentros}
-                            value={field.value || ""}
+                            value={
+                              centros.some((c) => c.codigo === field.value)
+                                ? field.value
+                                : ""
+                            }
                             onChange={(e) => {
                               field.onChange(e);
                               handleCentroChange(e.target.value);
@@ -579,15 +598,11 @@ export function AsientosForm({
                                 <em>Cargando centros...</em>
                               </Option>
                             ) : (
-                              centros?.map(
-                                (
-                                  centro: DatCentro //value={JSON.stringify({ codigo: centro.codigo, nombre: centro.nombre })}>
-                                ) => (
-                                  <Option key={centro.id} value={centro.codigo}>
-                                    {centro.nombre}
-                                  </Option>
-                                )
-                              )
+                              centros?.map((centro: DatCentro) => (
+                                <Option key={centro.id} value={centro.codigo}>
+                                  {centro.nombre}
+                                </Option>
+                              ))
                             )}
                           </Select>
                           {errors.codigo_centro && (
@@ -599,12 +614,6 @@ export function AsientosForm({
                       )}
                     />
                   </Grid>
-
-                  {/* <Grid size={{ xs: 2, md: 2 }}>
-                    <Button variant="outlined" sx={{ marginTop: "28px" }}>
-                      ...
-                    </Button>
-                  </Grid> */}
                 </Grid>
               </Stack>
 
@@ -662,20 +671,6 @@ export function AsientosForm({
                   />
                 </Stack>
               </Stack>
-              {/* <Snackbar
-                open={snackbar.open}
-                autoHideDuration={snackbar.severity === "error" ? 6000 : 3000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-              >
-                <Alert
-                  onClose={handleSnackbarClose}
-                  severity={snackbar.severity}
-                  sx={{ width: "100%" }}
-                >
-                  {snackbar.message}
-                </Alert>
-              </Snackbar> */}
 
               <Stack spacing={3}>
                 <Grid

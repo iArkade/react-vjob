@@ -1,8 +1,8 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, BlobProvider } from '@react-pdf/renderer';
 import { AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
-import { Alert, Box, IconButton, CircularProgress } from '@mui/material';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import { Alert, Box, IconButton, CircularProgress, Tooltip } from '@mui/material';
+import { FilePdf } from '@phosphor-icons/react';
 
 // Register custom fonts
 Font.register({
@@ -153,7 +153,11 @@ const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = React.memo(({ acco
                                 href={url}
                                 download="plan_de_cuentas.pdf"
                             >
-                                <PictureAsPdfIcon />
+                                <Tooltip title="Descargar" arrow>
+                                    {/* <PictureAsPdfIcon /> */}
+                                    <FilePdf size={40} />
+                                </Tooltip>
+                                
                             </IconButton>
                         </Box>
                     )}
@@ -164,3 +168,4 @@ const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = React.memo(({ acco
 });
 
 export default PDFReportGenerator;
+
