@@ -1,37 +1,38 @@
-import React, { useState, useEffect, useCallback, memo } from 'react'; 
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import Swal from 'sweetalert2';
-import { 
-    TableRow, 
-    TableCell, 
-    TextField, 
-    IconButton 
-} from '@mui/material'; 
-import { FloppyDisk, Trash } from '@phosphor-icons/react'; 
+import {
+    TableRow,
+    TableCell,
+    TextField,
+    IconButton
+} from '@mui/material';
+import { FloppyDisk, Trash } from '@phosphor-icons/react';
 import { AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { validateCode } from '@/utils/validators';
 
-interface AccountRowProps {     
-    account: AccountingPlanResponseType;     
-    onUpdate: (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => Promise<{ success: boolean; error?: string }>;     
-    onDelete: (code: string, empresa_id: number) => void;     
-    isSelected: boolean;     
-    onRowClick: (id: number) => void; 
-}  
+interface AccountRowProps {
+    account: AccountingPlanResponseType;
+    onUpdate: (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => Promise<{ success: boolean; error?: string }>;
+    onDelete: (code: string, empresa_id: number) => void;
+    isSelected: boolean;
+    onRowClick: (id: number) => void;
+}
 
-const AccountRow: React.FC<AccountRowProps> = memo(({ 
-    account, 
-    onUpdate, 
-    onDelete, 
-    isSelected, 
-    onRowClick 
-}) => {     
+const AccountRow: React.FC<AccountRowProps> = memo(({
+    account,
+    onUpdate,
+    onDelete,
+    isSelected,
+    onRowClick
+}) => {
     const [editingCode, setEditingCode] = useState(account.code);
     const [editingName, setEditingName] = useState(account.name);
     const [originalCode, setOriginalCode] = useState(account.code);
     const [originalName, setOriginalName] = useState(account.name);
     const [isChanged, setIsChanged] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
-    const [errorCode, setErrorCode] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         // Detecta si el sistema está usando el tema oscuro
@@ -89,9 +90,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const updateResult = await onUpdate(account.id, { 
-                            code: editingCode, 
-                            name: editingName, 
+                        const updateResult = await onUpdate(account.id, {
+                            code: editingCode,
+                            name: editingName,
                             empresa_id: account.empresa_id
                         }, account.empresa_id);
 
@@ -143,17 +144,23 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
         return codigo.split('.').filter(Boolean).length - 1;
     }, []);
 
-    const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-    
-        // Validar que solo sean números
-        const regex =  /^[0-9.]*$/;
-        if (regex.test(value) || value === '') {
-            setEditingCode(value); 
-            setErrorCode(null);
+    const handleInputChange = (type: 'code' | 'name') => (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (type === 'code') {
+            setEditingCode(e.target.value);
         } else {
-            setErrorCode("El código debe contener solo números y puntos."); // Mensaje de error
+            setEditingName(e.target.value);
         }
+
+        // Iniciar modo edición al cambiar cualquier input
+        if (!isEditing) {
+            setIsEditing(true);
+            setOriginalCode(editingCode);
+            setOriginalName(editingName);
+        }
+    };
+
+    const handleCancelEditing = () => {
+        restoreOriginalValues();
     };
 
     return (
@@ -171,17 +178,14 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
             <TableCell sx={{ paddingLeft: `${calcularNivel(account.code) * 20}px` }}>
                 <TextField
                     value={editingCode}
-                    //onChange={(e) => setEditingCode(e.target.value)}
-                    onChange={handleCodeChange}
-                    error={!!errorCode} // Si errorCode no es null, se activa el error
-                    helperText={errorCode || ""} // Most
+                    onChange={handleInputChange('code')}
                     variant="standard"
                     fullWidth
                     error={!!errorMessage || (isEditing && !validateCode(editingCode))}
                     helperText={
-                        errorMessage || 
-                        (isEditing && !validateCode(editingCode) 
-                            ? "Código inválido" 
+                        errorMessage ||
+                        (isEditing && !validateCode(editingCode)
+                            ? "Código inválido"
                             : "")
                     }
                 />
@@ -194,9 +198,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                     fullWidth
                     error={!!errorMessage || (isEditing && (!editingName || editingName.trim() === ''))}
                     helperText={
-                        errorMessage || 
+                        errorMessage ||
                         (isEditing && (!editingName || editingName.trim() === '')
-                            ? "El nombre no puede estar vacío" 
+                            ? "El nombre no puede estar vacío"
                             : "")
                     }
                 />
@@ -223,7 +227,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                 )}
             </TableCell>
         </TableRow>
-    ); 
+    );
 });
 
 export default AccountRow;

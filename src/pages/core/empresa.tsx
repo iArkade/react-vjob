@@ -2,14 +2,21 @@ import React, { useState } from 'react';
 import {
     Box,
     Button,
+    Card,
     Dialog,
     DialogContent,
     DialogTitle,
     FormControl,
     MenuItem,
-    Modal,
+    Paper,
     Select,
     SelectChangeEvent,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
     TextField,
     Typography
 } from '@mui/material';
@@ -19,16 +26,6 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setSelectedEmpresa } from '@/state/slices/empresaSlice';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-};
 
 export function Page(): React.JSX.Element {
     const navigate = useNavigate();
@@ -48,7 +45,7 @@ export function Page(): React.JSX.Element {
     // Obtener la lista de empresas desde el backend
     const { data: companies, refetch } = useGetEmpresa();
 
-    // Hook para crear una nueva empresa
+    // Hook para crear una nuva empresa
     const createEmpresaMutation = useCreateEmpresa();
 
     const handleOpen = () => setOpen(true);
@@ -83,10 +80,10 @@ export function Page(): React.JSX.Element {
     const handleSelectChange = (event: SelectChangeEvent<string>) => {
         const selectedCodigo = event.target.value;
         setSelectedCompany(selectedCodigo);
-    
+
         if (selectedCodigo) {
             const selectedEmpresa = companies?.find((company) => company.codigo === selectedCodigo);
-    
+
             // Check if selectedEmpresa exists before dispatching
             if (selectedEmpresa) {
                 dispatch(setSelectedEmpresa(selectedEmpresa));
@@ -99,28 +96,108 @@ export function Page(): React.JSX.Element {
     };
 
     return (
-        <Box sx={{ p: 4 }}>
-            <Typography variant="h5" gutterBottom>Empresas</Typography>
+        // <Box sx={{ p: 4 }}>
+        //     <Typography variant="h5" gutterBottom>Empresas</Typography>
 
-            {/* Combo box */}
-            <FormControl fullWidth margin="normal">
-                <Select
-                    labelId="company-select-label"
-                    id="company-select"
-                    value={selectedCompany}
-                    onChange={handleSelectChange}
-                    displayEmpty
-                >
-                    <MenuItem value="">
-                        <em>Selecciona una empresa</em>
-                    </MenuItem>
-                    {companies?.map((company) => (
-                        <MenuItem key={company.codigo} value={company.codigo}>
-                            {company.nombre}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+        //     {/* Combo box */}
+        //     <FormControl fullWidth margin="normal">
+        //         <Select
+        //             value={selectedCompany}
+        //             onChange={handleSelectChange}
+        //             displayEmpty
+        //         >
+        //             <MenuItem value="">
+        //                 <em>Selecciona una empresa</em>
+        //             </MenuItem>
+        //             {companies?.map((company) => (
+        //                 <MenuItem key={company.codigo} value={company.codigo}>
+        //                     {company.nombre}
+        //                 </MenuItem>
+        //             ))}
+        //         </Select>
+        //     </FormControl>
+
+        //     {/* Botón para abrir el modal */}
+        //     <Button variant="contained" color="primary" onClick={handleOpen}>
+        //         Crear Empresa
+        //     </Button>
+
+        //     {/* Modal para crear empresa */}
+        //     <Dialog
+        //         open={open}
+        //         onClose={handleClose}
+        //         maxWidth="sm"
+        //         fullWidth
+        //     >
+        //         <DialogTitle>
+        //             <Typography variant="h6">Crear Empresa</Typography>
+        //         </DialogTitle>
+        //         <DialogContent>
+        //         <TableContainer component={Paper}>
+        //                 <Table>
+        //                     <TableBody>
+        //                         {(['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'] as (keyof EmpresaRequestType)[]).map((field) => (
+        //                             <TableRow key={field}>
+        //                                 <TableCell sx={{ fontWeight: 'bold' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</TableCell>
+        //                                 <TableCell>
+        //                                     <TextField
+        //                                         fullWidth
+        //                                         variant="outlined"
+        //                                         name={field}
+        //                                         value={formData[field]}
+        //                                         onChange={handleInputChange}
+        //                                     />
+        //                                 </TableCell>
+        //                             </TableRow>
+        //                         ))}
+        //                     </TableBody>
+        //                 </Table>
+        //             </TableContainer>
+        //             <Box display="flex" justifyContent="space-between" mt={2}>
+        //                 <Button variant="contained" color="primary" onClick={handleAddCompany}>
+        //                     Guardar
+        //                 </Button>
+        //                 <Button variant="outlined" color="secondary" onClick={handleClose}>
+        //                     Cancelar
+        //                 </Button>
+        //             </Box>
+        //         </DialogContent>
+        //     </Dialog>
+        // </Box>
+        <Box sx={{ p: 4 }}>
+            <Stack spacing={4}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 auto' }}>
+                        <Typography variant="h5">Empresas</Typography>
+                    </Box>  
+                </Stack>
+                <Card>
+                    <Box sx={{ overflowX: 'auto' }}>
+
+                        {/* Combo box */}
+                        <FormControl fullWidth margin="normal">
+                            <Select
+                                value={selectedCompany}
+                                onChange={handleSelectChange}
+                                displayEmpty
+                            >
+                                <MenuItem value="">
+                                    <em>Selecciona una empresa</em>
+                                </MenuItem>
+                                {companies?.map((company) => (
+                                    <MenuItem key={company.codigo} value={company.codigo}>
+                                        {company.nombre}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                </Card>
+
+
+            </Stack>
+
 
             {/* Botón para abrir el modal */}
             <Button variant="contained" color="primary" onClick={handleOpen}>
@@ -132,26 +209,32 @@ export function Page(): React.JSX.Element {
                 open={open}
                 onClose={handleClose}
                 maxWidth="sm"
-                sx={{
-                    '& .MuiDialog-container': { justifyContent: 'center' },
-                    '& .MuiDialog-paper': { height: '100%', width: '100%' },
-                }}
+                fullWidth
             >
                 <DialogTitle>
                     <Typography variant="h6">Crear Empresa</Typography>
                 </DialogTitle>
-                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: 0 }}>
-                    {['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'].map((field) => (
-                        <TextField
-                            key={field}
-                            label={field.charAt(0).toUpperCase() + field.slice(1)}
-                            name={field}
-                            fullWidth
-                            value={(formData as any)[field]}
-                            onChange={handleInputChange}
-                            margin="normal"
-                        />
-                    ))}
+                <DialogContent>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableBody>
+                                {(['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'] as (keyof EmpresaRequestType)[]).map((field) => (
+                                    <TableRow key={field}>
+                                        <TableCell sx={{ fontWeight: 'bold' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</TableCell>
+                                        <TableCell>
+                                            <TextField
+                                                fullWidth
+                                                variant="outlined"
+                                                name={field}
+                                                value={formData[field]}
+                                                onChange={handleInputChange}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                     <Box display="flex" justifyContent="space-between" mt={2}>
                         <Button variant="contained" color="primary" onClick={handleAddCompany}>
                             Guardar
@@ -162,32 +245,6 @@ export function Page(): React.JSX.Element {
                     </Box>
                 </DialogContent>
             </Dialog>
-            {/* <Modal open={open} onClose={handleClose}>
-                <Box sx={style}>
-                    <Typography variant="h6" component="h2" gutterBottom>
-                        Crear Empresa
-                    </Typography>
-                    {['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'].map((field) => (
-                        <TextField
-                            key={field}
-                            label={field.charAt(0).toUpperCase() + field.slice(1)}
-                            name={field}
-                            fullWidth
-                            value={(formData as any)[field]}
-                            onChange={handleInputChange}
-                            margin="normal"
-                        />
-                    ))}
-                    <Box display="flex" justifyContent="space-between" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleAddCompany}>
-                            Guardar
-                        </Button>
-                        <Button variant="outlined" color="secondary" onClick={handleClose}>
-                            Cancelar
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal> */}
         </Box>
     );
 }
