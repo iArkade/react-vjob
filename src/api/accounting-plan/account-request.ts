@@ -131,9 +131,9 @@ export const useDeleteAccountingPlan = () => {
 };
 
 
-const uploadExcelRequest = async (formData: FormData) => {
+const uploadExcelRequest = async (formData: FormData, empresa_id: number) => {
     try {
-        const response = await http.post('accounting-plan/upload', formData, {
+        const response = await http.post(`accounting-plan/upload?empresa_id=${empresa_id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -146,11 +146,14 @@ const uploadExcelRequest = async (formData: FormData) => {
 
 export const useUploadExcel = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationKey: ['UploadExcel'],
-        mutationFn: uploadExcelRequest,
+        mutationFn: ({ formData, empresa_id }: { formData: FormData; empresa_id: number }) =>
+            uploadExcelRequest(formData, empresa_id), // Pasa ambos argumentos
         onSuccess: () => {
-            queryClient.invalidateQueries('GetAccountingPlan'); // Invalidate relevant queries
+            queryClient.invalidateQueries('GetAccountingPlan'); // Refresca los datos relevantes
         },
     });
 };
+

@@ -10,6 +10,8 @@ import {
     ListItem,
     ListItemText
 } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 interface ExcelUploadProps {
     onSuccessfulUpload?: () => void;
@@ -20,6 +22,8 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({ onSuccessfulUpload }) => {
     const [error, setError] = useState<string>('');
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [errorDetails, setErrorDetails] = useState<string[]>([]);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+    const empresa_id = selectedEmpresa.id;
 
     const uploadExcelMutation = useUploadExcel();
 
@@ -34,42 +38,53 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({ onSuccessfulUpload }) => {
         }
     };
 
-    const handleUpload = () => {
+    const handleUpload = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault(); // Prevenir el comportamiento predeterminado
+    
         if (!file) {
             setError('Por favor, seleccione un archivo para cargar.');
+            clearMessages(5000); // Limpia los mensajes después de 5s
             return;
         }
-
+    
         const formData = new FormData();
         formData.append('file', file);
-
-        uploadExcelMutation.mutate(formData, {
-            onSuccess: () => {
-                setSuccessMessage('Archivo cargado exitosamente!');
-                setFile(null);
-                setErrorDetails([]); 
-                onSuccessfulUpload?.();
-            },
-            onError: (err: any) => {
-                const apiError = err?.response?.data;
-                
-                // Manejar específicamente el error de datos existentes
-                if (apiError?.existingData) {
-                    setError('Ya existe un plan de cuentas. No se puede cargar uno nuevo.');
+    
+        uploadExcelMutation.mutate(
+            { formData, empresa_id },
+            {
+                onSuccess: () => {
+                    setSuccessMessage('Archivo cargado exitosamente!');
+                    setFile(null);
                     setErrorDetails([]);
-                } 
-                // Manejar errores de validación del archivo
-                else if (apiError?.errors) {
-                    setErrorDetails(apiError.errors);
-                    setError('');
-                } 
-                // Manejar otros errores
-                else {
-                    setError(err instanceof Error ? err.message : 'Error al cargar el archivo');
-                    setErrorDetails([]); 
-                }
-            },
-        });
+                    onSuccessfulUpload?.();
+                    clearMessages(5000); // Mensaje de éxito desaparece en 5s
+                },
+                onError: (err: any) => {
+                    const apiError = err?.response?.data;
+    
+                    if (apiError?.existingData) {
+                        setError('Ya existe un plan de cuentas. No se puede cargar uno nuevo.');
+                        setErrorDetails([]);
+                    } else if (apiError?.errors) {
+                        setErrorDetails(apiError.errors);
+                        setError('');
+                    } else {
+                        setError(err instanceof Error ? err.message : 'Error al cargar el archivo');
+                        setErrorDetails([]);
+                    }
+                    clearMessages(5000); // Mensaje de error desaparece en 5s
+                },
+            }
+        );
+    };
+    
+
+    const clearMessages = (timeout: number = 0) => {
+        setTimeout(() => {
+            setError('');
+            setSuccessMessage('');
+        }, timeout);
     };
 
     return (
