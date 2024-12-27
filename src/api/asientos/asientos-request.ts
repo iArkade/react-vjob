@@ -22,12 +22,18 @@ const getAsientos = async () => {
 };
 
 export const useAsientos = () => {
+  const queryClient = useQueryClient();
   return useQuery<Asiento[]>({
     queryKey: ["asientos"],
     queryFn: getAsientos,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["asiento"]);
+    },
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -38,11 +44,15 @@ const getAsiento = async (id: number) => {
 
 export const useAsiento = (id: number) => {
   return useQuery<Asiento>({
-    queryKey: ["asiento", id],
+    queryKey: ["asiento"],
     queryFn: () => getAsiento(id),
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0, // Always consider data stale
+    cacheTime: 0,
   });
 };
 

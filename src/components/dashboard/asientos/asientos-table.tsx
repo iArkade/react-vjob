@@ -16,7 +16,7 @@ import {
   Stack,
 } from "@mui/material";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { useState } from "react";
 import { Asiento } from "@/api/asientos/asientos-types";
@@ -24,7 +24,7 @@ import Swal from "sweetalert2";
 import { useDeleteAsiento } from "@/api/asientos/asientos-request";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/paths";
-
+import { useQueryClient } from "react-query";
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
@@ -39,21 +39,24 @@ interface AsientoTableProps {
   isLoading: boolean;
   isError: boolean;
   //onOpenModal: (asiento: Asiento) => void;
-};
+}
 
 // Status configuration
-const STATUS_COLORS: Record<OrderStatus, "default" | "error" | "warning" | "success"> = {
+const STATUS_COLORS: Record<
+  OrderStatus,
+  "default" | "error" | "warning" | "success"
+> = {
   Pendiente: "warning",
   Activo: "success",
   Cancelado: "error",
   Rechazado: "default",
 };
 
-const AsientoRow = ({ 
-  asiento, 
-  handleAction 
-}: { 
-  asiento: Asiento; 
+const AsientoRow = ({
+  asiento,
+  handleAction,
+}: {
+  asiento: Asiento;
   handleAction: (asiento: Asiento, action: ActionType) => void;
 }) => (
   <TableRow key={asiento.id}>
@@ -62,9 +65,7 @@ const AsientoRow = ({
         <Typography variant="body2" color="textSecondary">
           {asiento.fecha_emision}
         </Typography>
-        <Typography variant="subtitle2">
-          #{asiento.nro_asiento}
-        </Typography>
+        <Typography variant="subtitle2">#{asiento.nro_asiento}</Typography>
         <Typography variant="body2" color="textSecondary">
           ID-{asiento.id}
         </Typography>
@@ -82,14 +83,19 @@ const AsientoRow = ({
     <TableCell>{asiento.total_debe}</TableCell>
     <TableCell>{asiento.total_haber}</TableCell>
     <TableCell align="center">
-      <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+      <Stack
+        direction="row"
+        spacing={1}
+        justifyContent="center"
+        alignItems="center"
+      >
         <Tooltip title="Editar" arrow>
           <VisibilityOutlinedIcon
             fontSize="small"
-            sx={{ 
+            sx={{
               cursor: "pointer",
               color: "action.active",
-              "&:hover": { color: "primary.main" }
+              "&:hover": { color: "primary.main" },
             }}
             onClick={() => handleAction(asiento, "edit")}
           />
@@ -97,10 +103,10 @@ const AsientoRow = ({
         <Tooltip title="Eliminar" arrow>
           <DeleteOutlineOutlinedIcon
             fontSize="small"
-            sx={{ 
+            sx={{
               cursor: "pointer",
               color: "action.active",
-              "&:hover": { color: "error.main" }
+              "&:hover": { color: "error.main" },
             }}
             onClick={() => handleAction(asiento, "delete")}
           />
@@ -108,10 +114,10 @@ const AsientoRow = ({
         <Tooltip title="Imprimir" arrow>
           <PrintOutlinedIcon
             fontSize="small"
-            sx={{ 
+            sx={{
               cursor: "pointer",
               color: "action.active",
-              "&:hover": { color: "secondary.main" }
+              "&:hover": { color: "secondary.main" },
             }}
             onClick={() => handleAction(asiento, "print")}
           />
@@ -131,10 +137,13 @@ export default function AsientoTable({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
   const { mutate: deleteAsiento } = useDeleteAsiento();
+  const queryClient = useQueryClient();
 
   // Pagination handlers
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -185,7 +194,10 @@ export default function AsientoTable({
     }
 
     const actions: Record<ActionType, () => void> = {
-      edit: () => navigate(paths.dashboard.asientos.details(asiento.id!)),
+      edit: () => {
+        queryClient.invalidateQueries(["asiento", asiento.id]);
+        navigate(paths.dashboard.asientos.details(asiento.id!));
+      },
       delete: () => handleDelete(asiento.id!),
       print: () => navigate(paths.dashboard.asientos.pdf(asiento.id!)),
     };
@@ -195,7 +207,12 @@ export default function AsientoTable({
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
         <CircularProgress />
       </Box>
     );
@@ -220,7 +237,7 @@ export default function AsientoTable({
         </TableHead>
         <TableBody>
           {paginatedAsientos.map((asiento) => (
-            <AsientoRow 
+            <AsientoRow
               key={asiento.id}
               asiento={asiento}
               handleAction={handleAction}
