@@ -3,7 +3,7 @@ import http from "../http";
 import { Asiento } from "./asientos-types";
 
 // const getDatCentro = async () => {
-//      const response = await http.get(`dat-centro`)
+//      const response = await http.get(dat-centro)
 //      return response.data;
 // }
 // export const useAccounts = () => {
@@ -17,17 +17,23 @@ import { Asiento } from "./asientos-types";
 // };
 
 const getAsientos = async () => {
-  const response = await http.get(`asientos`);
+  const response = await http.get("asientos");
   return response.data;
 };
 
 export const useAsientos = () => {
+  const queryClient = useQueryClient();
   return useQuery<Asiento[]>({
     queryKey: ["asientos"],
     queryFn: getAsientos,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["asiento"]);
+    },
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -38,11 +44,15 @@ const getAsiento = async (id: number) => {
 
 export const useAsiento = (id: number) => {
   return useQuery<Asiento>({
-    queryKey: ["asiento", id],
+    queryKey: ["asiento"],
     queryFn: () => getAsiento(id),
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0, // Always consider data stale
+    cacheTime: 0,
   });
 };
 

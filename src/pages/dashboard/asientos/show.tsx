@@ -6,15 +6,26 @@ import Typography from "@mui/material/Typography";
 
 import { AsientosForm } from "../../../components/dashboard/asientos/asientos-form";
 import { useAsiento } from "@/api/asientos/asientos-request";
-import { useParams } from "react-router-dom";
-
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Button } from "@mui/material";
+import { paths } from "@/paths";
 
 export function Page(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const asientoId = id ? parseInt(id, 10) : undefined;
 
-  const { data: asiento, isLoading, isError } = useAsiento(asientoId as number);
-  console.log(asiento, asientoId);
+  const {
+    data: asiento,
+    isLoading,
+    isError,
+    refetch,
+  } = useAsiento(asientoId as number);
+
+  React.useEffect(() => {
+    refetch().then((result) => console.log("Refetched Data:", result.data));
+  }, [location.pathname, refetch]);
 
   return (
     <React.Fragment>
@@ -39,8 +50,10 @@ export function Page(): React.JSX.Element {
 
             </Stack>
           </Stack>
-          {!isLoading && !isError && asiento && (
-            <AsientosForm asiento={asiento} />
+          {!isLoading ? (
+            !isError && asiento && <AsientosForm asiento={asiento} />
+          ) : (
+            <div>Loading...</div>
           )}
         </Stack>
       </Box>

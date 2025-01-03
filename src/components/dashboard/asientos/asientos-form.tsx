@@ -53,6 +53,7 @@ import { setFeedback } from "@/state/slices/feedBackSlice";
 import { useDispatch } from "react-redux";
 
 import "dayjs/locale/es";
+import { useQueryClient } from "react-query";
 
 dayjs.locale("es");
 
@@ -119,6 +120,7 @@ export function AsientosForm({
 }: AsientosFormProps): React.JSX.Element {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleCancel = () => {
     navigate(paths.dashboard.asientos.index);
@@ -135,9 +137,21 @@ export function AsientosForm({
               : defaultValues.lineItems,
         }
       : defaultValues,
-
     resolver: zodResolver(asientoSchema),
   });
+
+  React.useEffect(() => {
+    if (asiento) {
+      methods.reset({
+        ...defaultValues,
+        ...asiento,
+        lineItems:
+          asiento.lineItems && asiento.lineItems.length > 0
+            ? asiento.lineItems
+            : defaultValues.lineItems,
+      });
+    }
+  }, [asiento, methods]);
 
   const {
     control,
@@ -175,16 +189,19 @@ export function AsientosForm({
     );
   }, [dispatch]);
 
-  const onUpdateError = React.useCallback((error: any) => {
-    logger.error("Error al actualizar el asiento:", error);
-    dispatch(
-      setFeedback({
-        message: "Algo salió mal al actualizar el asiento",
-        severity: "error",
-        isError: true,
-      })
-    );
-  }, [dispatch]);
+  const onUpdateError = React.useCallback(
+    (error: any) => {
+      logger.error("Error al actualizar el asiento:", error);
+      dispatch(
+        setFeedback({
+          message: "Algo salió mal al actualizar el asiento",
+          severity: "error",
+          isError: true,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   const { mutate: createAsiento } = useCreateAsiento();
   const { mutate: updateAsiento } = useUpdateAsiento(
@@ -251,6 +268,7 @@ export function AsientosForm({
             data: dataToSend,
           });
 
+          queryClient.invalidateQueries(["asiento", id]);
         } else {
           createAsiento(dataToSend);
           dispatch(
@@ -264,7 +282,7 @@ export function AsientosForm({
 
         navigate(paths.dashboard.asientos.index);
       } catch (err) {
-        console.log(err)
+        console.log(err);
         logger.error(err);
         dispatch(
           setFeedback({
@@ -393,6 +411,8 @@ export function AsientosForm({
     handleCloseModal();
   };
 
+  console.log("Fetched Data:::::", asiento);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -415,7 +435,9 @@ export function AsientosForm({
                               isLoadingTransacciones || isErrorTransacciones
                             }
                             value={
-                              transacciones.some((t) => t.codigo_transaccion === field.value)
+                              transacciones.some(
+                                (t) => t.codigo_transaccion === field.value
+                              )
                                 ? field.value
                                 : ""
                             }
