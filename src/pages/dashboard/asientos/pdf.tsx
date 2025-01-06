@@ -48,12 +48,13 @@ export function Page(): React.JSX.Element {
                     <Link
                          color="text.primary"
                          component={RouterLink}
-                         href={`/dashboard/asientos/${asientoId}`}
+                         //href={`/dashboard/asientos/${asientoId}`}
+                         href={`/dashboard/asientos/`}
                          sx={{ alignItems: 'center', display: 'inline-flex', gap: 1,  mt: 2, ml: 2}}
                          variant="subtitle2"
                     >
                          <ArrowLeftIcon fontSize="var(--icon-fontSize-md)" />
-                         Asiento
+                         Asientos
                     </Link>
                </div>
 

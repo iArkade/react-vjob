@@ -73,73 +73,46 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({ onSuccessfulUpload }) => {
     };
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 3 }}>
-            <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom>
-                        Cargar Plan de Cuentas
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <input
-                            type="file"
-                            accept=".xlsx"
-                            onChange={handleFileChange}
-                            style={{
-                                marginRight: '16px',
-                                width: '60%',
-                                padding: '8px',
-                                border: '1px solid #ccc',
-                                borderRadius: '4px',
-                            }}
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleUpload}
-                            sx={{ 
-                                width: '30%', 
-                                borderRadius: '4px',
-                                height: '40px'
-                            }}
-                        >
-                            Cargar
-                        </Button>
-                    </Box>
-                    
-                    {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-                    {successMessage && <Alert severity="success" sx={{ mt: 2 }}>{successMessage}</Alert>}
-                </Grid>
-                
-                {errorDetails.length > 0 && (
-                    <Grid item xs={12} md={6}>
-                        <Box 
-                            sx={{ 
-                                border: '1px solid #ff0000', 
-                                borderRadius: 2, 
-                                p: 2, 
-                                bgcolor: '#ffebee' 
-                            }}
-                        >
-                            <Typography variant="subtitle1" color="error" sx={{ mb: 1 }}>
-                                Errores Detallados:
-                            </Typography>
-                            <List dense>
-                                {errorDetails.map((detail, index) => (
-                                    <ListItem key={index} disableGutters>
-                                        <ListItemText 
-                                            primary={detail} 
-                                            primaryTypographyProps={{ 
-                                                color: 'error', 
-                                                variant: 'body2' 
-                                            }} 
-                                        />
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </Box>
-                    </Grid>
-                )}
-            </Grid>
+        <Box sx={{ borderRadius: 2, boxShadow: 3, maxWidth: 400, mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+                Cargar Plan de Cuentas
+            </Typography>
+            <input
+                type="file"
+                accept=".xlsx"
+                onChange={handleFileChange}
+                style={{ marginBottom: '16px', width: '60%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+            />
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleUpload}
+                style={{ marginLeft: '16px', width: '30%', borderRadius: '4px' }}
+            >
+                Cargar
+            </Button>
+            {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+            {successMessage && <Alert severity="success" sx={{ mt: 2 }}>{successMessage}</Alert>}
+
+            <Dialog
+                open={openConfirmDialog}
+                onClose={() => setOpenConfirmDialog(false)}
+            >
+                <DialogTitle>Datos Existentes</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Ya existen datos en la tabla. ¿Desea reemplazar los datos existentes con los del Excel?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleConfirmReplace} color="primary" autoFocus>
+                        Reemplazar
+                    </Button>
+                    <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
+                        Cancelar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

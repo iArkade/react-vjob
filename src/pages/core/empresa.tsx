@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import {
     Box,
     Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     FormControl,
-    MenuItem,
-    Modal,
     Select,
     SelectChangeEvent,
     TextField,
@@ -15,17 +17,8 @@ import { EmpresaRequestType } from '@/api/empresas/empresa-types';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setSelectedEmpresa } from '@/state/slices/empresaSlice';
+import { Option } from '@/components/core/option';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-};
 
 export function Page(): React.JSX.Element {
     const navigate = useNavigate();
@@ -45,7 +38,7 @@ export function Page(): React.JSX.Element {
     // Obtener la lista de empresas desde el backend
     const { data: companies, refetch } = useGetEmpresa();
 
-    // Hook para crear una nueva empresa
+    // Hook para crear una nuva empresa
     const createEmpresaMutation = useCreateEmpresa();
 
     const handleOpen = () => setOpen(true);
@@ -80,10 +73,10 @@ export function Page(): React.JSX.Element {
     const handleSelectChange = (event: SelectChangeEvent<string>) => {
         const selectedCodigo = event.target.value;
         setSelectedCompany(selectedCodigo);
-    
+
         if (selectedCodigo) {
             const selectedEmpresa = companies?.find((company) => company.codigo === selectedCodigo);
-    
+
             // Check if selectedEmpresa exists before dispatching
             if (selectedEmpresa) {
                 dispatch(setSelectedEmpresa(selectedEmpresa));
@@ -96,61 +89,124 @@ export function Page(): React.JSX.Element {
     };
 
     return (
-        <Box sx={{ p: 4 }}>
-            <Typography variant="h5" gutterBottom>Empresas</Typography>
+        <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>Empresas</Typography>
+            <Card sx={{ p: 2, minWidth: 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <FormControl fullWidth sx={{ flex: 1, mr: 2 }}>
+                    <Select
+                        value={selectedCompany}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        size="small"
+                    >
+                        <Option value="">
+                            <em>Selecciona una empresa</em>
+                        </Option>
+                        {companies?.map((company) => (
+                            <Option key={company.codigo} value={company.codigo}>
+                                {company.nombre}
+                            </Option>
+                        ))}
+                    </Select>
+                </FormControl>
 
-            {/* Combo box */}
-            <FormControl fullWidth margin="normal">
-                <Select
-                    labelId="company-select-label"
-                    id="company-select"
-                    value={selectedCompany}
-                    onChange={handleSelectChange}
-                    displayEmpty
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleOpen}
                 >
-                    <MenuItem value="">
-                        <em>Selecciona una empresa</em>
-                    </MenuItem>
-                    {companies?.map((company) => (
-                        <MenuItem key={company.codigo} value={company.codigo}>
-                            {company.nombre}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-
-            {/* Botón para abrir el modal */}
-            <Button variant="contained" color="primary" onClick={handleOpen}>
-                Crear Empresa
-            </Button>
+                    Crear Empresa
+                </Button>
+            </Card>
 
             {/* Modal para crear empresa */}
-            <Modal open={open} onClose={handleClose}>
-                <Box sx={style}>
-                    <Typography variant="h6" component="h2" gutterBottom>
-                        Crear Empresa
-                    </Typography>
-                    {['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'].map((field) => (
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>
+                    <Typography variant="h6">Crear Empresa</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
-                            key={field}
-                            label={field.charAt(0).toUpperCase() + field.slice(1)}
-                            name={field}
+                            label="Codigo"
+                            variant="outlined"
                             fullWidth
-                            value={(formData as any)[field]}
+                            name="codigo"
+                            value={formData.codigo}
                             onChange={handleInputChange}
-                            margin="normal"
+                            size="small"
                         />
-                    ))}
-                    <Box display="flex" justifyContent="space-between" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleAddCompany}>
-                            Guardar
-                        </Button>
-                        <Button variant="outlined" color="secondary" onClick={handleClose}>
-                            Cancelar
-                        </Button>
+                        <TextField
+                            label="Ruc"
+                            variant="outlined"
+                            fullWidth
+                            name="ruc"
+                            value={formData.ruc}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Nombre"
+                            variant="outlined"
+                            fullWidth
+                            name="nombre"
+                            value={formData.nombre}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Correo"
+                            variant="outlined"
+                            fullWidth
+                            name="correo"
+                            value={formData.correo}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Telefono"
+                            variant="outlined"
+                            fullWidth
+                            name="telefono"
+                            value={formData.telefono}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Direccion"
+                            variant="outlined"
+                            fullWidth
+                            name="direccion"
+                            value={formData.direccion}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                Logo
+                            </Typography>
+                            <input
+                                accept="image/*"
+                                type="file"
+                                //onChange={(e) => handleFileUpload(e)}
+                                style={{ display: 'block', width: '100%' }}
+                            />
+                        </Box>
+                        <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                            <Button variant="outlined" color="secondary" onClick={handleClose}>
+                                Cancelar
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleAddCompany}>
+                                Guardar
+                            </Button>
+                        </Box>
                     </Box>
-                </Box>
-            </Modal>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 }

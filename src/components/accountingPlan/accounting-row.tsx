@@ -1,30 +1,30 @@
-import React, { useState, useEffect, useCallback, memo } from 'react'; 
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import Swal from 'sweetalert2';
-import { 
-    TableRow, 
-    TableCell, 
-    TextField, 
-    IconButton 
-} from '@mui/material'; 
-import { FloppyDisk, Trash } from '@phosphor-icons/react'; 
+import {
+    TableRow,
+    TableCell,
+    TextField,
+    IconButton
+} from '@mui/material';
+import { FloppyDisk, Trash } from '@phosphor-icons/react';
 import { AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
 import { validateCode } from '@/utils/validators';
 
-interface AccountRowProps {     
-    account: AccountingPlanResponseType;     
-    onUpdate: (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => Promise<{ success: boolean; error?: string }>;     
-    onDelete: (code: string, empresa_id: number) => void;     
-    isSelected: boolean;     
-    onRowClick: (id: number) => void; 
-}  
+interface AccountRowProps {
+    account: AccountingPlanResponseType;
+    onUpdate: (id: number, data: { code: string; name: string, empresa_id: number }, empresa_id: number) => Promise<{ success: boolean; error?: string }>;
+    onDelete: (code: string, empresa_id: number) => void;
+    isSelected: boolean;
+    onRowClick: (id: number) => void;
+}
 
-const AccountRow: React.FC<AccountRowProps> = memo(({ 
-    account, 
-    onUpdate, 
-    onDelete, 
-    isSelected, 
-    onRowClick 
-}) => {     
+const AccountRow: React.FC<AccountRowProps> = memo(({
+    account,
+    onUpdate,
+    onDelete,
+    isSelected,
+    onRowClick
+}) => {
     const [editingCode, setEditingCode] = useState(account.code);
     const [editingName, setEditingName] = useState(account.name);
     const [originalCode, setOriginalCode] = useState(account.code);
@@ -90,9 +90,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const updateResult = await onUpdate(account.id, { 
-                            code: editingCode, 
-                            name: editingName, 
+                        const updateResult = await onUpdate(account.id, {
+                            code: editingCode,
+                            name: editingName,
                             empresa_id: account.empresa_id
                         }, account.empresa_id);
 
@@ -150,7 +150,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
         } else {
             setEditingName(e.target.value);
         }
-        
+
         // Iniciar modo edición al cambiar cualquier input
         if (!isEditing) {
             setIsEditing(true);
@@ -183,9 +183,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                     fullWidth
                     error={!!errorMessage || (isEditing && !validateCode(editingCode))}
                     helperText={
-                        errorMessage || 
-                        (isEditing && !validateCode(editingCode) 
-                            ? "Código inválido" 
+                        errorMessage ||
+                        (isEditing && !validateCode(editingCode)
+                            ? "Código inválido"
                             : "")
                     }
                 />
@@ -198,9 +198,9 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                     fullWidth
                     error={!!errorMessage || (isEditing && (!editingName || editingName.trim() === ''))}
                     helperText={
-                        errorMessage || 
+                        errorMessage ||
                         (isEditing && (!editingName || editingName.trim() === '')
-                            ? "El nombre no puede estar vacío" 
+                            ? "El nombre no puede estar vacío"
                             : "")
                     }
                 />
@@ -227,7 +227,7 @@ const AccountRow: React.FC<AccountRowProps> = memo(({
                 )}
             </TableCell>
         </TableRow>
-    ); 
+    );
 });
 
 export default AccountRow;
