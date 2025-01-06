@@ -110,38 +110,58 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
     return (
         <Paper sx={{ p: 2 }}>
             <PDFReportGenerator accounts={memoizedAccounts} />
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Código</TableCell>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell>Acciones</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <AccountForm onSubmit={addAccount} />
-                    {accounts.map((account) => (
-                        <AccountRow
-                            key={account.id}
-                            account={account}
-                            onUpdate={updateAccount}
-                            onDelete={deleteAccount}
-                            isSelected={selectedRowId === account.id}
-                            onRowClick={handleRowClick}
-                        />
-                    ))}
-                </TableBody>
-            </Table>
+            <div style={{ marginBottom: 16 }}>
+                <TextField
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </div>
 
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 50]}
-                component="div"
-                count={totalAccounts}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            <TableContainer>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Código</TableCell>
+                            <TableCell>Nombre</TableCell>
+                            <TableCell>Acciones</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <AccountForm onSubmit={addAccount} />
+                        {paginatedAccounts.map((account) => (
+                            <AccountRow
+                                key={account.id}
+                                account={account}
+                                onUpdate={updateAccount}
+                                onDelete={deleteAccount}
+                                isSelected={selectedRowId === account.id}
+                                onRowClick={handleRowClick}
+                            />
+                        ))}
+                    </TableBody>
+
+                </Table>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    component="div"
+                    count={filteredAccounts.length} // Total de resultados filtrados
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </TableContainer>
         </Paper>
     );
 };

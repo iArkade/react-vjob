@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGetAccountingPlanPaginated, useCreateAccountingPlan, useUpdateAccountingPlan, useDeleteAccountingPlan, useGetAccountingPlan } from '@/api/accounting-plan/account-request';
 import { AccountingPlanRequestType, AccountingPlanResponseType } from '@/api/accounting-plan/account-types';
-import { normalizeCode,  validateHierarchy } from '@/utils/validators';
+import { normalizeCode, validateCode,  validateHierarchy } from '@/utils/validators';
 
 const useAccountingPlan = (page: number, rowsPerPage: number, empresa_id: number, refreshTrigger?: number) => {
     const [error, setError] = useState<string | null>(null);
@@ -23,10 +23,12 @@ const useAccountingPlan = (page: number, rowsPerPage: number, empresa_id: number
     const deleteAccountingPlan = useDeleteAccountingPlan();
 
     const addAccount = async (newAccount: AccountingPlanRequestType) => {
-        // if (!validateCode(newAccount.code)) {
-        //     setError('El código debe contener números y puede terminar en punto.');
-        //     return;
-        // }
+        console.log(newAccount);
+        
+        if (!validateCode(newAccount.code)) {
+            setError('El código debe contener números y puede terminar en punto.');
+            return { success: false, error: 'El código debe contener números y puede terminar en punto.' };
+        }
 
         if (newAccount.code && newAccount.name) {
             const existingCode = accounts.some((account: AccountingPlanResponseType) => 
@@ -79,15 +81,15 @@ const useAccountingPlan = (page: number, rowsPerPage: number, empresa_id: number
         });
     
         if (hasChildren) {
-            setError('  No se puede editar una cuenta que tiene subcuentas.');
-            return;
+            setError('No se puede editar una cuenta que tiene subcuentas.');
+            return { success: false, error: 'No se puede editar una cuenta que tiene subcuentas.' };
         }
-
-        // if (!validateCode(data.code)) {
-        //     setError('El código debe contener números y puede terminar en punto.');
-        //     return;
-        // }
-
+    
+        if (!validateCode(data.code)) {
+            setError('El código debe contener números y puede terminar en punto.');
+            return { success: false, error: 'El código debe contener números y puede terminar en punto.' };
+        }
+    
         const hierarchyValidation = validateHierarchy(data.code, accounts);
         if (!hierarchyValidation.isValid) {
             setError(hierarchyValidation.error || 'Error de jerarquía');
