@@ -2,20 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "../http";
 import { Asiento } from "./asientos-types";
 
-// const getDatCentro = async () => {
-//      const response = await http.get(dat-centro)
-//      return response.data;
-// }
-// export const useAccounts = () => {
-//      return useQuery<DatCentro[]>({
-//           queryKey: ['dat-centro'],
-//           queryFn: getDatCentro,
-//           onError: (error) => {
-//                console.error('Error al obtener las cuentas:', error);
-//           }
-//      });
-// };
-
 const getAsientos = async () => {
   const response = await http.get("asientos");
   return response.data;
@@ -49,6 +35,7 @@ export const useAsiento = (id: number) => {
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
+    // This helps to refresh the page when fetching the data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     staleTime: 0, // Always consider data stale

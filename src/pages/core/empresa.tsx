@@ -7,16 +7,8 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
-    MenuItem,
-    Paper,
     Select,
     SelectChangeEvent,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
     TextField,
     Typography
 } from '@mui/material';
@@ -25,6 +17,7 @@ import { EmpresaRequestType } from '@/api/empresas/empresa-types';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setSelectedEmpresa } from '@/state/slices/empresaSlice';
+import { Option } from '@/components/core/option';
 
 
 export function Page(): React.JSX.Element {
@@ -96,113 +89,35 @@ export function Page(): React.JSX.Element {
     };
 
     return (
-        // <Box sx={{ p: 4 }}>
-        //     <Typography variant="h5" gutterBottom>Empresas</Typography>
+        <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>Empresas</Typography>
+            <Card sx={{ p: 2, minWidth: 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <FormControl fullWidth sx={{ flex: 1, mr: 2 }}>
+                    <Select
+                        value={selectedCompany}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        size="small"
+                    >
+                        <Option value="">
+                            <em>Selecciona una empresa</em>
+                        </Option>
+                        {companies?.map((company) => (
+                            <Option key={company.codigo} value={company.codigo}>
+                                {company.nombre}
+                            </Option>
+                        ))}
+                    </Select>
+                </FormControl>
 
-        //     {/* Combo box */}
-        //     <FormControl fullWidth margin="normal">
-        //         <Select
-        //             value={selectedCompany}
-        //             onChange={handleSelectChange}
-        //             displayEmpty
-        //         >
-        //             <MenuItem value="">
-        //                 <em>Selecciona una empresa</em>
-        //             </MenuItem>
-        //             {companies?.map((company) => (
-        //                 <MenuItem key={company.codigo} value={company.codigo}>
-        //                     {company.nombre}
-        //                 </MenuItem>
-        //             ))}
-        //         </Select>
-        //     </FormControl>
-
-        //     {/* Botón para abrir el modal */}
-        //     <Button variant="contained" color="primary" onClick={handleOpen}>
-        //         Crear Empresa
-        //     </Button>
-
-        //     {/* Modal para crear empresa */}
-        //     <Dialog
-        //         open={open}
-        //         onClose={handleClose}
-        //         maxWidth="sm"
-        //         fullWidth
-        //     >
-        //         <DialogTitle>
-        //             <Typography variant="h6">Crear Empresa</Typography>
-        //         </DialogTitle>
-        //         <DialogContent>
-        //         <TableContainer component={Paper}>
-        //                 <Table>
-        //                     <TableBody>
-        //                         {(['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'] as (keyof EmpresaRequestType)[]).map((field) => (
-        //                             <TableRow key={field}>
-        //                                 <TableCell sx={{ fontWeight: 'bold' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</TableCell>
-        //                                 <TableCell>
-        //                                     <TextField
-        //                                         fullWidth
-        //                                         variant="outlined"
-        //                                         name={field}
-        //                                         value={formData[field]}
-        //                                         onChange={handleInputChange}
-        //                                     />
-        //                                 </TableCell>
-        //                             </TableRow>
-        //                         ))}
-        //                     </TableBody>
-        //                 </Table>
-        //             </TableContainer>
-        //             <Box display="flex" justifyContent="space-between" mt={2}>
-        //                 <Button variant="contained" color="primary" onClick={handleAddCompany}>
-        //                     Guardar
-        //                 </Button>
-        //                 <Button variant="outlined" color="secondary" onClick={handleClose}>
-        //                     Cancelar
-        //                 </Button>
-        //             </Box>
-        //         </DialogContent>
-        //     </Dialog>
-        // </Box>
-        <Box sx={{ p: 4 }}>
-            <Stack spacing={4}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: 'flex-start' }}>
-                    <Box sx={{ flex: '1 1 auto' }}>
-                        <Typography variant="h5">Empresas</Typography>
-                    </Box>  
-                </Stack>
-                <Card>
-                    <Box sx={{ overflowX: 'auto' }}>
-
-                        {/* Combo box */}
-                        <FormControl fullWidth margin="normal">
-                            <Select
-                                value={selectedCompany}
-                                onChange={handleSelectChange}
-                                displayEmpty
-                            >
-                                <MenuItem value="">
-                                    <em>Selecciona una empresa</em>
-                                </MenuItem>
-                                {companies?.map((company) => (
-                                    <MenuItem key={company.codigo} value={company.codigo}>
-                                        {company.nombre}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                </Card>
-
-
-            </Stack>
-
-
-            {/* Botón para abrir el modal */}
-            <Button variant="contained" color="primary" onClick={handleOpen}>
-                Crear Empresa
-            </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleOpen}
+                >
+                    Crear Empresa
+                </Button>
+            </Card>
 
             {/* Modal para crear empresa */}
             <Dialog
@@ -215,33 +130,80 @@ export function Page(): React.JSX.Element {
                     <Typography variant="h6">Crear Empresa</Typography>
                 </DialogTitle>
                 <DialogContent>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableBody>
-                                {(['codigo', 'ruc', 'nombre', 'correo', 'telefono', 'direccion', 'logo'] as (keyof EmpresaRequestType)[]).map((field) => (
-                                    <TableRow key={field}>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</TableCell>
-                                        <TableCell>
-                                            <TextField
-                                                fullWidth
-                                                variant="outlined"
-                                                name={field}
-                                                value={formData[field]}
-                                                onChange={handleInputChange}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <Box display="flex" justifyContent="space-between" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleAddCompany}>
-                            Guardar
-                        </Button>
-                        <Button variant="outlined" color="secondary" onClick={handleClose}>
-                            Cancelar
-                        </Button>
+                    <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                            label="Codigo"
+                            variant="outlined"
+                            fullWidth
+                            name="codigo"
+                            value={formData.codigo}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Ruc"
+                            variant="outlined"
+                            fullWidth
+                            name="ruc"
+                            value={formData.ruc}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Nombre"
+                            variant="outlined"
+                            fullWidth
+                            name="nombre"
+                            value={formData.nombre}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Correo"
+                            variant="outlined"
+                            fullWidth
+                            name="correo"
+                            value={formData.correo}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Telefono"
+                            variant="outlined"
+                            fullWidth
+                            name="telefono"
+                            value={formData.telefono}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <TextField
+                            label="Direccion"
+                            variant="outlined"
+                            fullWidth
+                            name="direccion"
+                            value={formData.direccion}
+                            onChange={handleInputChange}
+                            size="small"
+                        />
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                Logo
+                            </Typography>
+                            <input
+                                accept="image/*"
+                                type="file"
+                                //onChange={(e) => handleFileUpload(e)}
+                                style={{ display: 'block', width: '100%' }}
+                            />
+                        </Box>
+                        <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                            <Button variant="outlined" color="secondary" onClick={handleClose}>
+                                Cancelar
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleAddCompany}>
+                                Guardar
+                            </Button>
+                        </Box>
                     </Box>
                 </DialogContent>
             </Dialog>
