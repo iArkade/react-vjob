@@ -85,14 +85,18 @@ export const useGetAccountingPlan = (empresa_id: number) =>
     });
 
 
-const updateAccountingPlanRequest = async (id: number, data: AccountingPlanRequestType, empresa_id: number) => {
-    try {
-        const response = await http.put(`accounting-plan/${id}`, { code: data.code, name: data.name, empresa_id });
-        return response.data;
-    } catch (error) {
-        handleError(error);
-    }
-};
+  const updateAccountingPlanRequest = async (id: number, data: AccountingPlanRequestType, empresa_id: number) => {
+      try {
+          const response = await http.put(
+              `accounting-plan/${id}?empresa_id=${empresa_id}`, // Aquí agregamos el empresa_id como query param
+              { code: data.code, name: data.name } // Solo enviamos el cuerpo esperado
+          );
+          return response.data;
+      } catch (error) {
+          handleError(error);
+      }
+  };
+  
 
 export const useUpdateAccountingPlan = () => {
     const queryClient = useQueryClient();
@@ -107,15 +111,14 @@ export const useUpdateAccountingPlan = () => {
 };
 
 const deleteAccountingPlanRequest = async (code: string, empresa_id: number) => {
-    try {
-        const response = await http.delete(`accounting-plan/${code}`, {
-            params: { empresa_id },
-        });
-        return response.data;
-    } catch (error) {
-        handleError(error);
-    }
+  try {
+      const response = await http.delete(`accounting-plan/${code}?empresa_id=${empresa_id}`);
+      return response.data;
+  } catch (error) {
+      handleError(error);
+  }
 };
+
 
 export const useDeleteAccountingPlan = () => {
     const queryClient = useQueryClient();

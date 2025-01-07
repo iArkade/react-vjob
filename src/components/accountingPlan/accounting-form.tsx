@@ -36,7 +36,7 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
     }
 
     onSubmit(newAccount);
-    setNewAccount({ code: "", name: "", empresa_id: selectedEmpresa.id});
+    setNewAccount({ code: "", name: "", empresa_id: selectedEmpresa.id });
   }, [newAccount, onSubmit, selectedEmpresa.id]);
 
   const handleKeyPress = useCallback(
@@ -61,7 +61,26 @@ const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
           error={error.code}
           helperText={error.code ? "El código es obligatorio" : ""}
           onKeyUp={handleKeyPress}
+          onKeyDown={(e) => {
+            const allowedKeys = [
+              "Backspace",
+              "Tab",
+              "ArrowLeft",
+              "ArrowRight",
+              "Delete",
+              ".",
+            ];
+            const isNumber = e.key >= "0" && e.key <= "9";
+
+            if (!isNumber && !allowedKeys.includes(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          inputProps={{
+            pattern: "[0-9.]*", // Permite números y puntos
+          }}
         />
+
       </TableCell>
       <TableCell>
         <TextField
