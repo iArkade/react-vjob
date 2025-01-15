@@ -16,6 +16,8 @@ import {
      Typography,
 } from '@mui/material';
 import { useGetAccountingPlanPaginated } from '@/api/accounting-plan/account-request';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 
 interface AccountSelectionModalProps {
@@ -26,11 +28,12 @@ interface AccountSelectionModalProps {
 
 export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ open, onClose, onSelect }) => {
 
+     const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
      const {
           data: accountData,
           isLoading,
           isError
-     } = useGetAccountingPlanPaginated(1, 100);
+     } = useGetAccountingPlanPaginated(1, 100, selectedEmpresa.id); 
 
 
      const accounts = accountData?.data || [];

@@ -10,14 +10,17 @@ import { Stack } from '@mui/material';
 import Link from '@mui/material/Link';
 import { RouterLink } from '@/components/core/link';
 import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr/ArrowLeft';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 export function Page(): React.JSX.Element {
      const { id } = useParams<{ id: string }>();
      const asientoId = id ? parseInt(id, 10) : undefined;
+     const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
 
-     const { data: asiento } = useAsiento(asientoId as number);
-     const { data: centros = [] } = useGetCentroCosto();
-     const { data: transacciones = [] } = useGetTransaccionContable();
+     const { data: asiento } = useAsiento(asientoId as number, selectedEmpresa.id);
+     const { data: centros = [] } = useGetCentroCosto(selectedEmpresa.id);
+     const { data: transacciones = [] } = useGetTransaccionContable(selectedEmpresa.id);
 
      if (!asiento) {
           return <div>Cargando asiento...</div>;

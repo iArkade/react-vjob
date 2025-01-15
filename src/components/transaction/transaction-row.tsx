@@ -2,11 +2,16 @@ import React, { useState, useCallback, memo, useEffect } from "react";
 import { TableRow, TableCell, TextField, IconButton, Checkbox } from "@mui/material";
 import { FloppyDisk, Trash } from "@phosphor-icons/react";
 import { TransaccionContableResponseType } from "@/api/transaccion_contable/transaccion-contable-types";
+import Swal from "sweetalert2";
 
 interface TransactionRowProps {
     transaction: TransaccionContableResponseType;
-    onUpdate: (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo: boolean }) => void;
-    onDelete: (codigo_transaccion: string) => void;
+    onUpdate: (
+        id: number,
+        data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo: boolean; empresa_id: number },
+        empresa_id: number
+    ) => Promise<{ success: boolean; error?: string }>;
+    onDelete: (codigo_transaccion: string, empresa_id: number) => Promise<{ success: boolean; error?: string }>;
     isSelected: boolean;
     onRowClick: (id: number) => void;
 }
@@ -20,8 +25,17 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
         );
         const [editingLectura, setEditingLectura] = useState(transaction.lectura);
         const [editingActivo, setEditingActivo] = useState(transaction.activo);
+
+        const [originalCode, setOriginalCode] = useState(transaction.codigo_transaccion);
+        const [originalName, setOriginalName] = useState(transaction.nombre);
+        const [originalSecuencial, setOriginalSecuencial] = useState(transaction.secuencial);
+        const [originalLectura, setOriginalLectura] = useState(transaction.lectura);
+        const [originalActivo, setOriginalActivo] = useState(transaction.activo);
+
         const [isChanged, setIsChanged] = useState(false);
         const [isDarkTheme, setIsDarkTheme] = useState(false);
+        const [isEditing, setIsEditing] = useState(false);
+        const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
         useEffect(() => {
             const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -45,22 +59,160 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
             );
         }, [editingCode, editingName, editingSecuencial, editingLectura, editingActivo, transaction]);
 
-        const handleSave = useCallback(() => {
-            onUpdate(transaction.id, {
-                codigo_transaccion: editingCode,
-                nombre: editingName,
-                secuencial: editingSecuencial,
-                lectura: editingLectura,              
-                activo: editingActivo,
-            });
+        const restoreOriginalValues = useCallback(() => {
+            setEditingCode(originalCode);
+            setEditingName(originalName);
+            setEditingSecuencial(originalSecuencial);
+            setEditingLectura(originalLectura);
+            setEditingActivo(originalActivo);
             setIsChanged(false);
-        }, [transaction.id, onUpdate, editingCode, editingName, editingSecuencial, editingLectura, editingActivo]);
+            setIsEditing(false);
+            setErrorMessage(null);
+        }, [originalCode, originalName, originalSecuencial, originalLectura, originalActivo]);
+
+        const handleSave = useCallback(async () => {
+            if (isChanged) {
+
+                // Validación de nombre no vacío
+                if (!editingName || editingName.trim() === "") {
+                    setErrorMessage("El nombre no puede estar vacío");
+                    restoreOriginalValues();
+                    return;
+                }
+
+                // Validación de codigo no vacío
+                if (!editingCode || editingCode.trim() === "") {
+                    setErrorMessage("El codigo no puede estar vacío");
+                    restoreOriginalValues();
+                    return;
+                }
+
+                Swal.fire({
+                    title: "¿Está seguro?",
+                    text: "Desea actualizar el campo",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sí",
+                    cancelButtonText: "Cancelar",
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const updateResult = await onUpdate(
+                                transaction.id,
+                                {
+                                    codigo_transaccion: editingCode,
+                                    nombre: editingName,
+                                    secuencial: editingSecuencial,
+                                    lectura: editingLectura,
+                                    activo: editingActivo,
+                                    empresa_id: transaction.empresa_id,
+                                },
+                                transaction.empresa_id,
+                            );
+                            if (updateResult.success) {
+                                // Actualización exitosa
+                                setOriginalCode(editingCode);
+                                setOriginalName(editingName);
+                                setOriginalSecuencial(editingSecuencial);
+                                setOriginalLectura(editingLectura);
+                                setOriginalActivo(editingActivo);
+
+                                setIsChanged(false);
+                                setIsEditing(false);
+
+                                Swal.fire({
+                                    title: "Actualizado",
+                                    text: "El campo ha sido actualizado correctamente",
+                                    icon: "success",
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                });
+                            } else {
+                                // Error en la actualización
+                                setErrorMessage(updateResult.error || "Error al actualizar");
+                                restoreOriginalValues();
+
+                                Swal.fire({
+                                    title: "Error",
+                                    text: updateResult.error || "No se pudo actualizar",
+                                    icon: "error",
+                                });
+                            }
+                        } catch (error) {
+                            // Error inesperado
+                            setErrorMessage("Error inesperado");
+                            restoreOriginalValues();
+
+                            Swal.fire({
+                                title: "Error",
+                                text: "Ha ocurrido un error inesperado",
+                                icon: "error",
+                            });
+                        }
+                    } else {
+                        // User clicked cancel, restore original values
+                        restoreOriginalValues();
+                    }
+                });
+            }
+        }, [isChanged, restoreOriginalValues, transaction.id, onUpdate, editingCode, editingName, editingSecuencial, editingLectura, editingActivo, transaction.empresa_id]);
+
+        const handleDelete = useCallback(
+            (codigo_transaccion: string, empresa_id: number) => {
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: 'Esta acción eliminará el elemento de forma permanente.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí',
+                    cancelButtonText: 'Cancelar',
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const deleteResult = await onDelete(codigo_transaccion, empresa_id);
+
+                            if (deleteResult.success) {
+                                Swal.fire({
+                                    title: 'Eliminado',
+                                    text: 'El elemento ha sido eliminado correctamente.',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                })
+                            } else {
+                                // Error en la eliminacion
+                                setErrorMessage(deleteResult.error || "Error al eliminar");
+                                restoreOriginalValues();
+
+                                Swal.fire({
+                                    title: "Error",
+                                    text: deleteResult.error || "No se pudo eliminar",
+                                    icon: "error",
+                                });
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'No se pudo eliminar el elemento.',
+                                icon: 'error',
+                            });
+                        }
+                    }
+                });
+            },
+            [onDelete]
+        );
 
         const handleSequentialChange = (value: string) => {
             // Limit input to numbers only, then limit to a maximum of 9 digits
             const formattedValue = value.replace(/[^0-9]/g, "").padStart(9, "0").slice(-9);
             setEditingSecuencial(formattedValue);
         };
+
 
         const handleActivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             setEditingActivo(e.target.checked);
@@ -133,7 +285,7 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
                     <IconButton onClick={handleSave} disabled={!isChanged}>
                         <FloppyDisk size={20} weight={isChanged ? "bold" : "regular"} />
                     </IconButton>
-                    <IconButton onClick={() => onDelete(transaction.codigo_transaccion)}>
+                    <IconButton onClick={() => handleDelete(transaction.codigo_transaccion, transaction.empresa_id)}>
                         <Trash size={20} />
                     </IconButton>
                 </TableCell>

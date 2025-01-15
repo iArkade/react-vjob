@@ -12,7 +12,7 @@ interface AccountRowProps {
         data: { code: string; name: string; empresa_id: number },
         empresa_id: number
     ) => Promise<{ success: boolean; error?: string }>;
-    onDelete: (code: string, empresa_id: number) => void;
+    onDelete: (code: string, empresa_id: number) => Promise<{ success: boolean; error?: string }>;
     isSelected: boolean;
     onRowClick: (id: number) => void;
 }
@@ -21,8 +21,10 @@ const AccountRow: React.FC<AccountRowProps> = memo(
     ({ account, onUpdate, onDelete, isSelected, onRowClick }) => {
         const [editingCode, setEditingCode] = useState(account.code);
         const [editingName, setEditingName] = useState(account.name);
+
         const [originalCode, setOriginalCode] = useState(account.code);
         const [originalName, setOriginalName] = useState(account.name);
+
         const [isChanged, setIsChanged] = useState(false);
         const [isDarkTheme, setIsDarkTheme] = useState(false);
         const [isEditing, setIsEditing] = useState(false);
@@ -70,6 +72,13 @@ const AccountRow: React.FC<AccountRowProps> = memo(
                 // Validación de nombre no vacío
                 if (!editingName || editingName.trim() === "") {
                     setErrorMessage("El nombre no puede estar vacío");
+                    restoreOriginalValues();
+                    return;
+                }
+
+                // Validación de codigo no vacío
+                if (!editingCode || editingCode.trim() === "") {
+                    setErrorMessage("El codigo no puede estar vacío");
                     restoreOriginalValues();
                     return;
                 }
@@ -160,17 +169,30 @@ const AccountRow: React.FC<AccountRowProps> = memo(
                     cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Sí',
                     cancelButtonText: 'Cancelar',
-                }).then((result) => {
+                }).then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            onDelete(code, empresa_id);
-                            Swal.fire({
-                                title: 'Eliminado',
-                                text: 'El elemento ha sido eliminado correctamente.',
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false,
-                            });
+                            const deleteResult = await onDelete(code, empresa_id);
+
+                            if (deleteResult.success) {
+                                Swal.fire({
+                                    title: 'Eliminado',
+                                    text: 'El elemento ha sido eliminado correctamente.',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                });
+                            } else {
+                                // Error en la eliminacion
+                                setErrorMessage(deleteResult.error || "Error al eliminar");
+                                restoreOriginalValues();
+
+                                Swal.fire({
+                                    title: "Error",
+                                    text: deleteResult.error || "No se pudo eliminar",
+                                    icon: "error",
+                                });
+                            }
                         } catch (error) {
                             Swal.fire({
                                 title: 'Error',

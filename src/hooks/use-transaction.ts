@@ -3,11 +3,11 @@ import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUp
 import { TransaccionContableRequestType, TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable-types';
 import { normalizeCode } from '@/utils/validators';
 
-const useTransaccionContable = (page: number, rowsPerPage: number) => {
+const useTransaccionContable = (page: number, rowsPerPage: number, empresa_id: number) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const { data: transactionsData, isLoading, isError, refetch } = useGetTransaccionContablePaginated(page, rowsPerPage);
+    const { data: transactionsData, isLoading, isError, refetch } = useGetTransaccionContablePaginated(page, rowsPerPage, empresa_id);
     const transactions = transactionsData?.data || [];
     const totaltransactions = transactionsData?.total || 0;
 
@@ -42,21 +42,24 @@ const useTransaccionContable = (page: number, rowsPerPage: number) => {
         }    
     };
 
-    const updateTransaction = async (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo:boolean }) => {
+    const updateTransaction = async (id: number, data: { codigo_transaccion: string; nombre: string; secuencial: string; lectura: number; activo:boolean, empresa_id: number }, empresa_id: number) => {
 
         try {
-            await updateTransaccionContable.mutateAsync({ id, data });
+            await updateTransaccionContable.mutateAsync({ id, data, empresa_id });
             setSuccess('Cambios guardados exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error al actualizar la cuenta');
+            const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la transaccion';
+            setError(errorMessage);
+            return { success: false, error: errorMessage };
         }
     };
 
-    const deleteTransaction = async (codigo_transaccion: string) => {
+    const deleteTransaction = async (codigo_transaccion: string, empresa_id: number) => {
 
         try {
-            await deleteTransaccionContable.mutateAsync(codigo_transaccion);
+            await deleteTransaccionContable.mutateAsync({code: codigo_transaccion, empresa_id});
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
         } catch (error) {

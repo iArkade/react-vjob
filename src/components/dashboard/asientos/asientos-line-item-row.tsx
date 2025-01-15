@@ -13,6 +13,8 @@ import { Option } from "@/components/core/option";
 import { AsientoItem, DatCentro } from "@/api/asientos/asientos-types";
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 import { normalizeNumericValue } from "@/utils/normalize-numbers";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 interface LineItemRowProps {
   item: any;
@@ -43,12 +45,14 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
       setValue(`lineItems.${index}.id`, item.id);
     }
   }, [item?.id, index, setValue]);
+  
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
 
   const {
     data: centros = [],
     isLoading: isLoadingCentros,
     isError: isErrorCentros,
-  } = useGetCentroCosto();
+  } = useGetCentroCosto(selectedEmpresa.id);
 
   const handleDebeChange = (value: string) => {
     const normalizedValue = normalizeNumericValue(value);

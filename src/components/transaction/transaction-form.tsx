@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { TransaccionContableRequestType } from "@/api/transaccion_contable/transaccion-contable-types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 interface TransactionFormProps {
   onSubmit: (transaction: TransaccionContableRequestType) => void;
@@ -16,6 +18,7 @@ interface TransactionFormProps {
 
 const TransactionForm: React.FC<TransactionFormProps> = memo(
   ({ onSubmit, existingTransactions = [] }) => {
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
     const [newTransaction, setNewTransaction] =
       useState<TransaccionContableRequestType>({
         codigo_transaccion: "",
@@ -23,6 +26,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
         secuencial: "000000001",
         lectura: 1,
         activo: true,
+        empresa_id: selectedEmpresa.id
       });
 
     const [errors, setErrors] = useState({
@@ -162,6 +166,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
         secuencial: "000000001", // Reset a 000000001
         lectura: 1,
         activo: true,
+        empresa_id: selectedEmpresa.id
       });
       setErrors({
         codigo_transaccion: "",

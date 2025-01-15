@@ -3,7 +3,7 @@ export interface DatCentro {
   codigo: string;
   nombre: string;
   activo: boolean;
-  codigo_empresa?: string;
+  empresa_id: number;
 }
 
 export interface Asiento {
@@ -15,7 +15,7 @@ export interface Asiento {
   estado: string;
   nro_referencia: string;
   codigo_centro: string;
-  codigo_empresa?: string;
+  empresa_id: number;
   total_debe: number;
   total_haber: number;
   lineItems: AsientoItem[];

@@ -50,10 +50,11 @@ import { useGetTransaccionContable } from "@/api/transaccion_contable/transaccio
 import { useGetCentroCosto } from "@/api/centro_costo/centro-costo-request";
 import { dayjs } from "@/lib/dayjs";
 import { setFeedback } from "@/state/slices/feedBackSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import "dayjs/locale/es";
 import { useQueryClient } from "react-query";
+import { RootState } from "@/state/store";
 
 dayjs.locale("es");
 
@@ -164,18 +165,21 @@ export function AsientosForm({
   } = methods;
 
   //console.log(errors);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
 
   const {
     data: centros = [],
     isLoading: isLoadingCentros,
     isError: isErrorCentros,
-  } = useGetCentroCosto();
+  } = useGetCentroCosto(selectedEmpresa.id); 
+
+  
 
   const {
     data: transacciones = [],
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
-  } = useGetTransaccionContable();
+  } = useGetTransaccionContable(selectedEmpresa.id); 
 
   const dispatch = useDispatch();
 
@@ -251,6 +255,7 @@ export function AsientosForm({
         const { total, lineItems, ...asientoData } = data;
         const dataToSend = {
           ...asientoData,
+          empresa_id: selectedEmpresa.id,
           total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
           total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
           lineItems: lineItems.map((item) => {
@@ -266,6 +271,7 @@ export function AsientosForm({
           updateAsiento({
             id: Number(id),
             data: dataToSend,
+            empresa_id: selectedEmpresa.id
           });
 
           queryClient.invalidateQueries(["asiento", id]);
@@ -411,7 +417,6 @@ export function AsientosForm({
     handleCloseModal();
   };
 
-  console.log("Fetched Data:::::", asiento);
 
   return (
     <FormProvider {...methods}>

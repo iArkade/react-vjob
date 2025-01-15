@@ -3,11 +3,11 @@ import { useGetCentroCostoPaginated, useCreateCentroCosto, useUpdateCentroCosto,
 import { CentroCostoRequestType, CentroCostoResponseType } from '@/api/centro_costo/centro-costo.types';
 import { normalizeCode } from '@/utils/validators';
 
-const useCentroCosto = (page: number, rowsPerPage: number) => {
+const useCentroCosto = (page: number, rowsPerPage: number, empresa_id: number) => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const { data: costCentersData, isLoading, isError, refetch } = useGetCentroCostoPaginated(page, rowsPerPage);
+    const { data: costCentersData, isLoading, isError, refetch } = useGetCentroCostoPaginated(page, rowsPerPage, empresa_id);
     const costCenters = costCentersData?.data || [];
     const totalcostCenters = costCentersData?.total || 0;
 
@@ -42,21 +42,23 @@ const useCentroCosto = (page: number, rowsPerPage: number) => {
         }    
     };
 
-    const updatecostCenter = async (id: number, data: { codigo: string; nombre: string; activo:boolean }) => {
-
+    const updatecostCenter = async (id: number, data: { codigo: string, nombre: string, activo:boolean, empresa_id: number }, empresa_id: number) => {
         try {
-            await updateCentroCosto.mutateAsync({ id, data });
+            await updateCentroCosto.mutateAsync({ id, data, empresa_id });
             setSuccess('Cambios guardados exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error al actualizar la cuenta');
+            const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la cuenta';
+            setError(errorMessage);
+            return { success: false, error: errorMessage };
         }
     };
 
-    const deletecostCenter = async (codigo: string) => {
+    const deletecostCenter = async (codigo: string, empresa_id: number) => {
 
         try {
-            await deleteCentroCosto.mutateAsync(codigo);
+            await deleteCentroCosto.mutateAsync({code: codigo, empresa_id});
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
         } catch (error) {

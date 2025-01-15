@@ -23,7 +23,7 @@ const handleError = (error: unknown): never => {
 
 const createCentroCostoRequest = async (data: CentroCostoRequestType) => {
     try {
-        const response = await http.post('dat-centro', { codigo: data.codigo, nombre: data.nombre, activo: data.activo });
+        const response = await http.post('dat-centro', { codigo: data.codigo, nombre: data.nombre, activo: data.activo, empresa_id: data.empresa_id });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -41,42 +41,42 @@ export const useCreateCentroCosto = () => {
     });
 };
 
-const getCentroCostoPaginatedRequest = async (page: number, limit: number): Promise<{ data: CentroCostoResponseType[], total: number }> => {
+const getCentroCostoPaginatedRequest = async (page: number, limit: number, empresa_id: number): Promise<{ data: CentroCostoResponseType[], total: number }> => {
     try {
-        const response = await http.get(`dat-centro/paginated?page=${page}&limit=${limit}`);
+        const response = await http.get(`dat-centro/paginated?page=${page}&limit=${limit}&empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const useGetCentroCostoPaginated = (page: number, limit: number) =>
+export const useGetCentroCostoPaginated = (page: number, limit: number, empresa_id: number) =>
     useQuery({
-        queryKey: ['GetCentroCosto', page, limit],
-        queryFn: () => getCentroCostoPaginatedRequest(page, limit),
+        queryKey: ['GetCentroCosto', page, limit, empresa_id],
+        queryFn: () => getCentroCostoPaginatedRequest(page, limit, empresa_id),
         keepPreviousData: true,
     });
 
 
-const getCentroCostoRequest = async (): Promise<CentroCostoResponseType[]> => {
+const getCentroCostoRequest = async (empresa_id: number): Promise<CentroCostoResponseType[]> => {
     try {
-        const response = await http.get(`dat-centro/all`);
+        const response = await http.get(`dat-centro/all?empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const useGetCentroCosto = () =>
+export const useGetCentroCosto = (empresa_id: number) =>
     useQuery({
-        queryKey: ['GetCentroCosto'],
-        queryFn: () => getCentroCostoRequest(),
+        queryKey: ['GetCentroCosto', empresa_id],
+        queryFn: () => getCentroCostoRequest(empresa_id),
     });
 
 
-const updateCentroCostoRequest = async (id: number, data: CentroCostoRequestType) => {
+const updateCentroCostoRequest = async (id: number, data: CentroCostoRequestType, empresa_id: number) => {
     try {
-        const response = await http.put(`dat-centro/${id}`, { codigo: data.codigo, nombre: data.nombre, activo: data.activo });
+        const response = await http.put(`dat-centro/${id}?empresa_id=${empresa_id}`, { codigo: data.codigo, nombre: data.nombre, activo: data.activo });
         return response.data;
     } catch (error) {
         handleError(error);
@@ -87,16 +87,16 @@ export const useUpdateCentroCosto = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['UpdateCentroCosto'],
-        mutationFn: ({ id, data }: { id: number, data: CentroCostoRequestType }) => updateCentroCostoRequest(id, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries('GetCentroCosto');
+        mutationFn: ({ id, data, empresa_id }: { id: number, data: CentroCostoRequestType, empresa_id: number }) => updateCentroCostoRequest(id, data, empresa_id),
+        onSuccess: (_, { empresa_id }) => {
+            queryClient.invalidateQueries(['GetCentroCosto', empresa_id]);
         },
     });
 };
 
-const deleteCentroCostoRequest = async (code: string) => {
+const deleteCentroCostoRequest = async (code: string, empresa_id: number) => {
     try {
-        const response = await http.delete(`dat-centro/${code}`);
+        const response = await http.delete(`dat-centro/${code}?empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
         handleError(error);
@@ -107,7 +107,7 @@ export const useDeleteCentroCosto = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['DeleteCentroCosto'],
-        mutationFn: (code: string) => deleteCentroCostoRequest(code),
+        mutationFn: ({ code, empresa_id }: { code: string; empresa_id: number }) => deleteCentroCostoRequest(code, empresa_id),
         onSuccess: () => {
             queryClient.invalidateQueries('GetCentroCosto');
         },

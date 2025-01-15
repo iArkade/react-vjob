@@ -1,16 +1,16 @@
 export interface CentroCostoResponseType {
     id: number;
-    codigo_empresa: string;
     codigo: string;
     nombre: string;
     activo: boolean;
     createdAt: string;
+    empresa_id: number;
     // Añade aquí cualquier otro campo que pueda devolver tu API
 }
 
 export interface CentroCostoRequestType {
-    codigo_empresa?: string;
     codigo: string;
     nombre: string;
     activo: boolean;
+    empresa_id: number;
 }

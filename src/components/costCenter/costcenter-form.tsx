@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { CentroCostoRequestType } from "@/api/centro_costo/centro-costo.types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 interface CostCenterFormProps {
   onSubmit: (costCenter: CentroCostoRequestType) => void;
@@ -17,10 +19,12 @@ interface CostCenterFormProps {
 
 const CostCenterForm: React.FC<CostCenterFormProps> = memo(
   ({ onSubmit, existingCostCenters = [] }) => {
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
     const [newCostCenter, setNewCostCenter] = useState<CentroCostoRequestType>({
       codigo: "",
       nombre: "",
       activo: true,
+      empresa_id: selectedEmpresa.id
     });
 
     const [errors, setErrors] = useState({
@@ -123,6 +127,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = memo(
         codigo: "",
         nombre: "",
         activo: true,
+        empresa_id: selectedEmpresa.id
       });
       setErrors({ codigo: "", nombre: "" });
     }, [newCostCenter, onSubmit, validateField]);

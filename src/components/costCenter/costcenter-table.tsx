@@ -17,14 +17,16 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import CostCenterRow from './costcenter-row';
 import CostCenterForm from './costcenter-form';
 import useCentroCosto from '@/hooks/use-costCenter';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setFeedback } from '@/state/slices/feedBackSlice';
+import { RootState } from '@/state/store';
 
 const CostCenterTable: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
     const {
         costCenters,
         totalcostCenters,
@@ -37,7 +39,7 @@ const CostCenterTable: React.FC = () => {
         error,
         success,
         clearMessages
-    } = useCentroCosto(page + 1, rowsPerPage);
+    } = useCentroCosto(page + 1, rowsPerPage, selectedEmpresa.id);
 
     // const filteredTransactions = costCenters.filter(item =>
     //     item.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||

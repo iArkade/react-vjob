@@ -23,7 +23,6 @@ const useAccountingPlan = (page: number, rowsPerPage: number, empresa_id: number
     const deleteAccountingPlan = useDeleteAccountingPlan();
 
     const addAccount = async (newAccount: AccountingPlanRequestType) => {
-        console.log(newAccount);
         
         if (!validateCode(newAccount.code)) {
             setError('El código debe contener números y puede terminar en punto.');

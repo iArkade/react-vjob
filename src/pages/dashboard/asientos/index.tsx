@@ -10,13 +10,15 @@ import AsientoTable from "@/components/dashboard/asientos/asientos-table";
 import { RouterLink } from "@/components/core/link";
 import { paths } from "@/paths";
 import { useAsientos } from "@/api/asientos/asientos-request";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 export function Page(): React.JSX.Element {
   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
   // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
   // const [openModal, setOpenModal] = React.useState(false);
-
-  const { data: asientos, isLoading, isError } = useAsientos();
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { data: asientos, isLoading, isError } = useAsientos(selectedEmpresa.id);
   //Prueba: esto es para actualizar para cuando le de al botn de edit const handleRefetch = () => {
   //      refetch(); // Forzar la recarga de datos
   // };

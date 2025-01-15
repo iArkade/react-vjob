@@ -2,16 +2,16 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "../http";
 import { Asiento } from "./asientos-types";
 
-const getAsientos = async () => {
-  const response = await http.get("asientos");
+const getAsientos = async (empresa_id: number) => {
+  const response = await http.get(`asientos?empresa_id=${empresa_id}`);
   return response.data;
 };
 
-export const useAsientos = () => {
+export const useAsientos = (empresa_id: number) => {
   const queryClient = useQueryClient();
   return useQuery<Asiento[]>({
-    queryKey: ["asientos"],
-    queryFn: getAsientos,
+    queryKey: ["asientos", empresa_id],
+    queryFn: () => getAsientos(empresa_id),
     onSuccess: () => {
       queryClient.invalidateQueries(["asiento"]);
     },
@@ -23,15 +23,15 @@ export const useAsientos = () => {
   });
 };
 
-const getAsiento = async (id: number) => {
-  const response = await http.get(`asientos/${id}`);
+const getAsiento = async (id: number, empresa_id: number) => {
+  const response = await http.get(`asientos/${id}?empresa_id=${empresa_id}`);
   return response.data;
 };
 
-export const useAsiento = (id: number) => {
+export const useAsiento = (id: number, empresa_id: number) => {
   return useQuery<Asiento>({
-    queryKey: ["asiento"],
-    queryFn: () => getAsiento(id),
+    queryKey: ["asiento", empresa_id],
+    queryFn: () => getAsiento(id, empresa_id),
     onError: (error) => {
       console.error("Error al obtener los asientos:", error);
     },
@@ -40,7 +40,7 @@ export const useAsiento = (id: number) => {
     refetchOnMount: true,
     staleTime: 0, // Always consider data stale
     cacheTime: 0,
-  });
+  }); 
 };
 
 const createAsiento = async (data: Asiento) => {
@@ -64,8 +64,8 @@ export const useCreateAsiento = () => {
   });
 };
 
-const updateAsiento = async ({ id, data }: { id: number; data: Asiento }) => {
-  const response = await http.put(`/asientos/${id}`, data);
+const updateAsiento = async ({ id, data, empresa_id }: { id: number; data: Asiento; empresa_id: number }) => {
+  const response = await http.put(`/asientos/${id}?empresa_id=${empresa_id}`, data);
   return response.data;
 };
 
