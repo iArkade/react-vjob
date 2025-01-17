@@ -8,7 +8,7 @@ export interface EmpresaResponseType {
     direccion: string;
     logo: string;
     createdAt: string;
-    // Añade aquí cualquier otro campo que pueda devolver tu API
+    // Agregar otro campo que pueda devolver la API
 }
 
 export interface EmpresaRequestType {
@@ -18,5 +18,5 @@ export interface EmpresaRequestType {
     correo: string;
     telefono: string;
     direccion: string;
-    logo?: string;
+    logo?: File | null;
 }

@@ -10,6 +10,7 @@ import AsientoTable from "@/components/dashboard/asientos/asientos-table";
 import { RouterLink } from "@/components/core/link";
 import { paths } from "@/paths";
 import { useAsientos } from "@/api/asientos/asientos-request";
+import AsientoDetailsModal from "@/components/dashboard/asientos/asiento-detail-modal";
 
 export function Page(): React.JSX.Element {
   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
@@ -91,7 +92,7 @@ export function Page(): React.JSX.Element {
                 asientos={asientos} // Pasamos los datos
                 isLoading={isLoading} // Estado de carga
                 isError={isError} // Estado de error
-                //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
+              //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
               />
             </Box>
             <Divider />

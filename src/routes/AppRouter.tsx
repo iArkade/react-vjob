@@ -5,30 +5,30 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import useAuth from '../hooks/use-auth';
 import { useState, useEffect } from 'react';
-import {Page as Empresa} from '@/pages/core/empresa'
+import { Page as Empresa } from '@/pages/core/empresa'
 
 export const AppRouter = () => {
-  const [loading, setLoading] = useState(true);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.authSlice.isAuthenticated
-  );
+     const [loading, setLoading] = useState(true);
+     const isAuthenticated = useSelector(
+          (state: RootState) => state.authSlice.isAuthenticated
+     );
 
-  useAuth();
+     useAuth();
 
-  useEffect(() => {
-    setLoading(false);
-  }, [isAuthenticated]);
+     useEffect(() => {
+          setLoading(false);
+     }, [isAuthenticated]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+     if (loading) {
+          return <div>Loading...</div>;
+     }
 
      return (
           <Routes>
                {isAuthenticated ? (
                     <>
                          <Route path="/empresa" element={<Empresa />} />
-                         <Route path="/dashboard/*" element={<PrivateRoutes />} />                         
+                         <Route path="/dashboard/*" element={<PrivateRoutes />} />
                          <Route path="*" element={<Navigate to="/empresa" />} />
                     </>
                ) : (

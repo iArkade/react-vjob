@@ -24,13 +24,19 @@ export function Page(): React.JSX.Element {
               <Typography variant="h4">Dashboard</Typography>
             </Box>
             {empresa ? (
-                <div>
-                    <p><strong>Código:</strong> {empresa.codigo}</p>
-                    <p><strong>Nombre:</strong> {empresa.nombre}</p>
-                    <p><strong>RUC:</strong> {empresa.ruc}</p>
-                </div>
+              <div>
+                <p><strong>Código:</strong> {empresa.codigo}</p>
+                <p><strong>Nombre:</strong> {empresa.nombre}</p>
+                <p><strong>RUC:</strong> {empresa.ruc}</p>
+                <img
+                  src={empresa.logo}
+                  alt={`Logo de ${empresa.nombre}`}
+                  style={{ maxWidth: '200px', height: 'auto' }} // Estilo opcional
+                />
+
+              </div>
             ) : (
-                <p>No se seleccionó ninguna empresa.</p>
+              <p>No se seleccionó ninguna empresa.</p>
             )}
           </Stack>
         </Stack>
