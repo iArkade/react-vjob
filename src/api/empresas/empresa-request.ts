@@ -21,12 +21,17 @@ const handleError = (error: unknown): never => {
     throw error;
 };
 
-const createEmpresaRequest = async (data: EmpresaRequestType) => {
+const createEmpresaRequest = async (formData: FormData) => {
     try {
-        const response = await http.post('empresa', { codigo: data.codigo, ruc: data.ruc, nombre: data.nombre, correo: data.correo, telefono: data.telefono, direccion: data.direccion, logo: data.logo });
+        const response = await http.post('empresa', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     } catch (error) {
         handleError(error);
+        throw error; 
     }
 };
 

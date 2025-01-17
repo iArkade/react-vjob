@@ -93,7 +93,7 @@ export function Page(): React.JSX.Element {
                 asientos={asientos} // Pasamos los datos
                 isLoading={isLoading} // Estado de carga
                 isError={isError} // Estado de error
-                //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
+              //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
               />
             </Box>
             <Divider />
