@@ -6,7 +6,7 @@ import {
 import AccountingPlanTable from '@/components/accountingPlan/accounting-table';
 import ExcelUpload from '@/components/accountingPlan/excel-upload';
 
-export function Page(): React.JSX.Element {
+export function PlanCuentas(): React.JSX.Element {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleDataRefresh = () => {
@@ -22,4 +22,4 @@ export function Page(): React.JSX.Element {
   );
 }
 
-export default Page;
+export default PlanCuentas;

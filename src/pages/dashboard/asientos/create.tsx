@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 
 import { AsientosForm } from "../../../components/dashboard/asientos/asientos-form";
 
-export function Page(): React.JSX.Element {
+export function AsientosCreate(): React.JSX.Element {
   return (
     <React.Fragment>
       <Box

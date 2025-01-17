@@ -6,15 +6,13 @@ import Typography from "@mui/material/Typography";
 
 import { AsientosForm } from "../../../components/dashboard/asientos/asientos-form";
 import { useAsiento } from "@/api/asientos/asientos-request";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Button } from "@mui/material";
-import { paths } from "@/paths";
+import { useLocation, useParams } from "react-router-dom";
+
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 
-export function Page(): React.JSX.Element {
+export function AsientosShow(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const location = useLocation();
   const asientoId = id ? parseInt(id, 10) : undefined;
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);

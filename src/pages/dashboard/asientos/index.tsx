@@ -13,7 +13,7 @@ import { useAsientos } from "@/api/asientos/asientos-request";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 
-export function Page(): React.JSX.Element {
+export function Asientos(): React.JSX.Element {
   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
   // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
   // const [openModal, setOpenModal] = React.useState(false);

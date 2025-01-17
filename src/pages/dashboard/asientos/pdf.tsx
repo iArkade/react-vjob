@@ -13,7 +13,7 @@ import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr/Arrow
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
-export function Page(): React.JSX.Element {
+export function AsientosPDF(): React.JSX.Element {
      const { id } = useParams<{ id: string }>();
      const asientoId = id ? parseInt(id, 10) : undefined;
      const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);

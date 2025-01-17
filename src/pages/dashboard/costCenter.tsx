@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import CostCenterTable from '@/components/costCenter/costcenter-table';
 
-export function Page(): React.JSX.Element {
+export function CostCenter(): React.JSX.Element {
     return (
         <Box sx={{ p: 4 }}>
             <Typography variant="h5" gutterBottom>Centro de Costos</Typography>
@@ -14,4 +14,4 @@ export function Page(): React.JSX.Element {
     );
 }
 
-export default Page;
+export default CostCenter;
