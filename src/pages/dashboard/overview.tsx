@@ -10,12 +10,12 @@ export function Page(): React.JSX.Element {
   return (
     <React.Fragment>
       <Box
-      // sx={{
-      //   maxWidth: 'var(--Content-maxWidth)',
-      //   m: 'var(--Content-margin)',
-      //   p: 'var(--Content-padding)',
-      //   width: 'var(--Content-width)',
-      // }}
+      sx={{
+        maxWidth: 'var(--Content-maxWidth)',
+        m: 'var(--Content-margin)',
+        p: 'var(--Content-padding)',
+        width: 'var(--Content-width)',
+      }}
       >
         <Stack spacing={4}>
           <Stack
@@ -37,11 +37,11 @@ export function Page(): React.JSX.Element {
                 <p>
                   <strong>RUC:</strong> {empresa.ruc}
                 </p>
-                {/* <img
+                <img
                   src={empresa.logo}
                   alt={`Logo de ${empresa.nombre}`}
                   style={{ maxWidth: "200px", height: "auto" }} // Estilo opcional
-                /> */}
+                />
               </div>
             ) : (
               <p>No se seleccionó ninguna empresa.</p>

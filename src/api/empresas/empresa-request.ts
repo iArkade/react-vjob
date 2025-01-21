@@ -63,6 +63,7 @@ export const useGetEmpresa = () =>
     queryKey: ["GetEmpresa"],
     queryFn: () => getEmpresaRequest(),
   });
+  
 
 const updateEmpresaRequest = async (id: number, data: EmpresaRequestType) => {
   try {

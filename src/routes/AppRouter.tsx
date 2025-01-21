@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import useAuth from "../hooks/use-auth";
 import { useState, useEffect } from "react";
-import { Page as Empresa } from "@/pages/core/empresa";
+import { Empresa } from "@/pages/core/empresa";
 import EntityDetails from "@/pages/entityDetails";
 
 export const AppRouter = () => {
