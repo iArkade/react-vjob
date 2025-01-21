@@ -53,6 +53,18 @@ export function Empresa(): React.JSX.Element {
     if (file) {
       setPreview(URL.createObjectURL(file));
     }
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+    if(file && file.size > MAX_FILE_SIZE) {
+      dispatch(setFeedback({
+        message: "El archivo debe ser menor a 5 MB",
+        severity: "warning",
+        isError: true,
+      }))
+      return;
+    }
+    
     form.setValue("logo", file, { shouldValidate: true });
   };
   const handleSelectChange = (event: SelectChangeEvent<string>) => {

@@ -15,8 +15,8 @@ type Color = 'dark' | 'light';
 export interface LogoProps {
   color?: Color;
   emblem?: boolean;
-  height?: number;
-  width?: number;
+  height?: number | string;
+  width?: number | string;
 }
 
 export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
@@ -31,21 +31,12 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
   if (selectedEmpresa?.logo) {
     // Use the logo from Redux if available
     url = selectedEmpresa.logo;
-  } else if (emblem) {
-    // Fallback to default emblem logos
-    url = color === "light" ? "/assets/logo-emblem.svg" : "/assets/logo-emblem--dark.svg";
   } else {
-    // Fallback to standard logos
-    url = color === "light" ? "/assets/logo.svg" : "/assets/logo--dark.svg";
+    // Use the default logo
+    url = `/static/logo-${color}${emblem ? '-emblem' : ''}.svg`;
   }
 
-  // if (emblem) {
-  //   url = color === 'light' ? `'/assets/logo-emblem.svg'` : '/assets/logo-emblem--dark.svg';
-  // } else {
-  //   url = color === 'light' ? '/assets/logo.svg' : '/assets/logo--dark.svg';
-  // }
-
-  return <Box alt="logo" component="img" height={height} src={url} width={width} />;
+  return <Box alt="logo" component="img" height={height} src={url} width={width} margin={'auto'} />;
 }
 
 export interface DynamicLogoProps {
@@ -67,7 +58,7 @@ export function DynamicLogo({
   const color = colorScheme === 'dark' ? colorDark : colorLight;
 
   return (
-    <NoSsr fallback={<Box sx={{ height: `${height}px`, width: `${width}px` }} />}>
+    <NoSsr fallback={<Box sx={{ height: `${height}px`, width: '100%' }} />}>
       <Logo color={color} height={height} width={width} {...props} />
     </NoSsr>
   );

@@ -67,7 +67,7 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
       <Stack spacing={2} sx={{ p: 2 }}>
         <div>
           <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <Logo color="light" height={32} width={122} />
+            <Logo color="light" height={32} width={'100%'} />
           </Box>
         </div>
       </Stack>
