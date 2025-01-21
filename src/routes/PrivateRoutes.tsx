@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import { Layout } from '@/components/dashboard/layout/layout'
-import { Page as OverviewPage } from '@/pages/dashboard/overview'
+import { OverviewPage } from '@/pages/dashboard/overview'
 // import {Page as Analytics} from '@/pages/dashboard/analytics'
 import {PlanCuentas} from '@/pages/dashboard/plan-cuentas'
 import {Transaction} from '@/pages/dashboard/transaction'

@@ -4,8 +4,8 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
 import { NoSsr } from './no-ssr';
-
-
+import { RootState } from '@/state/store';
+import { useSelector } from 'react-redux';
 
 const HEIGHT = 60;
 const WIDTH = 60;
@@ -20,13 +20,30 @@ export interface LogoProps {
 }
 
 export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
+  
+  const {selectedEmpresa} =  useSelector(
+    (state: RootState) => state.empresa
+  );
+
+
   let url: string;
 
-  if (emblem) {
-    url = color === 'light' ? '/assets/logo-emblem.svg' : '/assets/logo-emblem--dark.svg';
+  if (selectedEmpresa?.logo) {
+    // Use the logo from Redux if available
+    url = selectedEmpresa.logo;
+  } else if (emblem) {
+    // Fallback to default emblem logos
+    url = color === "light" ? "/assets/logo-emblem.svg" : "/assets/logo-emblem--dark.svg";
   } else {
-    url = color === 'light' ? '/assets/logo.svg' : '/assets/logo--dark.svg';
+    // Fallback to standard logos
+    url = color === "light" ? "/assets/logo.svg" : "/assets/logo--dark.svg";
   }
+
+  // if (emblem) {
+  //   url = color === 'light' ? `'/assets/logo-emblem.svg'` : '/assets/logo-emblem--dark.svg';
+  // } else {
+  //   url = color === 'light' ? '/assets/logo.svg' : '/assets/logo--dark.svg';
+  // }
 
   return <Box alt="logo" component="img" height={height} src={url} width={width} />;
 }

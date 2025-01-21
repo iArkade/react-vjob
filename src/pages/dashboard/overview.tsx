@@ -4,9 +4,10 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useLocation } from "react-router-dom";
 
-export function Page(): React.JSX.Element {
+export function OverviewPage(): React.JSX.Element {
   const location = useLocation();
   const empresa = location.state?.empresa;
+  //* Para poner el logo en la pantalla prncipal, tengo que buscar el componente logo.tsx
   return (
     <React.Fragment>
       <Box
