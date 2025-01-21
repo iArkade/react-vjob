@@ -14,6 +14,7 @@ import {
 import { EmpresaRequestType } from "@/api/empresas/empresa-types";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { setFeedback } from '@/state/slices/feedBackSlice';
 import { setSelectedEmpresa } from "@/state/slices/empresaSlice";
 import { useForm } from "react-hook-form";
 import { EmpresaSelect } from "@/components/company/company-select";
@@ -62,6 +63,7 @@ export function Empresa(): React.JSX.Element {
     const selectedEmpresa = companies?.find(
       (company) => company.codigo === selectedCodigo
     );
+
     if (selectedEmpresa) {
       dispatch(setSelectedEmpresa(selectedEmpresa));
       navigate("/dashboard", { state: { empresa: selectedEmpresa } });
@@ -71,7 +73,11 @@ export function Empresa(): React.JSX.Element {
   const onSubmit = async (data: EmpresaRequestType) => {
     try {
       if (data.logo && data.logo.size > 5 * 1024 * 1024) {
-        alert("El archivo debe ser menor a 5 MB");
+        dispatch(setFeedback({
+          message: "El archivo debe ser menor a 5 MB",
+          severity: "warning",
+          isError: true,
+        }))
         return;
       }
 
@@ -92,8 +98,22 @@ export function Empresa(): React.JSX.Element {
       await createEmpresaMutation.mutateAsync(formData);
       // Refrescar datos y cerrar el formulario
       refetch();
+      dispatch(
+        setFeedback({
+          message: "Empresa Creada Exitosamente",
+          severity: "success",
+          isError: false,
+        })
+      );
       handleClose();
     } catch (error) {
+      dispatch(
+        setFeedback({
+          message: `Error al crear la empresa`,
+          severity: "error",
+          isError: true,
+        })
+      );
       console.error("Error al crear la empresa:", error);
     }
   };
@@ -136,7 +156,7 @@ export function Empresa(): React.JSX.Element {
         preview={preview}
         onFileChange={handleFileChange}
         onSubmit={onSubmit}
-        />
+      />
     </Box>
   );
 }

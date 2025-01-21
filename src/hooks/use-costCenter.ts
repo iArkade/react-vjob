@@ -55,14 +55,17 @@ const useCentroCosto = (page: number, rowsPerPage: number, empresa_id: number) =
         }
     };
 
-    const deletecostCenter = async (codigo: string, empresa_id: number) => {
+    const deletecostCenter = async (codigo: string, empresa_id: number): Promise<{ success: boolean; error?: string }> => {
 
         try {
             await deleteCentroCosto.mutateAsync({code: codigo, empresa_id});
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Error al eliminar la cuenta";
             setError(error instanceof Error ? error.message : 'Error al eliminar la cuenta');
+            return { success: false, error: errorMessage };
         }
     };
 
