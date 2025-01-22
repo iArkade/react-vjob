@@ -64,7 +64,7 @@ export default function LoginPage() {
                     setError(error.response.data.message);
                } else {
                     console.log("Error:", error.message);
-                    setError("An unexpected error occurred. Please try again.");
+                    setError("Se ha producido un error inesperado. Por favor, inténtelo de nuevo.");
                }
           }
      };
