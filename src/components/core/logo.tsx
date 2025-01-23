@@ -4,8 +4,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
 import { NoSsr } from './no-ssr';
-import { RootState } from '@/state/store';
-import { useSelector } from 'react-redux';
+import { EmpresaResponseType } from '@/api/empresas/empresa-types';
 
 const HEIGHT = 60;
 const WIDTH = 60;
@@ -21,16 +20,21 @@ export interface LogoProps {
 
 export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
   
-  const {selectedEmpresa} =  useSelector(
-    (state: RootState) => state.empresa
-  );
+  const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
+
+  React.useEffect(() => {
+    const storedEmpresa = localStorage.getItem("empresa");
+    if (storedEmpresa) {
+      setEmpresa(JSON.parse(storedEmpresa));
+    }
+  }, []);
 
 
   let url: string;
 
-  if (selectedEmpresa?.logo) {
+  if (empresa?.logo) {
     // Use the logo from Redux if available
-    url = selectedEmpresa.logo;
+    url = empresa.logo;
   } else {
     // Use the default logo
     url = `/static/logo-${color}${emblem ? '-emblem' : ''}.svg`;

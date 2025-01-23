@@ -2,11 +2,19 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useLocation } from "react-router-dom";
+import { EmpresaResponseType } from "@/api/empresas/empresa-types";
 
 export function OverviewPage(): React.JSX.Element {
-  const location = useLocation();
-  const empresa = location.state?.empresa;
+  const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
+
+  React.useEffect(() => {
+    const storedEmpresa = localStorage.getItem("empresa");
+    if (storedEmpresa) {
+      setEmpresa(JSON.parse(storedEmpresa));
+    }
+  }, []);
+
+  
   //* Para poner el logo en la pantalla prncipal, tengo que buscar el componente logo.tsx
   return (
     <React.Fragment>

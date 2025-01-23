@@ -14,7 +14,6 @@ import { EmpresaRequestType } from "@/api/empresas/empresa-types";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setFeedback } from '@/state/slices/feedBackSlice';
-import { setSelectedEmpresa } from "@/state/slices/empresaSlice";
 import { useForm } from "react-hook-form";
 import { EmpresaSelect } from "@/components/company/company-select";
 import { CreateEmpresaDialog } from "@/components/company/company-modal";
@@ -76,8 +75,10 @@ export function Empresa(): React.JSX.Element {
     );
 
     if (selectedEmpresa) {
-      dispatch(setSelectedEmpresa(selectedEmpresa));
-      navigate("/dashboard", { state: { empresa: selectedEmpresa } });
+      //dispatch(setSelectedEmpresa(selectedEmpresa));
+      //navigate("/dashboard", { state: { empresa: selectedEmpresa } });
+      localStorage.setItem("empresa", JSON.stringify(selectedEmpresa));
+      navigate("/dashboard");
     }
   };
 
@@ -106,9 +107,12 @@ export function Empresa(): React.JSX.Element {
       }
 
       // Realizar la mutación
-      await createEmpresaMutation.mutateAsync(formData);
+      const newEmpresa  = await createEmpresaMutation.mutateAsync(formData);
       // Refrescar datos y cerrar el formulario
       refetch();
+      handleClose();
+
+      //Feedback exitoso
       dispatch(
         setFeedback({
           message: "Empresa Creada Exitosamente",
@@ -116,7 +120,9 @@ export function Empresa(): React.JSX.Element {
           isError: false,
         })
       );
-      handleClose();
+      //redirigir al dashboard con datos de la empresa creada
+      navigate("/dashboard", { state: { empresa: newEmpresa } });
+
     } catch (error) {
       dispatch(
         setFeedback({
