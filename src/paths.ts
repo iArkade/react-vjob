@@ -54,6 +54,7 @@ export const paths = {
      dashboard: {
           overview: '/dashboard',
           settings: {
+               company: '/dashboard/settings/company',
                account: '/dashboard/settings/account',
                billing: '/dashboard/settings/billing',
                integrations: '/dashboard/settings/integrations',
