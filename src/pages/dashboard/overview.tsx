@@ -8,7 +8,7 @@ export function OverviewPage(): React.JSX.Element {
   const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
 
   React.useEffect(() => {
-    const storedEmpresa = localStorage.getItem("empresa");
+    const storedEmpresa = localStorage.getItem("selectedEmpresa");
     if (storedEmpresa) {
       setEmpresa(JSON.parse(storedEmpresa));
     }

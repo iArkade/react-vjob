@@ -17,6 +17,7 @@ import { setFeedback } from '@/state/slices/feedBackSlice';
 import { useForm } from "react-hook-form";
 import { EmpresaSelect } from "@/components/company/company-select";
 import { CreateEmpresaDialog } from "@/components/company/company-modal";
+import { setSelectedEmpresa } from "@/state/slices/empresaSlice";
 
 
 export function Empresa(): React.JSX.Element {
@@ -66,6 +67,7 @@ export function Empresa(): React.JSX.Element {
     
     form.setValue("logo", file, { shouldValidate: true });
   };
+  
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const selectedCodigo = event.target.value;
     setSelectedCompany(selectedCodigo);
@@ -77,7 +79,11 @@ export function Empresa(): React.JSX.Element {
     if (selectedEmpresa) {
       //dispatch(setSelectedEmpresa(selectedEmpresa));
       //navigate("/dashboard", { state: { empresa: selectedEmpresa } });
-      localStorage.setItem("empresa", JSON.stringify(selectedEmpresa));
+      //localStorage.setItem("empresa", JSON.stringify(selectedEmpresa));
+      dispatch(setSelectedEmpresa(selectedEmpresa));
+      localStorage.setItem("selectedEmpresa", JSON.stringify(selectedEmpresa));
+      
+
       navigate("/dashboard");
     }
   };
