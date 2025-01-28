@@ -77,13 +77,10 @@ export function Empresa(): React.JSX.Element {
     );
 
     if (selectedEmpresa) {
-      //dispatch(setSelectedEmpresa(selectedEmpresa));
-      //navigate("/dashboard", { state: { empresa: selectedEmpresa } });
-      //localStorage.setItem("empresa", JSON.stringify(selectedEmpresa));
+
       dispatch(setSelectedEmpresa(selectedEmpresa));
       localStorage.setItem("selectedEmpresa", JSON.stringify(selectedEmpresa));
       
-
       navigate("/dashboard");
     }
   };
