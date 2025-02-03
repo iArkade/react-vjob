@@ -33,7 +33,7 @@ export default function RegisterPage() {
       if (validPassword) {
         const response = await createUser.mutateAsync({ email, name, lastname, password, active });
         localStorage.setItem("token", response.data.tokens);
-        console.log('Create successful:', response.data);
+        //console.log('Create successful:', response.data);
         dispatch(setUser({
           id: response.data.id,
           email: response.data.email,

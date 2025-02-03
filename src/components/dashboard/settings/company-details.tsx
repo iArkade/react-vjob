@@ -49,24 +49,24 @@ export function CompanyDetails(): React.JSX.Element {
 
      const [avatarSrc, setAvatarSrc] = React.useState(defaultValues.logo);
 
-     const { mutate: updateEmpresa, isLoading } = useUpdateEmpresa();
+     // const { mutate: updateEmpresa, isLoading } = useUpdateEmpresa();
 
      const onSubmit = (data: EmpresaResponseType) => {
           //console.log('Formulario enviado:', data);
           const id = 1; 
           const updatedData = { ...data, logo: avatarSrc };
-          updateEmpresa(
-               { id, data: updatedData },
-               {
-                    onSuccess: () => {
-                         console.log('Empresa updated successfully');
-                         localStorage.setItem('empresa', JSON.stringify(updatedData));
-                    },
-                    onError: (error) => {
-                         console.error('Error updating empresa:', error);
-                    },
-               }
-          );
+          // updateEmpresa(
+          //      { id, data: updatedData },
+          //      {
+          //           onSuccess: () => {
+          //                console.log('Empresa updated successfully');
+          //                localStorage.setItem('empresa', JSON.stringify(updatedData));
+          //           },
+          //           onError: (error) => {
+          //                console.error('Error updating empresa:', error);
+          //           },
+          //      }
+          // );
      };
 
      return (
