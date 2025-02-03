@@ -28,11 +28,10 @@ export default function RegisterPage() {
       const password2 = data.get("password2") as string;
       const validPassword =
         password && password2 && validatePassword(password, password2);
-      const role = "USER";
       const active = true;
 
       if (validPassword) {
-        const response = await createUser.mutateAsync({ email, name, lastname, password, role, active });
+        const response = await createUser.mutateAsync({ email, name, lastname, password, active });
         localStorage.setItem("token", response.data.tokens);
         console.log('Create successful:', response.data);
         dispatch(setUser({
@@ -40,7 +39,6 @@ export default function RegisterPage() {
           email: response.data.email,
           name: response.data.name,
           lastname: response.data.lastname,
-          role: response.data.role,
         }));
         dispatch(setAuthenticated({ isAuthenticated: true }));
         navigate('/empresa');

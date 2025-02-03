@@ -5,6 +5,8 @@ import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
 import { NoSsr } from './no-ssr';
 import { EmpresaResponseType } from '@/api/empresas/empresa-types';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 const HEIGHT = 60;
 const WIDTH = 60;
@@ -29,12 +31,15 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
     }
   }, []);
 
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  
+  
 
   let url: string;
 
-  if (empresa?.logo) {
+  if (selectedEmpresa.logo) {
     // Use the logo from Redux if available
-    url = empresa.logo;
+    url = selectedEmpresa.logo;
   } else {
     // Use the default logo
     url = `/static/logo-${color}${emblem ? '-emblem' : ''}.svg`;

@@ -29,6 +29,7 @@ export function CustomSignOut(): React.JSX.Element {
 
       await logout();
       localStorage.removeItem('token');
+      localStorage.removeItem('selectedEmpresa');
       dispatch(setAuthenticated({ isAuthenticated: false }));
       navigate('/login');
 

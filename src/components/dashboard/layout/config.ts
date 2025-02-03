@@ -28,6 +28,7 @@ export const layoutConfig = {
                title: 'Dashboards',
                items: [
                     { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'house' },
+                    { key: 'usuarios', title: 'Usuarios', href: paths.dashboard.usuarios, icon: 'users' },
                     { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics, icon: 'chart-pie' },
                     // { key: 'costCenter', title: 'CostCenter', href: paths.dashboard.costCenter, icon: 'cube' },
                     { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },

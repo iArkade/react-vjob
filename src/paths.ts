@@ -53,6 +53,7 @@ export const paths = {
      },
      dashboard: {
           overview: '/dashboard',
+          usuarios: '/dashboard/usuarios',
           settings: {
                company: '/dashboard/settings/company',
                account: '/dashboard/settings/account',

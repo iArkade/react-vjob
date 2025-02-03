@@ -124,6 +124,7 @@ export function Empresa(): React.JSX.Element {
         })
       );
       //redirigir al dashboard con datos de la empresa creada
+      localStorage.setItem("selectedEmpresa", JSON.stringify(newEmpresa));
       navigate("/dashboard", { state: { empresa: newEmpresa } });
 
     } catch (error) {

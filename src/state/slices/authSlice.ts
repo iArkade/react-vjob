@@ -27,7 +27,6 @@ const authSlice = createSlice({
                     email: string;
                     name: string;
                     lastname: string;
-                    role: string;
                }>
           ) {
                state.user = {
@@ -35,7 +34,6 @@ const authSlice = createSlice({
                     name: action.payload.name,
                     lastname: action.payload.lastname,
                     email: action.payload.email,
-                    role: action.payload.role,
                };
                state.isAuthenticated = true;
           },

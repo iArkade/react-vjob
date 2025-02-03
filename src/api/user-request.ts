@@ -16,7 +16,7 @@ const logoutUserRequest = () => {
           {}, // No es necesario enviar un cuerpo, solo los headers
           {
                headers: {
-                    'Authorization': `Bearer ${token}`,  // Enviar el token en el header
+                    'Authorization': `Bearer ${token}`,  // Enviar el token en el header 
                },
           },
      );

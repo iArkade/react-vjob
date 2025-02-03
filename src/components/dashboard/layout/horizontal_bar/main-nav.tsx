@@ -18,7 +18,7 @@ import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/di
 
 import type { NavItemConfig } from '@/types/nav';
 import type { NavColor } from '@/types/settings';
-import type { UserProfile } from '@/types/user';
+// import type { UserProfile } from '@/types/user';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { useDialog } from '@/hooks/use-dialog';

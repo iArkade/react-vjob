@@ -13,6 +13,7 @@ import {AsientosPDF} from '@/pages/dashboard/asientos/pdf'
 import { Account } from '@/pages/dashboard/settings/account'
 import { LayoutSettings } from '@/components/dashboard/settings/layout'
 import { Company } from '@/pages/dashboard/settings/company'
+import { Usuarios } from '@/pages/dashboard/usuarios'
 
 export const PrivateRoutes = () => {
      
@@ -24,6 +25,7 @@ export const PrivateRoutes = () => {
                          <Route path='account' element={ <Account /> }/>
                          <Route path='company' element={ <Company /> }/>
                     </Route>
+                    <Route path='usuarios' element={ <Usuarios /> }/>
                     <Route path='plan-cuentas' element={ <PlanCuentas /> }/>
                     <Route path='transacciones' element={ <Transaction /> }/>
                     <Route path='centro-costos' element={ <CostCenter /> }/>

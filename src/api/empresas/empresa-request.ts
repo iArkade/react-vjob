@@ -21,11 +21,19 @@ const handleError = (error: unknown): never => {
   throw error;
 };
 
+// Función para obtener el token JWT del localStorage
+const getAuthToken = () => {
+  return localStorage.getItem('token'); // Asegúrate de que el token se almacene en el localStorage al iniciar sesión
+};
+
+// Crear una empresa
 const createEmpresaRequest = async (formData: FormData) => {
   try {
+    const token = getAuthToken();
     const response = await http.post("empresa", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
       },
     });
     return response.data;
@@ -41,7 +49,7 @@ export const useCreateEmpresa = () => {
     mutationKey: ["CreateEmpresa"],
     mutationFn: createEmpresaRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries("GetEmpresa");
+      queryClient.invalidateQueries("GetEmpresa"); // Invalidar la caché de empresas
     },
     onError: (error) => {
       console.log("Error", error);
@@ -49,9 +57,15 @@ export const useCreateEmpresa = () => {
   });
 };
 
+// Obtener todas las empresas del usuario autenticado
 const getEmpresaRequest = async (): Promise<EmpresaResponseType[]> => {
   try {
-    const response = await http.get(`empresa/all`);
+    const token = getAuthToken();
+    const response = await http.get(`empresa/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+      },
+    });
     return response.data;
   } catch (error) {
     return handleError(error);
@@ -63,18 +77,15 @@ export const useGetEmpresa = () =>
     queryKey: ["GetEmpresa"],
     queryFn: () => getEmpresaRequest(),
   });
-  
 
+// Actualizar una empresa
 const updateEmpresaRequest = async (id: number, data: EmpresaRequestType) => {
   try {
-    const response = await http.put(`empresa/${id}`, {
-      codigo: data.codigo,
-      ruc: data.ruc,
-      nombre: data.nombre,
-      correo: data.correo,
-      telefono: data.telefono,
-      direccion: data.direccion,
-      logo: data.logo,
+    const token = getAuthToken();
+    const response = await http.put(`empresa/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+      },
     });
     return response.data;
   } catch (error) {
@@ -89,14 +100,20 @@ export const useUpdateEmpresa = () => {
     mutationFn: ({ id, data }: { id: number; data: EmpresaRequestType }) =>
       updateEmpresaRequest(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries("GetEmpresa");
+      queryClient.invalidateQueries("GetEmpresa"); // Invalidar la caché de empresas
     },
   });
 };
 
-const deleteEmpresaRequest = async (code: string) => {
+// Eliminar una empresa
+const deleteEmpresaRequest = async (id: number) => {
   try {
-    const response = await http.delete(`empresa/${code}`);
+    const token = getAuthToken();
+    const response = await http.delete(`empresa/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+      },
+    });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -107,9 +124,9 @@ export const useDeleteEmpresa = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["DeleteEmpresa"],
-    mutationFn: (code: string) => deleteEmpresaRequest(code),
+    mutationFn: (id: number) => deleteEmpresaRequest(id),
     onSuccess: () => {
-      queryClient.invalidateQueries("GetEmpresa");
+      queryClient.invalidateQueries("GetEmpresa"); // Invalidar la caché de empresas
     },
   });
 };
