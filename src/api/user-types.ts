@@ -3,6 +3,7 @@ export interface UsersType {
      name: string;
      lastname: string;
      password: string;
+     password2?: string;
      active?: boolean;
 }
 
