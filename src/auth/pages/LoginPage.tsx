@@ -50,7 +50,6 @@ export default function LoginPage() {
                     email: response.data.email,
                     name: response.data.name,
                     lastname: response.data.lastname,
-                    role: response.data.role,
                }));
                dispatch(setAuthenticated({ isAuthenticated: true }));
                
