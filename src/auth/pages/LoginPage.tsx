@@ -1,4 +1,3 @@
-import * as React from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Link from '@mui/material/Link';
@@ -6,7 +5,9 @@ import { useDispatch } from 'react-redux';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
 import { setAuthenticated, setUser } from "../../state/slices/authSlice";
-import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { LoginRequestType } from "@/api/user-types";
 
 // function Copyright(props: any) {
 //      return (
@@ -26,25 +27,32 @@ import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, Outlined
 //      );
 // }
 
-export default function LoginPage() {
 
-     const [error, setError] = React.useState<string | null>(null);
+
+export default function LoginPage() {
      const navigate = useNavigate();
      const { mutateAsync: login } = useLoginUser();
      const dispatch = useDispatch();
 
-     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-          event.preventDefault();
-          const data = new FormData(event.currentTarget);
-          const email = data.get('email') as string;
-          const password = data.get('password') as string;
+     const {
+          control,
+          handleSubmit,
+          setError,
+          formState: { errors },
+     } = useForm<LoginRequestType>({
+          defaultValues: {
+               email: '',
+               password: '',
+          },
+     });
 
+     const onSubmit = async (data: LoginRequestType) => {
           try {
-               const response = await login({ email, password });
-               //console.log(response.data);
+               const { email, password } = data;
 
+               const response = await login({ email, password });
                localStorage.setItem("token", response.data.tokens);
-               
+
                dispatch(setUser({
                     id: response.data.id,
                     email: response.data.email,
@@ -52,18 +60,20 @@ export default function LoginPage() {
                     lastname: response.data.lastname,
                }));
                dispatch(setAuthenticated({ isAuthenticated: true }));
-               
-               navigate('/empresa');
 
+               navigate('/empresa');
           } catch (error: any) {
-               //setError('Validaciones Incorrectas');
                if (error.response && error.response.data) {
-                    console.log("Error:", error.response.data.message);
-                    // Aquí puedes guardar el mensaje en el estado local para mostrarlo en la interfaz
-                    setError(error.response.data.message);
+                    // Set a form-wide error using React Hook Form's setError
+                    setError('root', {
+                         type: 'manual',
+                         message: error.response.data.message,
+                    });
                } else {
-                    console.log("Error:", error.message);
-                    setError("Se ha producido un error inesperado. Por favor, inténtelo de nuevo.");
+                    setError('root', {
+                         type: 'manual',
+                         message: "Se ha producido un error inesperado. Por favor, inténtelo de nuevo.",
+                    });
                }
           }
      };
@@ -80,29 +90,50 @@ export default function LoginPage() {
                          title="Iniciar Sesión"
                     />
                     <CardContent>
-                         <form onSubmit={handleSubmit}>
+                         <form onSubmit={handleSubmit(onSubmit)}>
                               <Stack spacing={2}>
-
-                                   {error && (
-                                        <Alert severity="error">{error}</Alert>
+                                   {/* Display form-wide error message if any */}
+                                   {errors.root && (
+                                        <Alert severity="error">{errors.root.message}</Alert>
                                    )}
 
-                                   <Stack spacing={2}>
-                                        <FormControl>
-                                             <InputLabel>Correo</InputLabel>
-                                             <OutlinedInput name="email" type="email" />
-                                        </FormControl>
-                                        <FormControl>
-                                             <InputLabel>Password</InputLabel>
-                                             <OutlinedInput name="password" type="password" />
-                                        </FormControl>
-                                        <Button type="submit" variant="contained">
-                                             Iniciar Sesión
-                                        </Button>
-                                   </Stack>
-                                   {/* <div>
-                                        <Link variant="subtitle2">Forgot password?</Link>
-                                   </div> */}
+                                   {/* Email Field */}
+                                   <FormControl error={!!errors.email}>
+                                        <InputLabel>Correo</InputLabel>
+                                        <Controller
+                                             name="email"
+                                             control={control}
+                                             rules={{
+                                                  required: 'El correo es requerido.',
+                                                  pattern: {
+                                                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                       message: 'Correo electrónico no válido.',
+                                                  },
+                                             }}
+                                             render={({ field }) => (
+                                                  <OutlinedInput {...field} type="email" />
+                                             )}
+                                        />
+                                        {errors.email && <FormHelperText>{errors.email.message}</FormHelperText>}
+                                   </FormControl>
+
+                                   {/* Password Field */}
+                                   <FormControl error={!!errors.password}>
+                                        <InputLabel>Contraseña</InputLabel>
+                                        <Controller
+                                             name="password"
+                                             control={control}
+                                             rules={{ required: 'La contraseña es requerida.' }}
+                                             render={({ field }) => (
+                                                  <OutlinedInput {...field} type="password" />
+                                             )}
+                                        />
+                                        {errors.password && <FormHelperText>{errors.password.message}</FormHelperText>}
+                                   </FormControl>
+
+                                   <Button type="submit" variant="contained">
+                                        Iniciar Sesión
+                                   </Button>
                               </Stack>
                          </form>
                     </CardContent>
