@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 import MenuItem from '@mui/material/MenuItem';
-
-import { authClient } from '@/lib/auth/custom/client';
 import { logger } from '@/lib/default-logger';
 import { toast } from '@/components/core/toaster';
 import { useLogoutUser } from '@/api/user-request';
