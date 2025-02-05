@@ -4,21 +4,18 @@ import { AuthRoutes } from "./AuthRoutes";
 import { useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import useAuth from "../hooks/use-auth";
-import { useState, useEffect } from "react";
 import { Empresa } from "@/pages/core/empresa";
-import EntityDetails from "@/pages/entityDetails";
+import { AdminRoutes } from "./AdminRoutes";
 
 export const AppRouter = () => {
-  const [loading, setLoading] = useState(true);
+  const loading = useAuth(); 
   const isAuthenticated = useSelector(
     (state: RootState) => state.authSlice.isAuthenticated
   );
 
-  useAuth();
-
-  useEffect(() => {
-    setLoading(false);
-  }, [isAuthenticated]);
+  const user = useSelector(
+    (state: RootState) => state.authSlice.user
+  );
 
   if (loading) {
     return <div>Loading...</div>;
@@ -26,12 +23,13 @@ export const AppRouter = () => {
 
   return (
     <Routes>
-      {isAuthenticated ? (
+      {user?.superAdmin && isAuthenticated ?  (
+        <Route path="/admin/*" element={<AdminRoutes />} />
+      ) : isAuthenticated ? (
         <>
           <Route path="/empresa" element={<Empresa />} />
           <Route path="/dashboard/*" element={<PrivateRoutes />} />
           <Route path="*" element={<Navigate to="/empresa" />} />
-          <Route path="/entity/:id" element={<EntityDetails />} />
         </>
       ) : (
         <>

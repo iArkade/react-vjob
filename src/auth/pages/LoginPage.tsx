@@ -9,25 +9,6 @@ import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, Inpu
 import { Controller, useForm } from "react-hook-form";
 import { LoginRequestType } from "@/api/user-types";
 
-// function Copyright(props: any) {
-//      return (
-//           <Typography
-//                variant="body2"
-//                color="text.secondary"
-//                align="center"
-//                {...props}
-//           >
-//                {"Copyright © VisualJob  "}
-//                {/* <Link color="inherit" href="https://mui.com/">
-//                     Your Website
-//                </Link>{" "} */}
-//                {new Date().getFullYear()}
-//                {"."}
-//           </Typography>
-//      );
-// }
-
-
 
 export default function LoginPage() {
      const navigate = useNavigate();
@@ -51,6 +32,7 @@ export default function LoginPage() {
                const { email, password } = data;
 
                const response = await login({ email, password });
+               console.log(response)
                localStorage.setItem("token", response.data.tokens);
 
                dispatch(setUser({
@@ -58,10 +40,17 @@ export default function LoginPage() {
                     email: response.data.email,
                     name: response.data.name,
                     lastname: response.data.lastname,
+                    superAdmin: response.data.superAdmin
                }));
                dispatch(setAuthenticated({ isAuthenticated: true }));
 
-               navigate('/empresa');
+               if(response.data.superAdmin){
+                    navigate('/admin');
+               }else{
+                    navigate('/empresa');
+               }
+
+               
           } catch (error: any) {
                if (error.response && error.response.data) {
                     // Set a form-wide error using React Hook Form's setError

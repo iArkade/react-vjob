@@ -7,6 +7,7 @@ interface AuthState {
           name: string;
           lastname: string;
           role?: string;
+          superAdmin?: boolean
      } | null;
      isAuthenticated: boolean;
 }
@@ -27,6 +28,7 @@ const authSlice = createSlice({
                     email: string;
                     name: string;
                     lastname: string;
+                    superAdmin: boolean;
                }>
           ) {
                state.user = {
@@ -34,6 +36,7 @@ const authSlice = createSlice({
                     name: action.payload.name,
                     lastname: action.payload.lastname,
                     email: action.payload.email,
+                    superAdmin: action.payload.superAdmin
                };
                state.isAuthenticated = true;
           },
