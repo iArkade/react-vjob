@@ -14,6 +14,15 @@ export interface LayoutConfig {
 export const layoutConfig = {
      navItems: [
           {
+               key: 'admin', // Esta clave puede ser utilizada para filtrar
+               title: 'Sección Administrador',
+               items: [
+                    { key: 'admin-dashboard', title: 'Dashboard', href: '/admin/dashboard' },
+                    { key: 'gestion-usuarios', title: 'Gestionar Usuarios', href: '/admin/usuarios' },
+                    { key: 'creacion-empresas', title: 'Gestionar Empresas', href: '/admin/empresas' },
+               ],
+          },
+          {
                key: 'contabilidad',
                title: 'Contabilidad',
                items: [

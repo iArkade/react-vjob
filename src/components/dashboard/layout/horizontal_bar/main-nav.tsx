@@ -52,6 +52,12 @@ export interface MainNavProps {
 
 export function MainNav({ color = 'evident', items = [] }: MainNavProps): React.JSX.Element {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  const filteredNavItems = items.filter(item => {
+    if (!item || !item.key) return false; // Asegurar que item existe
+    return isAdminRoute ? item.key === 'admin' : item.key !== 'admin';
+  });
 
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
@@ -130,7 +136,7 @@ export function MainNav({ color = 'evident', items = [] }: MainNavProps): React.
             overflowX: 'auto',
           }}
         >
-          {renderNavGroups({ items, pathname })}
+          {renderNavGroups({ items: filteredNavItems, pathname })}
         </Box>
       </Box>
       <MobileNav

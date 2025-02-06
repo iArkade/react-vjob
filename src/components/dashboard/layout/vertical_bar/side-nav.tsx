@@ -32,6 +32,12 @@ export interface SideNavProps {
 
 export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.JSX.Element {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  const filteredNavItems = items.filter(item => {
+    if (!item || !item.key) return false; // Asegurar que item existe
+    return isAdminRoute ? item.key === 'admin' : item.key !== 'admin';
+  });
   
   const {
     settings: { colorScheme = 'light' },
@@ -72,7 +78,7 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
           '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        {renderNavGroups({ items, pathname })}
+        {renderNavGroups({ items: filteredNavItems, pathname })}
       </Box>
     </Box>
   );

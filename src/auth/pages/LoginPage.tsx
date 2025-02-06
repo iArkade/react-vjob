@@ -32,7 +32,7 @@ export default function LoginPage() {
                const { email, password } = data;
 
                const response = await login({ email, password });
-               console.log(response)
+               //console.log(response)
                localStorage.setItem("token", response.data.tokens);
 
                dispatch(setUser({

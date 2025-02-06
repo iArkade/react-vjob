@@ -1,16 +1,19 @@
-import React from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Layout } from '@/components/dashboard/layout/layout'
+import { EmpresasAdmin } from '@/pages/admin/crear-empresas'
+import { UsuariosAdmin } from '@/pages/admin/crear-usuarios'
+import { DashboardAdmin } from '@/pages/admin/dashboard'
+
+import { Route, Routes } from 'react-router-dom'
 
 export const AdminRoutes = () => {
      return (
-          // <Routes>
-          //      {/* <Route path="dashboard" element={<AdminDashboard />} />
-          //      <Route path="settings" element={<AdminSettings />} /> */}
-          //      {/* Redirige a dashboard si accede directamente a /admin */}
-          //      {/* <Route path="*" element={<Navigate to="dashboard" />} /> */}
-          // </Routes>
-          <div>
-               hola Mundo
-          </div>
+          <Routes>
+               {/* <Route path="/" element={<Layout isAdmin={true} />} /> */}
+               <Route path="/" element={<Layout />}>
+                    <Route index element={ <DashboardAdmin /> }/>
+                    <Route path="usuarios" element={ <UsuariosAdmin /> }/>
+                    <Route path="empresas" element={ <EmpresasAdmin /> }/>
+               </Route>
+          </Routes>          
      )
 }

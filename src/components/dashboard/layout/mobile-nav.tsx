@@ -26,6 +26,13 @@ export interface MobileNavProps {
 
 export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.JSX.Element {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  // Filtrar los ítems según la ruta actual
+  const filteredNavItems = items.filter(item => {
+    if (!item || !item.key) return false;
+    return isAdminRoute ? item.key === 'admin' : item.key !== 'admin';
+  });
 
   return (
     <Drawer
@@ -67,12 +74,12 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
       <Stack spacing={2} sx={{ p: 2 }}>
         <div>
           <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <Logo color="light" height={32} width={'100%'} />
+            <Logo color="light" height={32} width={'auto'} /> 
           </Box>
         </div>
       </Stack>
       <Box component="nav" sx={{ flex: '1 1 auto', p: 2 }}>
-        {renderNavGroups({ items, onClose, pathname })}
+        {renderNavGroups({ items: filteredNavItems, onClose, pathname })}
       </Box>
     </Drawer>
   );

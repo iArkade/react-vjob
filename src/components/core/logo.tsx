@@ -33,7 +33,6 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
   
-  
 
   let url: string;
 

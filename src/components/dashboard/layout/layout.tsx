@@ -12,10 +12,14 @@ export function Layout(): React.JSX.Element {
     const storedEmpresa = localStorage.getItem("selectedEmpresa");
     if (storedEmpresa) {
       const empresa = JSON.parse(storedEmpresa);
-      dispatch(setSelectedEmpresa(empresa));
-    } else {
-      // Redirigir si no hay empresa seleccionada
-      navigate("/empresa");
+
+      if (!empresa.superAdmin) {
+        navigate("/empresa"); // Redirige si no es superAdmin
+      } else {
+        dispatch(setSelectedEmpresa(empresa));
+      }
+    } else{
+      
     }
   }, [dispatch, navigate]);
 
