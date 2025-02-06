@@ -20,7 +20,7 @@ export const PrivateRoutes = () => {
      return (
           <Routes>
                <Route path="/" element={<Layout />}>
-                    <Route index element={ <OverviewPage /> }/>AccountDetails
+                    <Route index element={ <OverviewPage /> }/>
                     <Route path="/settings" element={<LayoutSettings />}>
                          <Route path='account' element={ <Account /> }/>
                          <Route path='company' element={ <Company /> }/>

@@ -3,41 +3,43 @@ import { PrivateRoutes } from "./PrivateRoutes";
 import { AuthRoutes } from "./AuthRoutes";
 import { useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import useAuth from "../hooks/use-auth";
-import { useState, useEffect } from "react";
 import { Empresa } from "@/pages/core/empresa";
-import EntityDetails from "@/pages/entityDetails";
+import { AdminRoutes } from "./AdminRoutes";
 
 export const AppRouter = () => {
-  const [loading, setLoading] = useState(true);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.authSlice.isAuthenticated
-  );
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.authSlice);
+  const hasSelectedCompany = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
 
-  useAuth();
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/auth/*" element={<AuthRoutes />} />
+        <Route path="*" element={<Navigate to="/auth/login" />} />
+      </Routes>
+    );
+  }
 
-  useEffect(() => {
-    setLoading(false);
-  }, [isAuthenticated]);
-
-  if (loading) {
-    return <div>Loading...</div>;
+  if (user?.role === 'superadmin') {
+    return (
+      <Routes>
+        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+      </Routes>
+    );
   }
 
   return (
     <Routes>
-      {isAuthenticated ? (
-        <>
+      {!hasSelectedCompany ? (
+        <Route>
           <Route path="/empresa" element={<Empresa />} />
-          <Route path="/dashboard/*" element={<PrivateRoutes />} />
           <Route path="*" element={<Navigate to="/empresa" />} />
-          <Route path="/entity/:id" element={<EntityDetails />} />
-        </>
+        </Route>
       ) : (
-        <>
-          <Route path="/auth/*" element={<AuthRoutes />} />
-          <Route path="*" element={<Navigate to="/auth/login" />} />
-        </>
+        <Route>
+          <Route path="/dashboard/*" element={<PrivateRoutes />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </Route>
       )}
     </Routes>
   );

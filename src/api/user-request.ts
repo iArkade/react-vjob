@@ -2,7 +2,7 @@ import { useMutation } from "react-query";
 import http from "./http";
 import { UsersType, LoginRequestType } from "./user-types";
 
-const createUserRequest = (user: UsersType) =>
+const registerUserRequest = (user: UsersType) =>
      http.post('auth/register', user);
 
 const loginUserRequest = (credentials: LoginRequestType) =>
@@ -22,10 +22,10 @@ const logoutUserRequest = () => {
      );
 };
 
-export const useCreateUser = () =>
+export const useRegisterUser = () =>
      useMutation({
-          mutationKey: ['CreateUser'],
-          mutationFn: createUserRequest,
+          mutationKey: ['RegisterUser'],
+          mutationFn: registerUserRequest,
      });
 
 export const useLoginUser = () =>

@@ -5,7 +5,7 @@ import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
-import { setAuthenticated, setUser } from "../../state/slices/authSlice";
+import { setUser } from "../../state/slices/authSlice";
 import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
 // function Copyright(props: any) {
@@ -50,8 +50,8 @@ export default function LoginPage() {
                     email: response.data.email,
                     name: response.data.name,
                     lastname: response.data.lastname,
+                    role: response.data.role
                }));
-               dispatch(setAuthenticated({ isAuthenticated: true }));
                
                navigate('/empresa');
 

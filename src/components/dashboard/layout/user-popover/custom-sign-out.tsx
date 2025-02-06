@@ -7,13 +7,13 @@ import { toast } from '@/components/core/toaster';
 import { useLogoutUser } from '@/api/user-request';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setAuthenticated } from '@/state/slices/authSlice';
+import { logout } from '@/state/slices/authSlice';
 
 export function CustomSignOut(): React.JSX.Element {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { mutateAsync: logout } = useLogoutUser();
+  const { mutateAsync: logoutUser } = useLogoutUser();
 
   const handleSignOut = async () => {
     try {
@@ -25,10 +25,10 @@ export function CustomSignOut(): React.JSX.Element {
       //   return;
       // }
 
-      await logout();
+      await logoutUser();
       localStorage.removeItem('token');
       localStorage.removeItem('selectedEmpresa');
-      dispatch(setAuthenticated({ isAuthenticated: false }));
+      dispatch(logout());
       navigate('/login');
 
 

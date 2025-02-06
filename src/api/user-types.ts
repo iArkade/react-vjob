@@ -4,6 +4,7 @@ export interface UsersType {
      lastname: string;
      password: string;
      active?: boolean;
+     role?: string;
 }
 
 export interface LoginRequestType {

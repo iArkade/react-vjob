@@ -6,11 +6,15 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import { Outlet } from 'react-router-dom';
 
 import { useSettings } from '@/hooks/use-settings';
-import { layoutConfig } from '../config';
+import { getLayoutConfig } from '../config';
 import { MainNav } from './main-nav';
 import { SideNav } from './side-nav';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 export function VerticalLayout(): React.JSX.Element {
+  const { user } = useSelector((state: RootState) => state.authSlice);
+  const layoutConfig = getLayoutConfig(user?.role || 'user');
   const { settings } = useSettings();
 
   return (
