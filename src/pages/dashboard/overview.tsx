@@ -3,16 +3,20 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EmpresaResponseType } from "@/api/empresas/empresa-types";
+import { RootState } from "@/state/store";
+import { useSelector } from "react-redux";
 
 export function OverviewPage(): React.JSX.Element {
-  const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
+  // const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
 
-  React.useEffect(() => {
-    const storedEmpresa = localStorage.getItem("selectedEmpresa");
-    if (storedEmpresa) {
-      setEmpresa(JSON.parse(storedEmpresa));
-    }
-  }, []);
+  // React.useEffect(() => {
+  //   const storedEmpresa = localStorage.getItem("selectedEmpresa");
+  //   if (storedEmpresa) {
+  //     setEmpresa(JSON.parse(storedEmpresa));
+  //   }
+  // }, []);
+
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
 
   
   //* Para poner el logo en la pantalla prncipal, tengo que buscar el componente logo.tsx
@@ -35,20 +39,20 @@ export function OverviewPage(): React.JSX.Element {
             <Box sx={{ flex: "1 1 auto" }}>
               <Typography variant="h4">Dashboard</Typography>
             </Box>
-            {empresa ? (
+            {selectedEmpresa ? (
               <div>
                 <p>
-                  <strong>Código:</strong> {empresa.codigo}
+                  <strong>Código:</strong> {selectedEmpresa.codigo}
                 </p>
                 <p>
-                  <strong>Nombre:</strong> {empresa.nombre}
+                  <strong>Nombre:</strong> {selectedEmpresa.nombre}
                 </p>
                 <p>
-                  <strong>RUC:</strong> {empresa.ruc}
+                  <strong>RUC:</strong> {selectedEmpresa.ruc}
                 </p>
                 <img
-                  src={empresa.logo}
-                  alt={`Logo de ${empresa.nombre}`}
+                  src={selectedEmpresa.logo}
+                  alt={`Logo de ${selectedEmpresa.nombre}`}
                   style={{ maxWidth: "200px", height: "auto" }} // Estilo opcional
                 />
               </div>

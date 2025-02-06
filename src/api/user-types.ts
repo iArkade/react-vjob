@@ -5,6 +5,7 @@ export interface UsersType {
      password: string;
      password2?: string;
      active?: boolean;
+     role?: string;
 }
 
 export interface LoginRequestType {

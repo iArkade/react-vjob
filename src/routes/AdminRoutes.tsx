@@ -1,19 +1,23 @@
-import { Layout } from '@/components/dashboard/layout/layout'
-import { EmpresasAdmin } from '@/pages/admin/crear-empresas'
-import { UsuariosAdmin } from '@/pages/admin/crear-usuarios'
-import { DashboardAdmin } from '@/pages/admin/dashboard'
-
-import { Route, Routes } from 'react-router-dom'
+import { Layout } from "@/components/dashboard/layout/layout";
+import { LayoutSettings } from "@/components/dashboard/settings/layout";
+import { GestionEmpresas } from "@/pages/dashboard/admin/gestion-empresas";
+import { OverviewPage } from "@/pages/dashboard/overview";
+import { Account } from "@/pages/dashboard/settings/account";
+import { Company } from "@/pages/dashboard/settings/company";
+import { Route, Routes } from "react-router-dom";
 
 export const AdminRoutes = () => {
-     return (
-          <Routes>
-               {/* <Route path="/" element={<Layout isAdmin={true} />} /> */}
-               <Route path="/" element={<Layout />}>
-                    <Route index element={ <DashboardAdmin /> }/>
-                    <Route path="usuarios" element={ <UsuariosAdmin /> }/>
-                    <Route path="empresas" element={ <EmpresasAdmin /> }/>
-               </Route>
-          </Routes>          
-     )
-}
+    return (
+        <Routes>
+            <Route path="/dashboard" element={<Layout />}>
+                <Route index element={<OverviewPage />} />
+                <Route path="settings" element={<LayoutSettings />}>
+                    <Route path='account' element={<Account />} />
+                    <Route path='company' element={<Company />} />
+                </Route>
+                <Route path="empresas" element={<GestionEmpresas />} />
+                {/* <Route path="users" element={<OverviewPage />} /> */}
+            </Route>
+        </Routes>
+    );
+};

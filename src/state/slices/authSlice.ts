@@ -1,14 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+type UserRole = 'superadmin' | 'admin' | 'user';
+
+interface User {
+     id: number;
+     email: string;
+     name: string;
+     lastname: string;
+     role: UserRole;
+}
+
 interface AuthState {
-     user: {
-          id?: number;
-          email: string;
-          name: string;
-          lastname: string;
-          role?: string;
-          superAdmin?: boolean
-     } | null;
+     user: User | null;
      isAuthenticated: boolean;
 }
 
@@ -21,46 +24,21 @@ const authSlice = createSlice({
      name: "auth",
      initialState,
      reducers: {
-          setUser(
-               state,
-               action: PayloadAction<{
-                    id: number;
-                    email: string;
-                    name: string;
-                    lastname: string;
-                    superAdmin: boolean;
-               }>
-          ) {
-               state.user = {
-                    id: action.payload.id,
-                    name: action.payload.name,
-                    lastname: action.payload.lastname,
-                    email: action.payload.email,
-                    superAdmin: action.payload.superAdmin
-               };
+          setUser(state, action: PayloadAction<User>) {
+               state.user = action.payload;
                state.isAuthenticated = true;
           },
-          clearUser(state) {
+          clearUser: (state) => {
                state.user = null;
                state.isAuthenticated = false;
-          },
-          setAuthenticated(
-               state,
-               action: PayloadAction<{ isAuthenticated: boolean }>
-          ) {
-               state.isAuthenticated = action.payload.isAuthenticated;
           },
           logout: (state) => {
-               state.isAuthenticated = false;
                state.user = null;
-               localStorage.removeItem("token");
-               localStorage.removeItem("user");
-               localStorage.removeItem("empresa");
+               state.isAuthenticated = false;
+               localStorage.clear(); // Clear all related storage
           },
      },
 });
 
-export const { setUser, clearUser, setAuthenticated, logout } =
-     authSlice.actions;
-
+export const { setUser, clearUser, logout } = authSlice.actions;
 export default authSlice.reducer;

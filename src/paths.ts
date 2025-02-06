@@ -51,6 +51,14 @@ export const paths = {
                verifyCode: { centered: '/auth/samples/verify-code/centered', split: '/auth/samples/verify-code/split' },
           },
      },
+     admin: {
+          dashboard: '/admin/dashboard',
+          empresas: '/admin/empresas',
+          usuarios: '/admin/usuarios',
+          settings: {
+               account: '/admin/settings/account'
+          }
+     },
      dashboard: {
           overview: '/dashboard',
           usuarios: '/dashboard/usuarios',

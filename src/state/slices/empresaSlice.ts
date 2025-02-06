@@ -6,7 +6,7 @@ interface EmpresaState {
 }
 
 const initialState: EmpresaState = {
-    selectedEmpresa: {} as EmpresaResponseType, // Type assertion
+    selectedEmpresa: {} as EmpresaResponseType,
 };
 
 const empresaSlice = createSlice({

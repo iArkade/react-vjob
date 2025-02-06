@@ -4,11 +4,26 @@ import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
-import { setAuthenticated, setUser } from "../../state/slices/authSlice";
-import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
-import { LoginRequestType } from "@/api/user-types";
+import { setUser } from "../../state/slices/authSlice";
+import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
+// function Copyright(props: any) {
+//      return (
+//           <Typography
+//                variant="body2"
+//                color="text.secondary"
+//                align="center"
+//                {...props}
+//           >
+//                {"Copyright © VisualJob  "}
+//                {/* <Link color="inherit" href="https://mui.com/">
+//                     Your Website
+//                </Link>{" "} */}
+//                {new Date().getFullYear()}
+//                {"."}
+//           </Typography>
+//      );
+// }
 
 export default function LoginPage() {
      const navigate = useNavigate();
@@ -40,17 +55,11 @@ export default function LoginPage() {
                     email: response.data.email,
                     name: response.data.name,
                     lastname: response.data.lastname,
-                    superAdmin: response.data.superAdmin
+                    role: response.data.role
                }));
-               dispatch(setAuthenticated({ isAuthenticated: true }));
-
-               if(response.data.superAdmin){
-                    navigate('/admin');
-               }else{
-                    navigate('/empresa');
-               }
-
                
+               navigate('/empresa');
+
           } catch (error: any) {
                if (error.response && error.response.data) {
                     // Set a form-wide error using React Hook Form's setError

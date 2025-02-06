@@ -2,7 +2,7 @@ import { useMutation } from "react-query";
 import http from "./http";
 import { UsersType, LoginRequestType } from "./user-types";
 
-const createUserRequest = (user: UsersType) =>
+const registerUserRequest = (user: UsersType) =>
      http.post('auth/register', user);
 
 const loginUserRequest = (credentials: LoginRequestType) =>
@@ -13,7 +13,7 @@ const logoutUserRequest = () => {
 
      return http.post(
           '/auth/logout',
-          {}, // No es necesario enviar un cuerpo, solo los headers
+          {},
           {
                headers: {
                     'Authorization': `Bearer ${token}`,  // Enviar el token en el header 
@@ -22,10 +22,10 @@ const logoutUserRequest = () => {
      );
 };
 
-export const useCreateUser = () =>
+export const useRegisterUser = () =>
      useMutation({
-          mutationKey: ['CreateUser'],
-          mutationFn: createUserRequest,
+          mutationKey: ['RegisterUser'],
+          mutationFn: registerUserRequest,
      });
 
 export const useLoginUser = () =>
