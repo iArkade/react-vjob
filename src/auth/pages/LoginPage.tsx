@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Link from '@mui/material/Link';
@@ -5,30 +6,17 @@ import { useDispatch } from 'react-redux';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
 import { setUser } from "../../state/slices/authSlice";
-import { Alert, Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
-
-// function Copyright(props: any) {
-//      return (
-//           <Typography
-//                variant="body2"
-//                color="text.secondary"
-//                align="center"
-//                {...props}
-//           >
-//                {"Copyright © VisualJob  "}
-//                {/* <Link color="inherit" href="https://mui.com/">
-//                     Your Website
-//                </Link>{" "} */}
-//                {new Date().getFullYear()}
-//                {"."}
-//           </Typography>
-//      );
-// }
+import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Snackbar, Stack } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { LoginRequestType } from "@/api/user-types";
 
 export default function LoginPage() {
      const navigate = useNavigate();
      const { mutateAsync: login } = useLoginUser();
      const dispatch = useDispatch();
+
+     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+     const [snackbarOpen, setSnackbarOpen] = useState(false);
 
      const {
           control,
@@ -41,6 +29,11 @@ export default function LoginPage() {
                password: '',
           },
      });
+
+     const handleCloseSnackbar = () => {
+          setSnackbarOpen(false);
+          setErrorMessage(null);
+     };
 
      const onSubmit = async (data: LoginRequestType) => {
           try {
@@ -57,7 +50,7 @@ export default function LoginPage() {
                     lastname: response.data.lastname,
                     role: response.data.role
                }));
-               
+
                navigate('/empresa');
 
           } catch (error: any) {
@@ -88,6 +81,16 @@ export default function LoginPage() {
                          title="Iniciar Sesión"
                     />
                     <CardContent>
+                         <Snackbar
+                              open={snackbarOpen}
+                              onClose={handleCloseSnackbar}
+                              autoHideDuration={6000}
+                              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                         >
+                              <Alert severity="error" onClose={handleCloseSnackbar}>
+                                   {errorMessage}
+                              </Alert>
+                         </Snackbar>
                          <form onSubmit={handleSubmit(onSubmit)}>
                               <Stack spacing={2}>
                                    {/* Display form-wide error message if any */}

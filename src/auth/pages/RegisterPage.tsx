@@ -6,7 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../state/slices/authSlice';
 import { useRegisterUser } from '../../api/user-request';
-import { Card, CardContent, CardHeader, FormControl, InputLabel, OutlinedInput, Stack } from '@mui/material';
+import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Snackbar, Stack } from '@mui/material';
+import { Controller, useForm } from 'react-hook-form';
+import { UsersType } from '@/api/user-types';
+import { useState } from 'react';
 
 
 
@@ -16,36 +19,56 @@ export default function RegisterPage() {
 
   const registerUser = useRegisterUser();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    try {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      const name = data.get("name") as string;
-      const lastname = data.get("lastname") as string;
-      const email = data.get("email") as string;
-      const password = data.get("password") as string;
-      const password2 = data.get("password2") as string;
-      const validPassword =
-        password && password2 && validatePassword(password, password2);
-      const active = true;
 
-      if (validPassword) {
-        const response = await registerUser.mutateAsync({ email, name, lastname, password, active });
-        console.log(response);
-        
-        localStorage.setItem("token", response.data.tokens);
-        //console.log('Create successful:', response.data);
-        dispatch(setUser({
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<UsersType>({
+    defaultValues: {
+      name: '',
+      lastname: '',
+      email: '',
+      password: '',
+      password2: '',
+      active: true,
+    },
+  });
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setErrorMessage(null);
+  };
+
+  const onSubmit = async (data: UsersType) => {
+    try {
+      const { name, lastname, email, password } = data;
+
+      // Proceed with user creation
+      const response = await registerUser.mutateAsync({ email, name, lastname, password, active: true});
+      console.log(response)
+
+      localStorage.setItem("token", response.data.tokens);
+
+      dispatch(setUser({
           id: response.data.id,
           email: response.data.email,
           name: response.data.name,
           lastname: response.data.lastname,
           role: response.data.role,
-        }));
-        navigate('/empresa');
+      }));
+      navigate('/empresa');
+    } catch (error: any) {
+      if (error?.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('Ocurrió un error inesperado. Por favor, inténtelo de nuevo.');
       }
-    } catch (error) {
-      console.log(error);
+      setSnackbarOpen(true);
     }
   };
 
@@ -69,6 +92,7 @@ export default function RegisterPage() {
           }
           title="Registrarse"
         />
+        
         <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
@@ -158,6 +182,18 @@ export default function RegisterPage() {
           </form>
         </CardContent>
       </Card>
+      {errorMessage && (
+          <Snackbar
+            open={snackbarOpen}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            autoHideDuration={6000}
+          >
+            <Alert severity="error" onClose={handleCloseSnackbar}>
+              {errorMessage}
+            </Alert>
+          </Snackbar>
+        )}
     </Stack>
   );
 }
