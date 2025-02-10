@@ -8,7 +8,8 @@ import { AdminRoutes } from "./AdminRoutes";
 
 export const AppRouter = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.authSlice);
-  const hasSelectedCompany = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
+  const hasSelectedCompany = useSelector((state: RootState) => !!state.empresaSlice.selectedEmpresa?.id);
+
 
   if (!isAuthenticated) {
     return (
