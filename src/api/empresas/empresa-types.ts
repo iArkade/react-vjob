@@ -6,12 +6,11 @@ export interface EmpresaResponseType {
     correo: string;
     telefono: string;
     direccion: string;
-    logo: string;
-    createdAt: string;
-    // Agregar otro campo que pueda devolver la API
+    logo: string; // Note: logo is a string (URL/path) in response
 }
 
 export interface EmpresaRequestType {
+    id?: number;
     codigo: string;
     ruc: string;
     nombre: string;

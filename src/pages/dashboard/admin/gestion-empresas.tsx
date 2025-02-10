@@ -1,138 +1,95 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import { EmpresaResponseType } from "@/api/empresas/empresa-types";
-import { RootState } from "@/state/store";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { Button, Container, Typography, Alert } from '@mui/material';
+import EmpresaTable from '@/components/empresa/empresa-table';
+import EmpresaModal from '@/components/empresa/empresa-modal';
+import {
+    useGetEmpresa,
+    useCreateEmpresa,
+    useUpdateEmpresa,
+    useDeleteEmpresa
+} from '@/api/empresas/empresa-request';
+import { EmpresaResponseType, EmpresaRequestType } from '@/api/empresas/empresa-types';
 
+const GestionEmpresas: React.FC = () => {
+    const [modalOpen, setModalOpen] = React.useState(false);
+    const [selectedEmpresa, setSelectedEmpresa] = React.useState<EmpresaResponseType | null>(null);
 
-interface Empresa {
-    id: number;
-    nombre: string;
-    direccion: string;
-    telefono: string;
-}
+    // Fetch empresas
+    const { data: empresas = [], isLoading, error } = useGetEmpresa();
 
-export function GestionEmpresas(): React.JSX.Element {
-    const [empresas, setEmpresas] = React.useState<Empresa[]>([
-        { id: 1, nombre: 'Empresa A', direccion: 'Calle 1 # 1-1', telefono: '1234567890' },
-        { id: 2, nombre: 'Empresa B', direccion: 'Calle 2 # 2-2', telefono: '0987654321' },
-    ]);
+    // Mutation hooks
+    const createEmpresa = useCreateEmpresa();
+    const updateEmpresa = useUpdateEmpresa();
+    const deleteEmpresa = useDeleteEmpresa();
 
-    const [nuevaEmpresa, setNuevaEmpresa] = React.useState<Omit<Empresa, 'id'>>({
-        nombre: '',
-        direccion: '',
-        telefono: '',
-    });
-
-    const [editandoEmpresa, setEditandoEmpresa] = React.useState<Empresa | null>(null);
-
-    const agregarEmpresa = () => {
-        const nuevaEmpresaConId = {
-            id: empresas.length + 1,
-            ...nuevaEmpresa,
-        };
-        setEmpresas([...empresas, nuevaEmpresaConId]);
-        setNuevaEmpresa({ nombre: '', direccion: '', telefono: '' });
+    const handleOpenModal = (empresa?: EmpresaResponseType) => {
+        setSelectedEmpresa(empresa || null);
+        setModalOpen(true);
     };
 
-    const eliminarEmpresa = (id: number) => {
-        setEmpresas(empresas.filter((empresa) => empresa.id !== id));
+    const handleCloseModal = () => {
+        setModalOpen(false);
     };
 
-    const editarEmpresa = (empresa: Empresa) => {
-        setEditandoEmpresa(empresa);
-    };
+    const handleSaveEmpresa = (empresa: EmpresaRequestType) => {
+        const formData = new FormData();
 
-    const guardarCambios = () => {
-        if (editandoEmpresa) {
-            const nuevasEmpresas = empresas.map((empresa) =>
-                empresa.id === editandoEmpresa.id ? editandoEmpresa : empresa
-            );
-            setEmpresas(nuevasEmpresas);
-            setEditandoEmpresa(null);
+        // Append all text fields
+        Object.keys(empresa).forEach(key => {
+            if (key !== 'logo' && key !== 'id') {
+                formData.append(key, empresa[key as keyof EmpresaRequestType] as string);
+            }
+        });
+
+        // Append logo if exists
+        if (empresa.logo) {
+            formData.append('logo', empresa.logo);
         }
+
+        if (empresa.id) {
+            // Update existing empresa
+            updateEmpresa.mutate({
+                id: empresa.id,
+                data: formData as unknown as EmpresaRequestType
+            });
+        } else {
+            // Create new empresa
+            createEmpresa.mutate(formData);
+        }
+
+        setModalOpen(false);
     };
+
+    const handleDeleteEmpresa = (id: number) => {
+        deleteEmpresa.mutate(id);
+    };
+
+    if (isLoading) return <Typography>Cargando...</Typography>;
+    if (error) return <Alert severity="error">Error al cargar empresas</Alert>;
 
     return (
-        <div>
-            <h2>Gestión de Empresas</h2>
-
-            <h3>Lista de Empresas</h3>
-            <ul>
-                {empresas.map((empresa) => (
-                    <li key={empresa.id}>
-                        {empresa.nombre} - {empresa.direccion} - {empresa.telefono}
-                        <button onClick={() => editarEmpresa(empresa)}>Editar</button>
-                        <button onClick={() => eliminarEmpresa(empresa.id)}>Eliminar</button>
-                    </li>
-                ))}
-            </ul>
-
-            <h3>Agregar Empresa</h3>
-            <input
-                type="text"
-                placeholder="Nombre"
-                value={nuevaEmpresa.nombre}
-                onChange={(e) =>
-                    setNuevaEmpresa({ ...nuevaEmpresa, nombre: e.target.value })
-                }
+        <Container>
+            <Typography variant="h4" gutterBottom>Gestión de Empresas</Typography>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenModal()}
+            >
+                Agregar Empresa
+            </Button>
+            <EmpresaTable
+                empresas={empresas}
+                onEdit={handleOpenModal}
+                onDelete={handleDeleteEmpresa}
             />
-            <input
-                type="text"
-                placeholder="Dirección"
-                value={nuevaEmpresa.direccion}
-                onChange={(e) =>
-                    setNuevaEmpresa({ ...nuevaEmpresa, direccion: e.target.value })
-                }
+            <EmpresaModal
+                open={modalOpen}
+                onClose={handleCloseModal}
+                onSave={handleSaveEmpresa}
+                empresa={selectedEmpresa}
             />
-            <input
-                type="text"
-                placeholder="Teléfono"
-                value={nuevaEmpresa.telefono}
-                onChange={(e) =>
-                    setNuevaEmpresa({ ...nuevaEmpresa, telefono: e.target.value })
-                }
-            />
-            <button onClick={agregarEmpresa}>Agregar</button>
-
-            {editandoEmpresa && (
-                <div>
-                    <h3>Editar Empresa</h3>
-                    <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={editandoEmpresa.nombre}
-                        onChange={(e) =>
-                            setEditandoEmpresa({ ...editandoEmpresa, nombre: e.target.value })
-                        }
-                    />
-                    <input
-                        type="text"
-                        placeholder="Dirección"
-                        value={editandoEmpresa.direccion}
-                        onChange={(e) =>
-                            setEditandoEmpresa({
-                                ...editandoEmpresa,
-                                direccion: e.target.value,
-                            })
-                        }
-                    />
-                    <input
-                        type="text"
-                        placeholder="Teléfono"
-                        value={editandoEmpresa.telefono}
-                        onChange={(e) =>
-                            setEditandoEmpresa({
-                                ...editandoEmpresa,
-                                telefono: e.target.value,
-                            })
-                        }
-                    />
-                    <button onClick={guardarCambios}>Guardar Cambios</button>
-                </div>
-            )}
-        </div>
+        </Container>
     );
 };
+
+export default GestionEmpresas;

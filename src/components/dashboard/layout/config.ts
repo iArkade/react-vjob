@@ -6,7 +6,7 @@ const superadminNavItems: NavItemConfig[] = [
           key: 'management',
           title: 'Gestión',
           items: [
-               { key: 'companies', title: 'Empresas', href: paths.admin.empresas, icon: 'building' },
+               { key: 'companies', title: 'Empresas', href: paths.admin.empresas, icon: 'building-office' },
                { key: 'users', title: 'Usuarios', href: paths.admin.usuarios, icon: 'users' },
                { key: 'overview', title: 'Dashboard', href: paths.admin.dashboard, icon: 'chart-bar' },
           ],
@@ -58,6 +58,13 @@ const regularNavItems: NavItemConfig[] = [
      },
 ];
 
-export const getLayoutConfig = (role: string) => ({
-     navItems: role === 'superadmin' ? superadminNavItems : regularNavItems,
-});
+export const getLayoutConfig = (role: string) => {
+     switch (role) {
+          case 'superadmin':
+               return { navItems: superadminNavItems };
+          case 'admin':
+               return { navItems: regularNavItems }; // Puedes definir más roles aquí
+          default:
+               return { navItems: regularNavItems };
+     }
+};

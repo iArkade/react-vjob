@@ -1,3 +1,4 @@
+import { BuildingOffice as BuildingOfficeIcon } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react/dist/lib/types';
 import { AddressBook as AddressBookIcon } from '@phosphor-icons/react/dist/ssr/AddressBook';
 import { AlignLeft as AlignLeftIcon } from '@phosphor-icons/react/dist/ssr/AlignLeft';
@@ -49,6 +50,7 @@ export const icons = {
   'sign-out': SignOutIcon,
   'text-align-left': TextAlignLeftIcon,
   'warning-diamond': WarningDiamondIcon,
+  'building-office' : BuildingOfficeIcon, 
   cube: CubeIcon,
   file: FileIcon,
   gear: GearIcon,

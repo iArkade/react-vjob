@@ -1,6 +1,7 @@
 import { Layout } from "@/components/dashboard/layout/layout";
 import { LayoutSettings } from "@/components/dashboard/settings/layout";
-import { GestionEmpresas } from "@/pages/dashboard/admin/gestion-empresas";
+import GestionEmpresas from "@/pages/dashboard/admin/gestion-empresas";
+import { GestionUsuarios } from "@/pages/dashboard/admin/gestion-usuarios";
 import { OverviewPage } from "@/pages/dashboard/overview";
 import { Account } from "@/pages/dashboard/settings/account";
 import { Company } from "@/pages/dashboard/settings/company";
@@ -16,7 +17,7 @@ export const AdminRoutes = () => {
                     <Route path='company' element={<Company />} />
                 </Route>
                 <Route path="empresas" element={<GestionEmpresas />} />
-                {/* <Route path="users" element={<OverviewPage />} /> */}
+                <Route path="usuarios" element={<GestionUsuarios />} />
             </Route>
         </Routes>
     );

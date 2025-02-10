@@ -4,7 +4,6 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
 import { NoSsr } from './no-ssr';
-import { EmpresaResponseType } from '@/api/empresas/empresa-types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
@@ -22,20 +21,18 @@ export interface LogoProps {
 
 export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
   
-  const [empresa, setEmpresa] = React.useState<EmpresaResponseType | null>(null);
 
-  React.useEffect(() => {
-    const storedEmpresa = localStorage.getItem("empresa");
-    if (storedEmpresa) {
-      setEmpresa(JSON.parse(storedEmpresa));
-    }
-  }, []);
-
+  const { user } = useSelector((state: RootState) => state.authSlice);
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   
-  
-
   let url: string;
+
+  // if(user?.role == 'superadmin')
+  // {
+  //   url = 
+  // }
+
+  
 
   if (selectedEmpresa.logo) {
     // Use the logo from Redux if available

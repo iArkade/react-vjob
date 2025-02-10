@@ -53,10 +53,10 @@ export const paths = {
      },
      admin: {
           dashboard: '/admin/dashboard',
-          empresas: '/admin/empresas',
-          usuarios: '/admin/usuarios',
+          empresas: '/admin/dashboard/empresas',
+          usuarios: '/admin/dashboard/usuarios',
           settings: {
-               account: '/admin/settings/account'
+               account: '/admin/dashboard/settings/account'
           }
      },
      dashboard: {
