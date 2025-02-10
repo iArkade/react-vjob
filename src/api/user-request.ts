@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "./http";
-import { UsersType, LoginRequestType } from "./user-types";
+import { UsersType, LoginRequestType, UsuarioResponseType, UsuarioRequestType } from "./user-types";
 
 interface ApiError {
      response?: {
@@ -63,6 +63,7 @@ export const useLogoutUser = () =>
           mutationFn: logoutUserRequest,
      });
 
+
 const createUsuarioRequest = async (formData: FormData) => {
      try {
           const token = getAuthToken();
@@ -89,6 +90,81 @@ export const useCreateUsuario = () => {
           },
           onError: (error) => {
                console.log("Error", error);
+          },
+     });
+};
+
+
+// Obtener todas las empresas del usuario autenticado
+const getUsuarioRequest = async (): Promise<UsuarioResponseType[]> => {
+     try {
+          const token = getAuthToken();
+          const response = await http.get(`usuario/all`, {
+               headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+               },
+          });
+          return response.data;
+     } catch (error) {
+          return handleError(error);
+     }
+};
+
+export const useGetUsuario = () =>
+     useQuery({
+          queryKey: ["GetUsuario"],
+          queryFn: () => getUsuarioRequest(),
+     });
+
+// Actualizar una Usuario
+const updateUsuarioRequest = async (id: number, data: UsuarioRequestType) => {
+     try {
+          const token = getAuthToken();
+          const response = await http.put(`usuario/${id}`, data, {
+               headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+               },
+          });
+          return response.data;
+     } catch (error) {
+          handleError(error);
+     }
+};
+
+export const useUpdateUsuario = () => {
+     const queryClient = useQueryClient();
+     return useMutation({
+          mutationKey: ["UpdateUsuario"],
+          mutationFn: ({ id, data }: { id: number; data: UsuarioRequestType }) =>
+               updateUsuarioRequest(id, data),
+          onSuccess: () => {
+               queryClient.invalidateQueries("GetUsuario"); // Invalidar la caché de Usuarios
+          },
+     });
+};
+
+// Eliminar una Usuario
+const deleteUsuarioRequest = async (id: number) => {
+     try {
+          const token = getAuthToken();
+          const response = await http.delete(`usuario/${id}`, {
+               headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+               },
+          });
+          return response.data;
+     } catch (error) {
+          handleError(error);
+     }
+};
+
+export const useDeleteUsuario = () => {
+     const queryClient = useQueryClient();
+     return useMutation({
+          mutationKey: ["DeleteUsuario"],
+          mutationFn: (id: number) => deleteUsuarioRequest(id),
+          onSuccess: () => {
+               queryClient.invalidateQueries("GetUsuario"); // Invalidar la caché de empresas
           },
      });
 };
