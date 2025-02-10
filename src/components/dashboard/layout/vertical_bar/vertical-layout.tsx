@@ -18,7 +18,6 @@ export function VerticalLayout(): React.JSX.Element {
   const { settings } = useSettings();
 
   return (
-
     <React.Fragment>
       <GlobalStyles
         styles={{

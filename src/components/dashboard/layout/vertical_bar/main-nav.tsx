@@ -22,12 +22,11 @@ import { NotificationsPopover } from '../notifications-popover';
 import { SearchDialog } from '../search-dialog';
 import { UserPopover } from '../user-popover/user-popover';
 import { UserCircle } from '@phosphor-icons/react';
-
 export interface MainNavProps {
   items: NavItemConfig[];
 }
 
-export function MainNav({ items }: MainNavProps): React.JSX.Element {
+export function MainNav({ items }: MainNavProps): React.JSX.Element {  
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
   return (

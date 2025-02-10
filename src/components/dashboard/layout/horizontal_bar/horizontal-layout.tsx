@@ -52,4 +52,5 @@ export function HorizontalLayout(): React.JSX.Element {
       </Box>
     </React.Fragment>
   );
+
 }
