@@ -8,11 +8,18 @@ import {
     TextField,
     MenuItem,
     Box,
-    FormControlLabel,
-    Checkbox
+    Typography,
+    Autocomplete,
+    Grid,
+    Chip,
+    IconButton,
+    Paper,
 } from '@mui/material';
+import { Save as SaveIcon, Close as CloseIcon } from '@mui/icons-material';
 import { UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
 import { useCreateUsuario, useUpdateUsuario } from '@/api/user-request';
+import { SystemRole } from '@/api/user-types';
+import { useGetEmpresa } from '@/api/empresas/empresa-request';
 
 interface UsuariosModalProps {
     open: boolean;
@@ -20,151 +27,377 @@ interface UsuariosModalProps {
     currentUser: UsuarioResponseType | null;
 }
 
-export function UsuariosModal({ 
-    open, 
-    onClose, 
-    currentUser 
-}: UsuariosModalProps) {
+export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps) {
     const [formData, setFormData] = useState<UsuarioRequestType>({
-        name: '',
         email: '',
-        role: '',
-        lastname: ''
+        name: '',
+        lastname: '',
+        password: '',
+        systemRole: '',
+        empresas: [],
     });
-    const [active, setActive] = useState<boolean>(true);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { mutate: createUsuario } = useCreateUsuario();
-    const { mutate: updateUsuario } = useUpdateUsuario();
+    const { data: empresasDisponibles = [], isLoading } = useGetEmpresa();
+    const { mutate: createUsuario, isLoading: isCreating } = useCreateUsuario();
+    const { mutate: updateUsuario, isLoading: isUpdating } = useUpdateUsuario();
 
     useEffect(() => {
         if (currentUser) {
             setFormData({
-                id: currentUser.id,
-                name: currentUser.name,
                 email: currentUser.email,
-                role: currentUser.role,
-                lastname: currentUser.lastname || ''
+                name: currentUser.name,
+                lastname: currentUser.lastname || '',
+                password: '',
+                systemRole: currentUser.systemRole,
+                empresas: currentUser.empresas.map(emp => ({
+                    empresaId: emp.empresa.id, // Ajustado para manejar la estructura correcta
+                    companyRole: emp.companyRole,
+                })),
             });
-            setActive(currentUser.active ?? true);
         } else {
             setFormData({
-                name: '',
                 email: '',
-                role: '',
-                lastname: ''
+                name: '',
+                lastname: '',
+                password: '',
+                systemRole: '', // Valor por defecto
+                empresas: [],
             });
-            setActive(true);
         }
+        setErrors({});
     }, [currentUser, open]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+        
+        if (!formData.email) newErrors.email = 'El correo es requerido';
+        if (!formData.name) newErrors.name = 'El nombre es requerido';
+        if (!currentUser && !formData.password) newErrors.password = 'La contraseña es requerida para nuevos usuarios';
+        if (!formData.systemRole) newErrors.systemRole = 'El rol es requerido';
+        
+        formData.empresas.forEach((empresa, index) => {
+            if (!empresa.companyRole) {
+                newErrors[`empresa-${index}`] = 'El rol de empresa es requerido';
+            }
+        });
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: value,
+        }));
+        // Limpiar error del campo cuando se modifica
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: '',
+            }));
+        }
+    };
+
+    const handleEmpresaChange = (_event: any, selectedEmpresas: any[]) => {
+        const updatedEmpresas = selectedEmpresas.map(empresa => {
+            // Mantener el rol existente si la empresa ya estaba seleccionada
+            const existingEmpresa = formData.empresas.find(e => e.empresaId === empresa.id);
+            return {
+                empresaId: empresa.id,
+                companyRole: existingEmpresa?.companyRole || 'user',
+            };
+        });
+
+        setFormData(prev => ({
+            ...prev,
+            empresas: updatedEmpresas,
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleRoleChange = (empresaId: number, role: string) => {
+        setFormData(prev => ({
+            ...prev,
+            empresas: prev.empresas.map(emp =>
+                emp.empresaId === empresaId ? { ...emp, companyRole: role } : emp
+            ),
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (currentUser) {
-            updateUsuario({ 
-                id: currentUser.id, 
-                data: formData
-            }, {
-                onSuccess: () => {
-                    onClose();
-                },
-                onError: (error) => {
-                    console.error('Error updating user:', error);
+    
+        setIsSubmitting(true);
+        try {
+            if (currentUser) {
+                // Solo enviar los campos que se están editando
+                const updatedData: Partial<UsuarioRequestType> = {
+                    empresas: formData.empresas, // Siempre enviar las empresas
+                };
+    
+                // Solo enviar el password si ha sido modificado
+                if (formData.password) {
+                    updatedData.password = formData.password;
                 }
-            });
-        } else {
-            const formDataToSend = new FormData();
-            Object.entries(formData).forEach(([key, value]) => {
-                if (value) formDataToSend.append(key, value.toString());
-            });
-            formDataToSend.append('active', active.toString());
-
-            createUsuario(formDataToSend, {
-                onSuccess: () => {
-                    onClose();
-                },
-                onError: (error) => {
-                    console.error('Error creating user:', error);
+    
+                // Solo enviar el email, name y lastname si han sido modificados
+                if (formData.email !== currentUser.email) {
+                    updatedData.email = formData.email;
                 }
-            });
+                if (formData.name !== currentUser.name) {
+                    updatedData.name = formData.name;
+                }
+                if (formData.lastname !== currentUser.lastname) {
+                    updatedData.lastname = formData.lastname;
+                }
+    
+                await updateUsuario({ id: currentUser.id, data: updatedData });
+            } else {
+                // Validar todos los campos para la creación
+                if (!validateForm()) return;
+    
+                await createUsuario(formData);
+            }
+            onClose();
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const roles: string[] = ['Admin', 'Usuario', 'Editor'];
-
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>
-                {currentUser ? 'Editar Usuario' : 'Nuevo Usuario'}
+        <Dialog 
+            open={open} 
+            onClose={onClose} 
+            maxWidth="md" 
+            fullWidth
+            PaperProps={{
+                sx: {
+                    borderRadius: 2,
+                    boxShadow: 3,
+                }
+            }}
+        >
+            <DialogTitle sx={{ 
+                pb: 1,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+            }}>
+                <Typography variant="h5" component="span">
+                    {currentUser ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
+                </Typography>
+                <IconButton onClick={onClose} size="small">
+                    <CloseIcon />
+                </IconButton>
             </DialogTitle>
-            <DialogContent>
-                <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit}>
-                    <TextField
-                        fullWidth
-                        name="name"
-                        label="Nombre"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        margin="normal"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        name="lastname"
-                        label="Apellido"
-                        value={formData.lastname}
-                        onChange={handleInputChange}
-                        margin="normal"
-                    />
-                    <TextField
-                        fullWidth
-                        name="email"
-                        label="Email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        margin="normal"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        name="role"
-                        label="Rol"
-                        select
-                        value={formData.role}
-                        onChange={handleInputChange}
-                        margin="normal"
-                        required
-                    >
-                        {roles.map((role) => (
-                            <MenuItem key={role} value={role}>
-                                {role}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={active}
-                                onChange={(e) => setActive(e.target.checked)}
-                                name="active"
-                            />
-                        }
-                        label="Usuario Activo"
-                    />
+
+            <DialogContent sx={{ pt: 3 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate>
+                    <Grid container spacing={3}>
+                        {/* Información básica */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium' }}>
+                                Información básica
+                            </Typography>
+                            <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.50' }}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            label="Correo electrónico"
+                                            fullWidth
+                                            required
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            error={!!errors.email}
+                                            helperText={errors.email}
+                                            disabled={isSubmitting}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            label="Contraseña"
+                                            fullWidth
+                                            required={!currentUser}
+                                            name="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            error={!!errors.password}
+                                            helperText={errors.password || (currentUser ? 'Dejar en blanco para mantener la actual' : '')}
+                                            disabled={isSubmitting}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            label="Nombre"
+                                            fullWidth
+                                            required
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            disabled={isSubmitting}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            label="Apellido"
+                                            fullWidth
+                                            name="lastname"
+                                            value={formData.lastname}
+                                            onChange={handleChange}
+                                            disabled={isSubmitting}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        </Grid>
+
+                        {/* Roles y permisos */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium' }}>
+                                Roles y permisos
+                            </Typography>
+                            <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.50' }}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            select
+                                            label="Rol del Sistema"
+                                            fullWidth
+                                            required
+                                            name="systemRole"
+                                            value={formData.systemRole}
+                                            onChange={handleChange}
+                                            error={!!errors.systemRole}
+                                            helperText={errors.systemRole}
+                                            disabled={isSubmitting || !!currentUser}
+                                        >
+                                            {Object.values(SystemRole).map((role) => (
+                                                <MenuItem key={role} value={role}>
+                                                    {role === 'admin' ? 'Administrador' : 'Usuario'}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        </Grid>
+
+                        {/* Asignación de empresas */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium' }}>
+                                Asignación de empresas
+                            </Typography>
+                            <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.50' }}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Autocomplete
+                                            multiple
+                                            options={empresasDisponibles}
+                                            getOptionLabel={(option) => option.nombre}
+                                            value={empresasDisponibles.filter(emp =>
+                                                formData.empresas.some(e => e.empresaId === emp.id)
+                                            )}
+                                            onChange={handleEmpresaChange}
+                                            disabled={isSubmitting}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Seleccionar empresas"
+                                                    placeholder="Buscar empresa..."
+                                                />
+                                            )}
+                                            renderTags={(value, getTagProps) =>
+                                                value.map((option, index) => {
+                                                    const { key, ...otherProps } = getTagProps({ index }); // Extraer `key` y el resto de las props
+                                                    return (
+                                                        <Chip
+                                                            key={key} // Pasar `key` directamente
+                                                            label={option.nombre}
+                                                            {...otherProps} // Pasar el resto de las props
+                                                            color="primary"
+                                                            variant="outlined"
+                                                        />
+                                                    );
+                                                })
+                                            }
+                                        />
+                                    </Grid>
+                                    {formData.empresas.map((empresa, index) => {
+                                        if (!empresa.empresaId) return null;
+                                        const empresaInfo = empresasDisponibles.find(e => e.id === empresa.empresaId);
+                                        return (
+                                            <Grid item xs={12} key={empresa.empresaId}>
+                                                <Paper 
+                                                    elevation={0} 
+                                                    sx={{ 
+                                                        p: 2, 
+                                                        bgcolor: 'background.paper',
+                                                        border: 1,
+                                                        borderColor: 'divider'
+                                                    }}
+                                                >
+                                                    <Grid container spacing={2} alignItems="center">
+                                                        <Grid item xs>
+                                                            <Typography variant="subtitle2">
+                                                                {empresaInfo?.nombre}
+                                                            </Typography>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4}>
+                                                            <TextField
+                                                                select
+                                                                fullWidth
+                                                                size="small"
+                                                                label="Rol en la empresa"
+                                                                value={empresa.companyRole}
+                                                                onChange={(e) => handleRoleChange(empresa.empresaId, e.target.value)}
+                                                                error={!!errors[`empresa-${index}`]}
+                                                                helperText={errors[`empresa-${index}`]}
+                                                                disabled={isSubmitting}
+                                                            >
+                                                                <MenuItem value="admin">Administrador</MenuItem>
+                                                                <MenuItem value="user">Usuario</MenuItem>
+                                                            </TextField>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Paper>
+                                            </Grid>
+                                        );
+                                    })}
+                                </Grid>
+                            </Paper>
+                        </Grid>
+                    </Grid>
                 </Box>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancelar</Button>
-                <Button onClick={handleSubmit} variant="contained">
+
+            <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Button
+                    onClick={onClose}
+                    variant="outlined"
+                    color="inherit"
+                    disabled={isSubmitting}
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    color="primary"
+                    loading={isSubmitting}
+                    loadingPosition="start"
+                    startIcon={<SaveIcon />}
+                >
                     {currentUser ? 'Actualizar' : 'Crear'}
                 </Button>
             </DialogActions>

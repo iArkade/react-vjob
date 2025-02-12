@@ -16,6 +16,7 @@ export function VerticalLayout(): React.JSX.Element {
   const { user } = useSelector((state: RootState) => state.authSlice);
   const layoutConfig = getLayoutConfig(user?.role || 'user');
   const { settings } = useSettings();
+  
 
   return (
     <React.Fragment>

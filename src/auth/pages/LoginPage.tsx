@@ -48,7 +48,7 @@ export default function LoginPage() {
                     email: response.data.email,
                     name: response.data.name,
                     lastname: response.data.lastname,
-                    role: response.data.role
+                    role: response.data.systemRole
                }));
 
                navigate('/empresa');

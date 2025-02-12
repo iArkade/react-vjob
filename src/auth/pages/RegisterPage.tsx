@@ -49,7 +49,7 @@ export default function RegisterPage() {
       const { name, lastname, email, password } = data;
 
       // Proceed with user creation
-      const response = await registerUser.mutateAsync({ email, name, lastname, password, active: true});
+      const response = await registerUser.mutateAsync({ email, name, lastname, password});
       console.log(response)
 
       localStorage.setItem("token", response.data.tokens);
@@ -59,7 +59,7 @@ export default function RegisterPage() {
           email: response.data.email,
           name: response.data.name,
           lastname: response.data.lastname,
-          role: response.data.role,
+          role: response.data.systemRole,
       }));
       navigate('/empresa');
     } catch (error: any) {

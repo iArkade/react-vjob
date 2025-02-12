@@ -1,5 +1,16 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Button,
+    Box,
+    TablePagination
+} from '@mui/material';
 import { EmpresaResponseType } from '@/api/empresas/empresa-types';
 
 interface EmpresaTableProps {
@@ -9,39 +20,62 @@ interface EmpresaTableProps {
 }
 
 const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete }) => {
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
     return (
-        <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Código</TableCell>
-                        <TableCell>RUC</TableCell>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell>Correo</TableCell>
-                        <TableCell>Teléfono</TableCell>
-                        <TableCell>Dirección</TableCell>
-                        <TableCell>Acciones</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {empresas.map((empresa) => (
-                        <TableRow key={empresa.id}>
-                            <TableCell>{empresa.codigo}</TableCell>
-                            <TableCell>{empresa.ruc}</TableCell>
-                            <TableCell>{empresa.nombre}</TableCell>
-                            <TableCell>{empresa.correo}</TableCell>
-                            <TableCell>{empresa.telefono}</TableCell>
-                            <TableCell>{empresa.direccion}</TableCell>
-                            <TableCell>
-                                <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
-                                <Button onClick={() => onDelete(empresa.id)} color="secondary">Eliminar</Button>
-                            </TableCell>
+        <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <TableContainer>
+                <Table>
+                    <TableHead sx={{ bgcolor: 'primary.main' }}>
+                        <TableRow>
+                            <TableCell sx={{ color: 'white' }}>Código</TableCell>
+                            <TableCell sx={{ color: 'white' }}>RUC</TableCell>
+                            <TableCell sx={{ color: 'white' }}>Nombre</TableCell>
+                            <TableCell sx={{ color: 'white' }}>Correo</TableCell>
+                            <TableCell sx={{ color: 'white' }}>Teléfono</TableCell>
+                            <TableCell sx={{ color: 'white' }}>Dirección</TableCell>
+                            <TableCell sx={{ color: 'white' }}>Acciones</TableCell>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                        {empresas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((empresa) => (
+                            <TableRow key={empresa.id} hover>
+                                <TableCell>{empresa.codigo}</TableCell>
+                                <TableCell>{empresa.ruc}</TableCell>
+                                <TableCell>{empresa.nombre}</TableCell>
+                                <TableCell>{empresa.correo}</TableCell>
+                                <TableCell>{empresa.telefono}</TableCell>
+                                <TableCell>{empresa.direccion}</TableCell>
+                                <TableCell>
+                                    <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
+                                    <Button onClick={() => onDelete(empresa.id)} color="error">Eliminar</Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={empresas.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </Paper>
     );
 };
 
-export default EmpresaTable;
+export default React.memo(EmpresaTable);

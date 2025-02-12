@@ -17,12 +17,18 @@ const isApiError = (error: unknown): error is ApiError => {
 const handleError = (error: unknown): never => {
      if (isApiError(error) && error.response?.data?.message) {
           throw new Error(error.response.data.message);
+     } else if (error instanceof Error) {
+          throw new Error(error.message || "Error desconocido");
      }
-     throw error;
+     throw new Error("Error desconocido");
 };
 
-const getAuthToken = () => {
-     return localStorage.getItem('token'); // Asegúrate de que el token se almacene en el localStorage al iniciar sesión
+const getAuthToken = (): string => {
+     const token = localStorage.getItem('token');
+     if (!token) {
+          throw new Error("No se encontró el token de autenticación");
+     }
+     return token;
 };
 
 const registerUserRequest = (user: UsersType) =>
@@ -32,17 +38,12 @@ const loginUserRequest = (credentials: LoginRequestType) =>
      http.post('auth/login', credentials);
 
 const logoutUserRequest = () => {
-     const token = localStorage.getItem('token');
-
-     return http.post(
-          '/auth/logout',
-          {},
-          {
-               headers: {
-                    'Authorization': `Bearer ${token}`,  // Enviar el token en el header 
-               },
+     const token = getAuthToken();
+     return http.post('/auth/logout', {}, {
+          headers: {
+               'Authorization': `Bearer ${token}`,
           },
-     );
+     });
 };
 
 export const useRegisterUser = () =>
@@ -63,20 +64,18 @@ export const useLogoutUser = () =>
           mutationFn: logoutUserRequest,
      });
 
-
-const createUsuarioRequest = async (formData: FormData) => {
+const createUsuarioRequest = async (data: UsuarioRequestType) => {
      try {
           const token = getAuthToken();
-          const response = await http.post("usuario", formData, {
+          const response = await http.post("usuario", data, {
                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                },
           });
           return response.data;
      } catch (error) {
           handleError(error);
-          throw error;
      }
 };
 
@@ -84,27 +83,30 @@ export const useCreateUsuario = () => {
      const queryClient = useQueryClient();
      return useMutation({
           mutationKey: ["CreateUsuario"],
-          mutationFn: createUsuarioRequest,
+          mutationFn: (data: UsuarioRequestType) => createUsuarioRequest(data),
           onSuccess: () => {
-               queryClient.invalidateQueries("GetUsuario"); // Invalidar la caché de empresas
-          },
-          onError: (error) => {
-               console.log("Error", error);
+               queryClient.invalidateQueries("GetUsuario");
           },
      });
 };
 
-
-// Obtener todas las empresas del usuario autenticado
 const getUsuarioRequest = async (): Promise<UsuarioResponseType[]> => {
      try {
           const token = getAuthToken();
-          const response = await http.get(`usuario/all`, {
+          const response = await http.get(`usuario`, {
                headers: {
-                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                    Authorization: `Bearer ${token}`,
                },
           });
-          return response.data;
+          return response.data.map((user: any) => ({
+               id: user.id,
+               email: user.email,
+               name: user.name,
+               lastname: user.lastname,
+               active: user.active,
+               systemRole: user.systemRole,
+               empresas: user.empresas || [],
+          }));
      } catch (error) {
           return handleError(error);
      }
@@ -114,15 +116,16 @@ export const useGetUsuario = () =>
      useQuery({
           queryKey: ["GetUsuario"],
           queryFn: () => getUsuarioRequest(),
+          staleTime: 1000 * 60 * 5, // Datos frescos por 5 minutos
+          retry: 2, // Reintentar 2 veces en caso de error
      });
 
-// Actualizar una Usuario
-const updateUsuarioRequest = async (id: number, data: UsuarioRequestType) => {
+const updateUsuarioRequest = async (id: number, data: Partial<UsuarioRequestType>) => {
      try {
           const token = getAuthToken();
           const response = await http.put(`usuario/${id}`, data, {
                headers: {
-                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                    Authorization: `Bearer ${token}`,
                },
           });
           return response.data;
@@ -135,21 +138,25 @@ export const useUpdateUsuario = () => {
      const queryClient = useQueryClient();
      return useMutation({
           mutationKey: ["UpdateUsuario"],
-          mutationFn: ({ id, data }: { id: number; data: UsuarioRequestType }) =>
+          mutationFn: ({ id, data }: { id: number; data: Partial<UsuarioRequestType> }) =>
                updateUsuarioRequest(id, data),
-          onSuccess: () => {
-               queryClient.invalidateQueries("GetUsuario"); // Invalidar la caché de Usuarios
+          onSuccess: (updatedUser) => {
+               queryClient.setQueryData<UsuarioResponseType[]>("GetUsuario", (oldData = []) => {
+                    return oldData.map((user) =>
+                         user.id === updatedUser.id ? updatedUser : user
+                    );
+               });
           },
      });
 };
 
-// Eliminar una Usuario
+
 const deleteUsuarioRequest = async (id: number) => {
      try {
           const token = getAuthToken();
           const response = await http.delete(`usuario/${id}`, {
                headers: {
-                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                    Authorization: `Bearer ${token}`,
                },
           });
           return response.data;
@@ -164,7 +171,7 @@ export const useDeleteUsuario = () => {
           mutationKey: ["DeleteUsuario"],
           mutationFn: (id: number) => deleteUsuarioRequest(id),
           onSuccess: () => {
-               queryClient.invalidateQueries("GetUsuario"); // Invalidar la caché de empresas
+               queryClient.invalidateQueries("GetUsuario");
           },
      });
 };
