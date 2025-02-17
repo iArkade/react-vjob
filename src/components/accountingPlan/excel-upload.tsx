@@ -22,7 +22,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({ onSuccessfulUpload }) => {
     const [error, setError] = useState<string>('');
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [errorDetails, setErrorDetails] = useState<string[]>([]);
-    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
     const empresa_id = selectedEmpresa.id;
 
     const uploadExcelMutation = useUploadExcel();

@@ -46,7 +46,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
     }
   }, [item?.id, index, setValue]);
   
-  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
 
   const {
     data: centros = [],

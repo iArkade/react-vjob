@@ -25,9 +25,10 @@ interface UsuariosModalProps {
     open: boolean;
     onClose: () => void;
     currentUser: UsuarioResponseType | null;
+    showSnackbar: (message: string, severity: 'success' | 'error') => void;
 }
 
-export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps) {
+export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: UsuariosModalProps) {
     const [formData, setFormData] = useState<UsuarioRequestType>({
         email: '',
         name: '',
@@ -51,10 +52,10 @@ export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps
                 lastname: currentUser.lastname || '',
                 password: '',
                 systemRole: currentUser.systemRole,
-                empresas: currentUser.empresas.map(emp => ({
-                    empresaId: emp.empresa.id, // Ajustado para manejar la estructura correcta
+                empresas: currentUser.empresas ? currentUser.empresas.map(emp => ({
+                    empresaId: emp.empresa.id,
                     companyRole: emp.companyRole,
-                })),
+                })) : [],
             });
         } else {
             setFormData({
@@ -111,7 +112,7 @@ export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps
                 companyRole: existingEmpresa?.companyRole || 'user',
             };
         });
-
+    
         setFormData(prev => ({
             ...prev,
             empresas: updatedEmpresas,
@@ -133,17 +134,14 @@ export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps
         setIsSubmitting(true);
         try {
             if (currentUser) {
-                // Solo enviar los campos que se están editando
                 const updatedData: Partial<UsuarioRequestType> = {
-                    empresas: formData.empresas, // Siempre enviar las empresas
+                    empresas: formData.empresas,
                 };
     
-                // Solo enviar el password si ha sido modificado
                 if (formData.password) {
                     updatedData.password = formData.password;
                 }
     
-                // Solo enviar el email, name y lastname si han sido modificados
                 if (formData.email !== currentUser.email) {
                     updatedData.email = formData.email;
                 }
@@ -154,15 +152,33 @@ export function UsuariosModal({ open, onClose, currentUser }: UsuariosModalProps
                     updatedData.lastname = formData.lastname;
                 }
     
-                await updateUsuario({ id: currentUser.id, data: updatedData });
+                await updateUsuario({ id: currentUser.id, data: updatedData }, {
+                    onSuccess: () => {
+                        showSnackbar('Usuario actualizado exitosamente', 'success');
+                        onClose();
+                    },
+                    onError: (error) => {
+                        const errorMessage = error instanceof Error ? error.message : 'Error al actualizar usuario';
+                        showSnackbar(errorMessage, 'error');
+                    }
+                });
             } else {
-                // Validar todos los campos para la creación
                 if (!validateForm()) return;
     
-                await createUsuario(formData);
+                await createUsuario(formData, {
+                    onSuccess: () => {
+                        showSnackbar('Usuario creado exitosamente', 'success');
+                        onClose();
+                    },
+                    onError: (error) => {
+                        const errorMessage = error instanceof Error ? error.message : 'Error al crear usuario';
+                        showSnackbar(errorMessage, 'error');
+                    }
+                });
             }
-            onClose();
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+            showSnackbar(errorMessage, 'error');
             console.error('Error:', error);
         } finally {
             setIsSubmitting(false);

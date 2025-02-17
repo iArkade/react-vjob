@@ -15,7 +15,7 @@ export function AsientosShow(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const asientoId = id ? parseInt(id, 10) : undefined;
-  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const {
     data: asiento,
     isLoading,

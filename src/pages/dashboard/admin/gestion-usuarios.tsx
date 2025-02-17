@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Snackbar, Alert } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { UsuariosTable } from '@/components/usuario/usuario-table';
@@ -15,10 +15,7 @@ export function GestionUsuarios() {
         severity: 'success' as 'success' | 'error'
     });
 
-    // Fetch users query
     const { data: users = [], isLoading, error } = useGetUsuario();
-
-    // Delete mutation
     const { mutate: deleteUsuario } = useDeleteUsuario();
 
     const handleOpenDialog = (user: UsuarioResponseType | null = null) => {
@@ -29,7 +26,13 @@ export function GestionUsuarios() {
     const handleCloseDialog = () => {
         setOpen(false);
         setCurrentUser(null);
+    
+        // Mueve el foco al botón "Nuevo Usuario" cuando el modal se cierra
+        setTimeout(() => {
+            document.getElementById('open-user-modal-btn')?.focus();
+        }, 0);
     };
+    
 
     const showSnackbar = (message: string, severity: 'success' | 'error' = 'success') => {
         setSnackbar({ 
@@ -49,8 +52,8 @@ export function GestionUsuarios() {
                 showSnackbar('Usuario eliminado exitosamente');
             },
             onError: (error) => {
-                showSnackbar('Error al eliminar usuario', 'error');
-                console.error(error);
+                const errorMessage = error instanceof Error ? error.message : 'Error al eliminar usuario';
+                showSnackbar(errorMessage, 'error');
             }
         });
     };
@@ -62,6 +65,7 @@ export function GestionUsuarios() {
         <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', p: 3 }}>
             <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
+                    id="open-user-modal-btn"
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => handleOpenDialog()}
@@ -70,21 +74,19 @@ export function GestionUsuarios() {
                 </Button>
             </Box>
 
-            {/* Table Component */}
             <UsuariosTable 
                 users={users} 
                 onEdit={handleOpenDialog}
                 onDelete={handleDeleteUser}
             />
 
-            {/* Modal Component */}
             <UsuariosModal
                 open={open}
                 onClose={handleCloseDialog}
                 currentUser={currentUser}
+                showSnackbar={showSnackbar}
             />
 
-            {/* Snackbar for notifications */}
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={4000}
@@ -98,6 +100,6 @@ export function GestionUsuarios() {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-        </Box>
+        </Box> 
     );
 }

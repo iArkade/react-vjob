@@ -10,7 +10,7 @@ interface AccountFormProps {
 }
 
 const AccountForm: React.FC<AccountFormProps> = memo(({ onSubmit }) => {
-  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const [newAccount, setNewAccount] = useState<AccountingPlanRequestType>({
     code: "",
     name: "",

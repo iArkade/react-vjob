@@ -28,7 +28,7 @@ interface AccountSelectionModalProps {
 
 export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ open, onClose, onSelect }) => {
 
-     const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+     const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
      const {
           data: accountData,
           isLoading,

@@ -18,7 +18,7 @@ interface TransactionFormProps {
 
 const TransactionForm: React.FC<TransactionFormProps> = memo(
   ({ onSubmit, existingTransactions = [] }) => {
-    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
     const [newTransaction, setNewTransaction] =
       useState<TransaccionContableRequestType>({
         codigo_transaccion: "",

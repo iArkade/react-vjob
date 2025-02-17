@@ -163,7 +163,7 @@ export function AsientosForm({
   } = methods;
 
   //console.log(errors);
-  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
 
   const {
     data: centros = [],

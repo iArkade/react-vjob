@@ -8,7 +8,6 @@ import {
     TableRow,
     Paper,
     Button,
-    Box,
     TablePagination
 } from '@mui/material';
 import { EmpresaResponseType } from '@/api/empresas/empresa-types';

@@ -16,8 +16,9 @@ const empresaSlice = createSlice({
         setSelectedEmpresa(state, action: PayloadAction<EmpresaResponseType>) {
             state.selectedEmpresa = action.payload;
         },
+        resetEmpresaState: () => initialState,
     },
 });
 
-export const { setSelectedEmpresa } = empresaSlice.actions;
+export const { setSelectedEmpresa, resetEmpresaState } = empresaSlice.actions;
 export default empresaSlice.reducer;

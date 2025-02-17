@@ -39,7 +39,7 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
     url = selectedEmpresa.logo;
   } else {
     // Use the default logo
-    url = `/static/logo-${color}${emblem ? '-emblem' : ''}.svg`;
+    url = "http://localhost:4000/uploads/logos/logo-principal.png";
   }
 
   return <Box alt="logo" component="img" height={height} src={url} width={width} margin={'auto'} />;

@@ -19,7 +19,7 @@ interface CostCenterFormProps {
 
 const CostCenterForm: React.FC<CostCenterFormProps> = memo(
   ({ onSubmit, existingCostCenters = [] }) => {
-    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
     const [newCostCenter, setNewCostCenter] = useState<CentroCostoRequestType>({
       codigo: "",
       nombre: "",

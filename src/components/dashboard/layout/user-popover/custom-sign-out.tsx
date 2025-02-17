@@ -8,16 +8,19 @@ import { useLogoutUser } from '@/api/user-request';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '@/state/slices/authSlice';
+import { useQueryClient } from 'react-query';
+import { resetEmpresaState } from '@/state/slices/empresaSlice';
 
 export function CustomSignOut(): React.JSX.Element {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mutateAsync: logoutUser } = useLogoutUser();
-
+  const queryClient = useQueryClient();
+  
   const handleSignOut = async () => {
     try {
-
+      
       //const { error } = await authClient.signOut();
       // if (error) {
       //   logger.error('Sign out error', error);
@@ -26,10 +29,11 @@ export function CustomSignOut(): React.JSX.Element {
       // }
 
       await logoutUser();
-      localStorage.removeItem('token');
-      localStorage.removeItem('selectedEmpresa');
       dispatch(logout());
+      dispatch(resetEmpresaState());
+      queryClient.clear();
       navigate('/login');
+      //window.location.reload(); 
 
 
     } catch (err) {

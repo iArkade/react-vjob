@@ -26,7 +26,7 @@ const CostCenterTable: React.FC = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
-    const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+    const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
     const {
         costCenters,
         totalcostCenters,

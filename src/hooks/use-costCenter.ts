@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetCentroCostoPaginated, useCreateCentroCosto, useUpdateCentroCosto, useDeleteCentroCosto, useGetCentroCosto } from '@/api/centro_costo/centro-costo-request';
+import { useGetCentroCostoPaginated, useCreateCentroCosto, useUpdateCentroCosto, useDeleteCentroCosto } from '@/api/centro_costo/centro-costo-request';
 import { CentroCostoRequestType, CentroCostoResponseType } from '@/api/centro_costo/centro-costo.types';
 import { normalizeCode } from '@/utils/validators';
 

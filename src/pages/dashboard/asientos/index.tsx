@@ -17,7 +17,7 @@ export function Asientos(): React.JSX.Element {
   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
   // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
   // const [openModal, setOpenModal] = React.useState(false);
-  const { selectedEmpresa } = useSelector((state: RootState) => state.empresa);
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const { data: asientos, isLoading, isError } = useAsientos(selectedEmpresa.id);
   //Prueba: esto es para actualizar para cuando le de al botn de edit const handleRefetch = () => {
   //      refetch(); // Forzar la recarga de datos

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUpdateTransaccionContable, useDeleteTransaccionContable, useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
+import { useGetTransaccionContablePaginated, useCreateTransaccionContable, useUpdateTransaccionContable, useDeleteTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
 import { TransaccionContableRequestType, TransaccionContableResponseType } from '@/api/transaccion_contable/transaccion-contable-types';
 import { normalizeCode } from '@/utils/validators';
 
@@ -54,16 +54,19 @@ const useTransaccionContable = (page: number, rowsPerPage: number, empresa_id: n
             setError(errorMessage);
             return { success: false, error: errorMessage };
         }
-    };
+    }; 
 
-    const deleteTransaction = async (codigo_transaccion: string, empresa_id: number) => {
+    const deleteTransaction = async (codigo_transaccion: string, empresa_id: number): Promise<{ success: boolean; error?: string }> => {
 
         try {
             await deleteTransaccionContable.mutateAsync({code: codigo_transaccion, empresa_id});
             setSuccess('Cuenta eliminada exitosamente.');
             refetch();
+            return { success: true };
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error al eliminar la cuenta');
+            const errorMessage = error instanceof Error ? error.message : "Error al eliminar la transaccion";
+            setError(error instanceof Error ? error.message : 'Error al eliminar la transaccion');
+            return { success: false, error: errorMessage };
         }
     };
 
