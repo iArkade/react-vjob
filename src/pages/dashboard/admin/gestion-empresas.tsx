@@ -153,40 +153,6 @@ const GestionEmpresas: React.FC = () => {
                 </Snackbar>
             </Box>
         </React.Fragment>
-
-        // <Container maxWidth="lg">
-        //     <Box sx={{ my: 4 }}>
-        //         <Typography variant="h4" gutterBottom>Gestión de Empresas</Typography>
-        //         <Button
-        //             variant="contained"
-        //             color="primary"
-        //             onClick={() => handleOpenModal()}
-        //             sx={{ mb: 3 }}
-        //         >
-        //             Agregar Empresa
-        //         </Button>
-        //         <EmpresaTable
-        //             empresas={empresas}
-        //             onEdit={handleOpenModal}
-        //             onDelete={handleDeleteEmpresa}
-        //         />
-        //         <EmpresaModal
-        //             open={modalOpen}
-        //             onClose={handleCloseModal}
-        //             onSave={handleSaveEmpresa}
-        //             empresa={selectedEmpresa}
-        //         />
-        //         <Snackbar
-        //             open={snackbar.open}
-        //             autoHideDuration={4000}
-        //             onClose={handleCloseSnackbar}
-        //         >
-        //             <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-        //                 {snackbar.message}
-        //             </Alert>
-        //         </Snackbar>
-        //     </Box>
-        // </Container>
     );
 };
 
