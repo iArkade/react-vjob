@@ -84,6 +84,7 @@ const updateEmpresaRequest = async (id: number, data: EmpresaRequestType) => {
     const token = getAuthToken();
     const response = await http.put(`empresa/${id}`, data, {
       headers: {
+        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
       },
     });

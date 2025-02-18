@@ -16,6 +16,7 @@ import {
     Toolbar,
     Avatar,
     Chip,
+    Tooltip,
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -105,18 +106,22 @@ export function UsuariosTable({ users, onEdit, onDelete }: UsuariosTableProps) {
                                         />
                                     </TableCell>
                                     <TableCell align="right">
-                                        <IconButton
-                                            color="primary"
-                                            onClick={() => onEdit(user)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton
-                                            color="error"
-                                            onClick={() => onDelete(user.id)}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
+                                        <Tooltip title="Editar" arrow>
+                                            <IconButton
+                                                color="primary"
+                                                onClick={() => onEdit(user)}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Eliminar" arrow>
+                                            <IconButton
+                                                color="error"
+                                                onClick={() => onDelete(user.id)}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
                                     </TableCell>
                                 </TableRow>
                             ))}

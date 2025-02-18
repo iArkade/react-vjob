@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Container, Typography, Alert, Box, Snackbar } from '@mui/material';
+import { Button, Typography, Alert, Box, Snackbar, Divider, Stack, Card } from '@mui/material';
 import EmpresaTable from '@/components/empresa/empresa-table';
 import EmpresaModal from '@/components/empresa/empresa-modal';
 import {
@@ -97,28 +97,51 @@ const GestionEmpresas: React.FC = () => {
     if (error) return <Alert severity="error">Error al cargar empresas</Alert>;
 
     return (
-        <Container maxWidth="lg">
-            <Box sx={{ my: 4 }}>
-                <Typography variant="h4" gutterBottom>Gestión de Empresas</Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleOpenModal()}
-                    sx={{ mb: 3 }}
-                >
-                    Agregar Empresa
-                </Button>
-                <EmpresaTable
-                    empresas={empresas}
-                    onEdit={handleOpenModal}
-                    onDelete={handleDeleteEmpresa}
-                />
-                <EmpresaModal
-                    open={modalOpen}
-                    onClose={handleCloseModal}
-                    onSave={handleSaveEmpresa}
-                    empresa={selectedEmpresa}
-                />
+        <React.Fragment>
+            <Box
+                sx={{
+                    maxWidth: "var(--Content-maxWidth)",
+                    m: "var(--Content-margin)",
+                    p: "var(--Content-padding)",
+                    width: "var(--Content-width)",
+                }}
+            >
+                <Stack spacing={4}>
+                    <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={3}
+                        sx={{ alignItems: "flex-start" }}
+                    >
+                        <Box sx={{ flex: "1 1 auto" }}>
+                            <Typography variant="h4">Gestión de Empresas</Typography>
+                        </Box>
+                        <div>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleOpenModal()}
+                            >
+                                Agregar Empresa
+                            </Button>
+                        </div>
+                    </Stack>
+                    <Card>
+                        <Box sx={{ overflowX: "auto" }}>
+                            <EmpresaTable
+                                empresas={empresas}
+                                onEdit={handleOpenModal}
+                                onDelete={handleDeleteEmpresa}
+                            />
+                            <EmpresaModal
+                                open={modalOpen}
+                                onClose={handleCloseModal}
+                                onSave={handleSaveEmpresa}
+                                empresa={selectedEmpresa}
+                            />
+                        </Box>
+                        <Divider />
+                    </Card>
+                </Stack>
                 <Snackbar
                     open={snackbar.open}
                     autoHideDuration={4000}
@@ -129,7 +152,41 @@ const GestionEmpresas: React.FC = () => {
                     </Alert>
                 </Snackbar>
             </Box>
-        </Container>
+        </React.Fragment>
+
+        // <Container maxWidth="lg">
+        //     <Box sx={{ my: 4 }}>
+        //         <Typography variant="h4" gutterBottom>Gestión de Empresas</Typography>
+        //         <Button
+        //             variant="contained"
+        //             color="primary"
+        //             onClick={() => handleOpenModal()}
+        //             sx={{ mb: 3 }}
+        //         >
+        //             Agregar Empresa
+        //         </Button>
+        //         <EmpresaTable
+        //             empresas={empresas}
+        //             onEdit={handleOpenModal}
+        //             onDelete={handleDeleteEmpresa}
+        //         />
+        //         <EmpresaModal
+        //             open={modalOpen}
+        //             onClose={handleCloseModal}
+        //             onSave={handleSaveEmpresa}
+        //             empresa={selectedEmpresa}
+        //         />
+        //         <Snackbar
+        //             open={snackbar.open}
+        //             autoHideDuration={4000}
+        //             onClose={handleCloseSnackbar}
+        //         >
+        //             <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        //                 {snackbar.message}
+        //             </Alert>
+        //         </Snackbar>
+        //     </Box>
+        // </Container>
     );
 };
 

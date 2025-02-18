@@ -7,9 +7,14 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Button,
-    TablePagination
+    TablePagination,
+    IconButton,
+    Tooltip
 } from '@mui/material';
+import {
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+} from '@mui/icons-material';
 import { EmpresaResponseType } from '@/api/empresas/empresa-types';
 
 interface EmpresaTableProps {
@@ -56,8 +61,24 @@ const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete 
                                 <TableCell>{empresa.telefono}</TableCell>
                                 <TableCell>{empresa.direccion}</TableCell>
                                 <TableCell>
-                                    <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
-                                    <Button onClick={() => onDelete(empresa.id)} color="error">Eliminar</Button>
+                                    {/* <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
+                                    <Button onClick={() => onDelete(empresa.id)} color="error">Eliminar</Button> */}
+                                    <Tooltip title="Editar" arrow>
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() => onEdit(empresa)}
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Eliminar" arrow>
+                                        <IconButton
+                                            color="error"
+                                            onClick={() => onDelete(empresa.id)}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Tooltip>
                                 </TableCell>
                             </TableRow>
                         ))}
