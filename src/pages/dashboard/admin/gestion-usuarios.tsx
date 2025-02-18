@@ -74,12 +74,6 @@ export function GestionUsuarios() {
                     dispatch(setFeedback({ message, severity, isError: severity === 'error' }))
                 }
             />
-            {/* <UsuariosModal
-                open={open}
-                onClose={handleCloseDialog}
-                currentUser={currentUser}
-                showSnackbar={showSnackbar}
-            /> */}
         </Box> 
     );
 }
