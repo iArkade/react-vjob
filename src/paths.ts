@@ -60,27 +60,29 @@ export const paths = {
           }
      },
      dashboard: {
-          overview: '/dashboard',
-          usuarios: '/dashboard/usuarios',
+          overview: (empresaId: string | number) => `/empresa/${empresaId}/dashboard`,
+          usuarios: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/usuarios`,
           settings: {
-               company: '/dashboard/settings/company',
-               account: '/dashboard/settings/account',
-               billing: '/dashboard/settings/billing',
-               integrations: '/dashboard/settings/integrations',
-               notifications: '/dashboard/settings/notifications',
-               security: '/dashboard/settings/security',
-               team: '/dashboard/settings/team',
+               company: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/company`,
+               account: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/account`,
+               billing: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/billing`,
+               integrations: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/integrations`,
+               notifications: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/notifications`,
+               security: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/security`,
+               team: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/team`,
           },
-          academy: { browse: '/dashboard/academy', details: (courseId: string) => `/dashboard/academy/courses/${courseId}` },
-          planCuentas:'/dashboard/plan-cuentas',
-          transacciones: '/dashboard/transacciones',
-          centroCostos: '/dashboard/centro-costos',
+          planCuentas: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/plan-cuentas`,
+          transacciones: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/transacciones`,
+          centroCostos: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/centro-costos`,
           asientos: {
-               index: '/dashboard/asientos',
-               create: '/dashboard/asientos/create',
-               preview: (asientoId: number) => `/dashboard/asientos?previewId=${asientoId}`,
-               details: (asientoId: number) => `/dashboard/asientos/${asientoId}`,
-               pdf: (asientoId: number) => `/dashboard/asientos/pdf/${asientoId}`
+               index: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/asientos`,
+               create: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/asientos/create`,
+               preview: (empresaId: string | number, asientoId: number) =>
+                    `/empresa/${empresaId}/dashboard/asientos?previewId=${asientoId}`,
+               details: (empresaId: string | number, asientoId: number) =>
+                    `/empresa/${empresaId}/dashboard/asientos/${asientoId}`,
+               pdf: (empresaId: string | number, asientoId: number) =>
+                    `/empresa/${empresaId}/dashboard/asientos/pdf/${asientoId}`,
           },
           blank: '/dashboard/blank',
           analytics: '/dashboard/analytics',
@@ -143,7 +145,7 @@ export const paths = {
           },
           tasks: '/dashboard/tasks',
      },
-     pdf: { 
+     pdf: {
           invoice: (invoiceId: string) => `/pdf/invoices/${invoiceId}`,
           //asiento: (asientoId: number) => `/pdf/asientos/${asientoId}`
      },

@@ -1,17 +1,9 @@
+import { AuthUserType } from "@/api/user-types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type UserRole = 'superadmin' | 'admin' | 'user';
-
-interface User {
-     id: number;
-     email: string;
-     name: string;
-     lastname: string;
-     role: UserRole;
-}
 
 interface AuthState {
-     user: User | null;
+     user: AuthUserType | null;
      isAuthenticated: boolean;
 }
 
@@ -24,7 +16,7 @@ const authSlice = createSlice({
      name: "auth",
      initialState,
      reducers: {
-          setUser(state, action: PayloadAction<User>) {
+          setUser(state, action: PayloadAction<AuthUserType>) {
                state.user = action.payload;
                state.isAuthenticated = true;
           },

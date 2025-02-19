@@ -18,7 +18,6 @@ import {
 import { Save as SaveIcon, Close as CloseIcon } from '@mui/icons-material';
 import { UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
 import { useCreateUsuario, useUpdateUsuario } from '@/api/user-request';
-import { SystemRole } from '@/api/user-types';
 import { useGetEmpresa } from '@/api/empresas/empresa-request';
 
 interface UsuariosModalProps {
@@ -34,7 +33,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
         name: '',
         lastname: '',
         password: '',
-        systemRole: '',
         empresas: [],
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,7 +49,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 name: currentUser.name,
                 lastname: currentUser.lastname || '',
                 password: '',
-                systemRole: currentUser.systemRole,
                 empresas: currentUser.empresas ? currentUser.empresas.map(emp => ({
                     empresaId: emp.empresa.id,
                     companyRole: emp.companyRole,
@@ -63,7 +60,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 name: '',
                 lastname: '',
                 password: '',
-                systemRole: '', // Valor por defecto
                 empresas: [],
             });
         }
@@ -76,7 +72,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
         if (!formData.email) newErrors.email = 'El correo es requerido';
         if (!formData.name) newErrors.name = 'El nombre es requerido';
         if (!currentUser && !formData.password) newErrors.password = 'La contraseña es requerida para nuevos usuarios';
-        if (!formData.systemRole) newErrors.systemRole = 'El rol es requerido';
         
         formData.empresas.forEach((empresa, index) => {
             if (!empresa.companyRole) {
@@ -273,37 +268,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                                             onChange={handleChange}
                                             disabled={isSubmitting}
                                         />
-                                    </Grid>
-                                </Grid>
-                            </Paper>
-                        </Grid>
-
-                        {/* Roles y permisos */}
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium' }}>
-                                Roles y permisos
-                            </Typography>
-                            <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.50' }}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            select
-                                            label="Rol del Sistema"
-                                            fullWidth
-                                            required
-                                            name="systemRole"
-                                            value={formData.systemRole}
-                                            onChange={handleChange}
-                                            error={!!errors.systemRole}
-                                            helperText={errors.systemRole}
-                                            disabled={isSubmitting || !!currentUser}
-                                        >
-                                            {Object.values(SystemRole).map((role) => (
-                                                <MenuItem key={role} value={role}>
-                                                    {role === 'admin' ? 'Administrador' : 'Usuario'}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
                                     </Grid>
                                 </Grid>
                             </Paper>

@@ -6,7 +6,12 @@ export interface EmpresaResponseType {
     correo: string;
     telefono: string;
     direccion: string;
-    logo: string; // Note: logo is a string (URL/path) in response
+    logo: string;
+    createdAt?: string; // Opcional, dependiendo de tu caso
+}
+
+export interface EmpresaConRolType extends EmpresaResponseType {
+    companyRole: string; // Agregar el rol del usuario en la empresa
 }
 
 export interface EmpresaRequestType {

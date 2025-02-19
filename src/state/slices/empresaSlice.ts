@@ -1,19 +1,19 @@
-import { EmpresaResponseType } from '@/api/empresas/empresa-types';
+import { EmpresaConRolType, EmpresaResponseType } from '@/api/empresas/empresa-types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface EmpresaState {
-    selectedEmpresa: EmpresaResponseType
+    selectedEmpresa: EmpresaConRolType;
 }
 
 const initialState: EmpresaState = {
-    selectedEmpresa: {} as EmpresaResponseType,
+    selectedEmpresa: {} as EmpresaConRolType,
 };
 
 const empresaSlice = createSlice({
     name: 'empresa',
     initialState,
     reducers: {
-        setSelectedEmpresa(state, action: PayloadAction<EmpresaResponseType>) {
+        setSelectedEmpresa(state, action: PayloadAction<EmpresaConRolType>) {
             state.selectedEmpresa = action.payload;
         },
         resetEmpresaState: () => initialState,

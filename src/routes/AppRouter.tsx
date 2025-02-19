@@ -8,7 +8,7 @@ import { AdminRoutes } from "./AdminRoutes";
 
 export const AppRouter = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.authSlice);
-  const hasSelectedCompany = useSelector((state: RootState) => !!state.empresaSlice.selectedEmpresa?.id);
+  const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
 
 
   if (!isAuthenticated) {
@@ -29,19 +29,19 @@ export const AppRouter = () => {
     );
   }
 
+  if (!selectedEmpresa?.id) {
+    return (
+      <Routes>
+        <Route path="/empresa" element={<Empresa />} />
+        <Route path="*" element={<Navigate to="/empresa" />} />
+      </Routes>
+    );
+  }
+
   return (
-    <Routes>
-      {!hasSelectedCompany ? (
-        <Route>
-          <Route path="/empresa" element={<Empresa />} />
-          <Route path="*" element={<Navigate to="/empresa" />} />
-        </Route>
-      ) : (
-        <Route>
-          <Route path="/dashboard/*" element={<PrivateRoutes />} />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
-        </Route>
-      )}
-    </Routes>
+      <Routes>
+        <Route path="/empresa/:empresaId/dashboard/*" element={<PrivateRoutes />} />
+        <Route path="*" element={<Navigate to={`/empresa/${selectedEmpresa.id}/dashboard`} />} />
+      </Routes>
   );
 };

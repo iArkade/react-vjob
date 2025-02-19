@@ -14,9 +14,15 @@ import { RootState } from '@/state/store';
 
 export function VerticalLayout(): React.JSX.Element {
   const { user } = useSelector((state: RootState) => state.authSlice);
-  const layoutConfig = getLayoutConfig(user?.role || 'user');
+  const systemRole = user?.role || 'user';
+  const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
+  const companyRole = selectedEmpresa?.companyRole || 'user'; // Si no hay empresa seleccionada, asume 'user'
+
+  const layoutConfig = getLayoutConfig(systemRole, companyRole, selectedEmpresa?.id);
+
+
   const { settings } = useSettings();
-  
+
 
   return (
     <React.Fragment>
@@ -41,9 +47,9 @@ export function VerticalLayout(): React.JSX.Element {
           minHeight: '100%',
         }}
       >
-        <SideNav color={settings.navColor} items={layoutConfig.navItems} />
+        <SideNav color={settings.navColor} items={layoutConfig} />
         <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: 'column', pl: { lg: 'var(--SideNav-width)' } }}>
-          <MainNav items={layoutConfig.navItems} />
+          <MainNav items={layoutConfig} />
           <Box
             component="main"
             sx={{

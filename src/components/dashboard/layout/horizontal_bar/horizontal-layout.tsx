@@ -14,8 +14,15 @@ import { RootState } from '@/state/store';
 
 
 export function HorizontalLayout(): React.JSX.Element {
+
   const { user } = useSelector((state: RootState) => state.authSlice);
-  const layoutConfig = getLayoutConfig(user?.role || 'user');
+  const systemRole = user?.role || 'user';
+  const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
+  const companyRole = selectedEmpresa?.companyRole || 'user'; // Si no hay empresa seleccionada, asume 'user'
+
+  const layoutConfig = getLayoutConfig(systemRole, companyRole, selectedEmpresa?.id);
+
+  
   const { settings } = useSettings();
 
   return (
@@ -32,7 +39,7 @@ export function HorizontalLayout(): React.JSX.Element {
           minHeight: '100%',
         }}
       >
-        <MainNav color={settings.navColor} items={layoutConfig.navItems} />
+        <MainNav color={settings.navColor} items={layoutConfig} />
         <Box
           component="main"
           sx={{

@@ -1,3 +1,4 @@
+//Registar Usuario Superadmin
 export interface UsersType {
      email: string;
      name: string;
@@ -8,6 +9,14 @@ export interface UsersType {
      systemRole?: string;
 }
 
+//Iniciar sesion 
+export interface LoginRequestType {
+     email: string;
+     password: string;
+}
+
+
+//Crear usuarios admin o user
 export interface UsuarioResponseType {
      id: number;
      email: string;
@@ -32,24 +41,35 @@ export interface UsuarioRequestType {
      name: string;
      lastname?: string;
      password: string;
-     systemRole: string;
+     systemRole?: string;
      empresas: {
           empresaId: number;    // ID de la empresa asignada
           companyRole: string;  // Rol de la empresa asignada
      }[];  // Aquí cambiamos a un arreglo de objetos de empresas
 }
 
-export enum SystemRole {
-     ADMIN = 'admin',
-     USER = 'user'
-}
 
 export enum CompanyRole {
      ADMIN = 'admin',
      USER = 'user'
 }
 
-export interface LoginRequestType {
-     email: string;
-     password: string;
+// Definir un tipo específico para la relación usuario-empresa en el usuario autenticado
+export interface AuthUserEmpresa {
+     id: number;
+     nombre: string;
+     role: string;
 }
+
+// Definir un tipo específico para el usuario autenticado
+export interface AuthUserType {
+     id: number;
+     email: string;
+     name: string;
+     lastname?: string;
+     active?: boolean;
+     systemRole: string;
+     empresas: AuthUserEmpresa[];
+}
+
+
