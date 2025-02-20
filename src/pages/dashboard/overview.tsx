@@ -65,3 +65,18 @@ export function OverviewPage(): React.JSX.Element {
     </React.Fragment>
   );
 }
+
+
+//esto toca agregar
+// <div>
+// <Link
+//   color="text.primary"
+//   component={RouterLink}
+//   href={paths.dashboard.customers.list}
+//   sx={{ alignItems: 'center', display: 'inline-flex', gap: 1 }}
+//   variant="subtitle2"
+// >
+//   <ArrowLeftIcon fontSize="var(--icon-fontSize-md)" />
+//   Customers
+// </Link>
+// </div>
