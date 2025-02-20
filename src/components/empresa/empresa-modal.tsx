@@ -49,35 +49,67 @@ const EmpresaModal: React.FC<EmpresaModalProps> = ({
     } = useForm<EmpresaRequestType>();
 
     //Actualiza los valores del modal cuando empresa cambia
+    // React.useEffect(() => {
+    //     if (empresa) {
+    //         //console.log('Cargando datos de la empresa en el formulario:', empresa);
+    //         reset({
+    //             codigo: empresa.codigo || '',
+    //             ruc: empresa.ruc || '',
+    //             nombre: empresa.nombre || '',
+    //             correo: empresa.correo || '',
+    //             telefono: empresa.telefono || '',
+    //             direccion: empresa.direccion || '',
+    //             logo: null,
+    //             ...(empresa.id ? { id: empresa.id } : {}),
+    //         });
+    //         setSelectedImage(empresa.logo || null); // Cargar imagen si existe
+    //         setNewImageFile(null);
+    //     } else {
+    //         reset({
+    //             codigo: '',
+    //             ruc: '',
+    //             nombre: '',
+    //             correo: '',
+    //             telefono: '',
+    //             direccion: '',
+    //             logo: null,
+    //         });
+    //         setSelectedImage(null);
+    //         setNewImageFile(null);
+    //     }
+    // }, [empresa, reset]);
     React.useEffect(() => {
-        if (empresa) {
-            //console.log('Cargando datos de la empresa en el formulario:', empresa);
-            reset({
-                codigo: empresa.codigo || '',
-                ruc: empresa.ruc || '',
-                nombre: empresa.nombre || '',
-                correo: empresa.correo || '',
-                telefono: empresa.telefono || '',
-                direccion: empresa.direccion || '',
-                logo: null,
-                ...(empresa.id ? { id: empresa.id } : {}),
-            });
-            setSelectedImage(empresa.logo || null); // Cargar imagen si existe
-            setNewImageFile(null);
-        } else {
-            reset({
-                codigo: '',
-                ruc: '',
-                nombre: '',
-                correo: '',
-                telefono: '',
-                direccion: '',
-                logo: null,
-            });
-            setSelectedImage(null);
-            setNewImageFile(null);
+        if (open) {
+            if (empresa) {
+                // Modo edición: Carga los datos de la empresa
+                reset({
+                    codigo: empresa.codigo || '',
+                    ruc: empresa.ruc || '',
+                    nombre: empresa.nombre || '',
+                    correo: empresa.correo || '',
+                    telefono: empresa.telefono || '',
+                    direccion: empresa.direccion || '',
+                    logo: null,
+                    ...(empresa.id ? { id: empresa.id } : {}),
+                });
+                setSelectedImage(empresa.logo || null);
+                setNewImageFile(null);
+            } else {
+                reset({
+                    codigo: '',
+                    ruc: '',
+                    nombre: '',
+                    correo: '',
+                    telefono: '',
+                    direccion: '',
+                    logo: null,
+                });
+                setSelectedImage(null);
+                setNewImageFile(null);
+            }
         }
-    }, [empresa, reset]);
+    }, [open, empresa, reset]);
+
 
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -114,7 +146,7 @@ const EmpresaModal: React.FC<EmpresaModalProps> = ({
             ...data,
             logo: newImageFile // This will be File | null
         };
-        
+
         onSave(submitData);
     };
 
