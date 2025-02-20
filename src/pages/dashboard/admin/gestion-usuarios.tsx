@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { Box, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { UsuariosTable } from '@/components/usuario/usuario-table';
 import { UsuariosModal } from '@/components/usuario/usuario-modal';
 import { useGetUsuario, useDeleteUsuario } from '@/api/user-request';
 import { UsuarioResponseType } from '@/api/user-types';
+import { useDispatch } from 'react-redux';
+import { setFeedback } from '@/state/slices/feedBackSlice';
 
 export function GestionUsuarios() {
     const [open, setOpen] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<UsuarioResponseType | null>(null);
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error'
-    });
+
+    const dispatch = useDispatch();
 
     const { data: users = [], isLoading, error } = useGetUsuario();
     const { mutate: deleteUsuario } = useDeleteUsuario();
@@ -26,34 +25,21 @@ export function GestionUsuarios() {
     const handleCloseDialog = () => {
         setOpen(false);
         setCurrentUser(null);
-    
+
         // Mueve el foco al botón "Nuevo Usuario" cuando el modal se cierra
         setTimeout(() => {
             document.getElementById('open-user-modal-btn')?.focus();
         }, 0);
     };
-    
-
-    const showSnackbar = (message: string, severity: 'success' | 'error' = 'success') => {
-        setSnackbar({ 
-            open: true, 
-            message, 
-            severity 
-        });
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar(prev => ({ ...prev, open: false }));
-    };
 
     const handleDeleteUser = (userId: number) => {
         deleteUsuario(userId, {
             onSuccess: () => {
-                showSnackbar('Usuario eliminado exitosamente');
+                dispatch(setFeedback({ message: 'Usuario eliminado exitosamente', severity: 'success', isError: false }));
             },
             onError: (error) => {
                 const errorMessage = error instanceof Error ? error.message : 'Error al eliminar usuario';
-                showSnackbar(errorMessage, 'error');
+                dispatch(setFeedback({ message: errorMessage, severity: 'error', isError: true }));
             }
         });
     };
@@ -84,22 +70,10 @@ export function GestionUsuarios() {
                 open={open}
                 onClose={handleCloseDialog}
                 currentUser={currentUser}
-                showSnackbar={showSnackbar}
+                showSnackbar={(message, severity = 'success') => 
+                    dispatch(setFeedback({ message, severity, isError: severity === 'error' }))
+                }
             />
-
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={4000}
-                onClose={handleCloseSnackbar}
-            >
-                <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </Box> 
     );
 }

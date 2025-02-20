@@ -26,7 +26,7 @@ function App() {
       {message !== null && (
         <Snackbar
           open={message !== null}
-          autoHideDuration={6000}
+          autoHideDuration={4000}
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >

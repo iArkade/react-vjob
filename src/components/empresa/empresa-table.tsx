@@ -61,8 +61,6 @@ const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete 
                                 <TableCell>{empresa.telefono}</TableCell>
                                 <TableCell>{empresa.direccion}</TableCell>
                                 <TableCell>
-                                    {/* <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
-                                    <Button onClick={() => onDelete(empresa.id)} color="error">Eliminar</Button> */}
                                     <Tooltip title="Editar" arrow>
                                         <IconButton
                                             color="primary"

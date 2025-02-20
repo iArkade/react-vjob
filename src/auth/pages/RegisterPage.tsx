@@ -50,7 +50,7 @@ export default function RegisterPage() {
 
       // Proceed with user creation
       const response = await registerUser.mutateAsync({ email, name, lastname, password});
-      console.log(response)
+      //console.log(response)
 
       localStorage.setItem("token", response.data.tokens);
 
