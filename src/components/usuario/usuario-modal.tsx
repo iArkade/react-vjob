@@ -68,11 +68,15 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
-        
+
         if (!formData.email) newErrors.email = 'El correo es requerido';
         if (!formData.name) newErrors.name = 'El nombre es requerido';
         if (!currentUser && !formData.password) newErrors.password = 'La contraseña es requerida para nuevos usuarios';
-        
+
+        if (formData.empresas.length === 0) {
+            newErrors.empresas = 'Debe seleccionar al menos una empresa';
+        }
+
         formData.empresas.forEach((empresa, index) => {
             if (!empresa.companyRole) {
                 newErrors[`empresa-${index}`] = 'El rol de empresa es requerido';
@@ -107,7 +111,7 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 companyRole: existingEmpresa?.companyRole || 'user',
             };
         });
-    
+
         setFormData(prev => ({
             ...prev,
             empresas: updatedEmpresas,
@@ -125,18 +129,18 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-    
+
         setIsSubmitting(true);
         try {
             if (currentUser) {
                 const updatedData: Partial<UsuarioRequestType> = {
                     empresas: formData.empresas,
                 };
-    
+
                 if (formData.password) {
                     updatedData.password = formData.password;
                 }
-    
+
                 if (formData.email !== currentUser.email) {
                     updatedData.email = formData.email;
                 }
@@ -146,7 +150,7 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 if (formData.lastname !== currentUser.lastname) {
                     updatedData.lastname = formData.lastname;
                 }
-    
+
                 await updateUsuario({ id: currentUser.id, data: updatedData }, {
                     onSuccess: () => {
                         showSnackbar('Usuario actualizado exitosamente', 'success');
@@ -159,7 +163,7 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 });
             } else {
                 if (!validateForm()) return;
-    
+
                 await createUsuario(formData, {
                     onSuccess: () => {
                         showSnackbar('Usuario creado exitosamente', 'success');
@@ -181,10 +185,10 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
     };
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            maxWidth="md" 
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="md"
             fullWidth
             PaperProps={{
                 sx: {
@@ -193,7 +197,7 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                 }
             }}
         >
-            <DialogTitle sx={{ 
+            <DialogTitle sx={{
                 pb: 1,
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -295,16 +299,18 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                                                     {...params}
                                                     label="Seleccionar empresas"
                                                     placeholder="Buscar empresa..."
+                                                    error={!!errors.empresas}
+                                                    helperText={errors.empresas || ''}
                                                 />
                                             )}
                                             renderTags={(value, getTagProps) =>
                                                 value.map((option, index) => {
-                                                    const { key, ...otherProps } = getTagProps({ index }); // Extraer `key` y el resto de las props
+                                                    const { key, ...otherProps } = getTagProps({ index });
                                                     return (
                                                         <Chip
-                                                            key={key} // Pasar `key` directamente
+                                                            key={key}
                                                             label={option.nombre}
-                                                            {...otherProps} // Pasar el resto de las props
+                                                            {...otherProps}
                                                             color="primary"
                                                             variant="outlined"
                                                         />
@@ -318,10 +324,10 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
                                         const empresaInfo = empresasDisponibles.find(e => e.id === empresa.empresaId);
                                         return (
                                             <Grid item xs={12} key={empresa.empresaId}>
-                                                <Paper 
-                                                    elevation={0} 
-                                                    sx={{ 
-                                                        p: 2, 
+                                                <Paper
+                                                    elevation={0}
+                                                    sx={{
+                                                        p: 2,
                                                         bgcolor: 'background.paper',
                                                         border: 1,
                                                         borderColor: 'divider'
