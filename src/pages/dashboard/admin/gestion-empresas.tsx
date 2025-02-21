@@ -22,6 +22,9 @@ const GestionEmpresas: React.FC = () => {
     // Fetch empresas
     const { data: empresas = [], isLoading, error } = useGetEmpresa();
 
+    console.log(empresas);
+    
+
     // Mutation hooks
     const createEmpresa = useCreateEmpresa();
     const updateEmpresa = useUpdateEmpresa();

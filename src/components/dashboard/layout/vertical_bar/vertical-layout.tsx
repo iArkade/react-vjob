@@ -14,7 +14,7 @@ import { RootState } from '@/state/store';
 
 export function VerticalLayout(): React.JSX.Element {
   const { user } = useSelector((state: RootState) => state.authSlice);
-  const systemRole = user?.role || 'user';
+  const systemRole = user?.systemRole || 'user';
   const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
   const companyRole = selectedEmpresa?.companyRole || 'user'; // Si no hay empresa seleccionada, asume 'user'
 

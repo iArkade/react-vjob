@@ -1,4 +1,4 @@
-import { EmpresaConRolType, EmpresaResponseType } from '@/api/empresas/empresa-types';
+import { EmpresaConRolType } from '@/api/empresas/empresa-types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface EmpresaState {
