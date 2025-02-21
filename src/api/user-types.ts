@@ -1,5 +1,18 @@
-//Registar Usuario Superadmin
-export interface UsersType {
+// Tipo base para un usuario
+export interface UsuarioBaseType {
+     id: number;
+     email: string;
+     name: string;
+     lastname?: string;
+     password?: string;
+     active?: boolean;
+     systemRole?: string;
+     tokens?: string;
+     createdAt?: string;
+}
+
+// Tipo para registrar un superadmin
+export interface RegistrarUsuarioType {
      email: string;
      name: string;
      lastname?: string;
@@ -9,21 +22,22 @@ export interface UsersType {
      systemRole?: string;
 }
 
-//Iniciar sesion 
+// Tipo para iniciar sesión
 export interface LoginRequestType {
      email: string;
      password: string;
 }
 
-
-//Crear usuarios admin o user
-export interface UsuarioResponseType {
+// Tipo para la relación usuario-empresa
+export interface UsuarioEmpresaType {
      id: number;
-     email: string;
-     name: string;
-     lastname?: string;
-     active?: boolean;
-     systemRole: string;
+     companyRole: string; // "admin", "user", etc.
+     assignedAt: string; // Fecha en formato ISO
+     usuario: UsuarioBaseType; // Información del usuario
+}
+
+// Tipo para la respuesta de un usuario con sus empresas asignadas
+export interface UsuarioResponseType extends UsuarioBaseType {
      empresas: {
           id: number;              // ID de la relación usuario-empresa
           companyRole: string;     // Rol de la empresa (si aplica)
@@ -35,6 +49,7 @@ export interface UsuarioResponseType {
      }[];
 }
 
+// Tipo para crear o actualizar un usuario
 export interface UsuarioRequestType {
      id?: number;
      email: string;
@@ -45,31 +60,23 @@ export interface UsuarioRequestType {
      empresas: {
           empresaId: number;    // ID de la empresa asignada
           companyRole: string;  // Rol de la empresa asignada
-     }[];  // Aquí cambiamos a un arreglo de objetos de empresas
+     }[];
 }
 
-
+// Enumeración para los roles de empresa
 export enum CompanyRole {
      ADMIN = 'admin',
      USER = 'user'
 }
 
-// Definir un tipo específico para la relación usuario-empresa en el usuario autenticado
+// Tipo para la relación usuario-empresa en el usuario autenticado
 export interface AuthUserEmpresa {
      id: number;
      nombre: string;
      role: string;
 }
 
-// Definir un tipo específico para el usuario autenticado
-export interface AuthUserType {
-     id: number;
-     email: string;
-     name: string;
-     lastname?: string;
-     active?: boolean;
-     systemRole: string;
+// Tipo para el usuario autenticado
+export interface AuthUserType extends UsuarioBaseType {
      empresas: AuthUserEmpresa[];
 }
-
-

@@ -84,7 +84,12 @@ export const getLayoutConfig = (
      empresaId: string | number // ID de la empresa seleccionada
 ): NavItemConfig[] => { // devolver un array de NavItemConfig
      if (systemRole === 'superadmin') {
-          return superadminNavItems; // superadminNavItems ya es un array
+          
+          if (companyRole === 'admin') {
+               return AdminNavItems(empresaId); // AdminNavItems(empresaId) devuelve un array
+          }// superadminNavItems ya es un array
+
+          return superadminNavItems; 
      }
 
      if (systemRole === 'user') {

@@ -45,9 +45,6 @@ export function Empresa(): React.JSX.Element {
             (ue) => ue.id === selectedEmpresa.id
         );       
 
-        console.log(userEmpresa);
-        
-
         if (userEmpresa) {
             const { role } = userEmpresa; // Acceder al campo "role"
 

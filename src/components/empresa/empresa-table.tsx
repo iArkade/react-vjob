@@ -14,11 +14,17 @@ import {
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
+    Visibility as VisibilityIcon
 } from '@mui/icons-material';
-import { EmpresaResponseType } from '@/api/empresas/empresa-types';
+import { EmpresaResponseType, EmpresaConUsuariosType } from '@/api/empresas/empresa-types';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedEmpresa } from '@/state/slices/empresaSlice';
+import { EmpresaConRolType } from '@/api/empresas/empresa-types';
+import { RootState } from '@/state/store';
 
 interface EmpresaTableProps {
-    empresas: EmpresaResponseType[];
+    empresas: EmpresaConUsuariosType[]; // Usar la nueva interfaz para el superadmin
     onEdit: (empresa: EmpresaResponseType) => void;
     onDelete: (id: number) => void;
 }
@@ -26,6 +32,44 @@ interface EmpresaTableProps {
 const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { user } = useSelector((state: RootState) => state.authSlice);
+
+    const handleViewDashboard = (empresa: EmpresaConUsuariosType) => {
+        if (!user) {
+            console.error("User no está definido.");
+            return;
+        }
+
+        // Eliminar la propiedad `usuarios` antes de guardar
+        const { usuarios, ...empresaSinUsuarios } = empresa;
+
+        // Determinar el rol del usuario en la empresa
+        let companyRole = "admin"; // Rol por defecto para el superadmin
+
+        if (empresa.usuarios) {
+            const userEmpresa = empresa.usuarios.find(
+                (ue) => ue.usuario.id === user.id
+            );
+            if (userEmpresa) {
+                companyRole = userEmpresa.companyRole;
+            }
+        }
+
+        // Crear el objeto empresa con el rol del usuario
+        const empresaConRol: EmpresaConRolType = {
+            ...empresaSinUsuarios,
+            companyRole, // Usar el companyRole del usuario en la empresa
+        };
+
+        // Guardar la empresa seleccionada en el estado y en localStorage
+        dispatch(setSelectedEmpresa(empresaConRol));
+        localStorage.setItem("selectedEmpresa", JSON.stringify(empresaConRol));
+
+        // Redirigir al dashboard de la empresa seleccionada
+        navigate(`/empresa/${empresa.id}/dashboard`);
+    };
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -61,8 +105,17 @@ const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete 
                                 <TableCell>{empresa.telefono}</TableCell>
                                 <TableCell>{empresa.direccion}</TableCell>
                                 <TableCell>
-                                    {/* <Button onClick={() => onEdit(empresa)} color="primary">Editar</Button>
-                                    <Button onClick={() => onDelete(empresa.id)} color="error">Eliminar</Button> */}
+                                    {/* Botón para ver el dashboard */}
+                                    <Tooltip title="Ver dashboard" arrow>
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() => handleViewDashboard(empresa)}
+                                        >
+                                            <VisibilityIcon />
+                                        </IconButton>
+                                    </Tooltip>
+
+                                    {/* Botón para editar */}
                                     <Tooltip title="Editar" arrow>
                                         <IconButton
                                             color="primary"
@@ -71,6 +124,8 @@ const EmpresaTable: React.FC<EmpresaTableProps> = ({ empresas, onEdit, onDelete 
                                             <EditIcon />
                                         </IconButton>
                                     </Tooltip>
+
+                                    {/* Botón para eliminar */}
                                     <Tooltip title="Eliminar" arrow>
                                         <IconButton
                                             color="error"

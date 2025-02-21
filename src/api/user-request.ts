@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "./http";
-import { UsersType, LoginRequestType, UsuarioResponseType, UsuarioRequestType } from "./user-types";
+import { LoginRequestType, UsuarioResponseType, UsuarioRequestType, RegistrarUsuarioType } from "./user-types";
 
 interface ApiError {
      response?: {
@@ -31,7 +31,7 @@ const getAuthToken = (): string => {
      return token;
 };
 
-const registerUserRequest = (user: UsersType) =>
+const registerUserRequest = (user: RegistrarUsuarioType) =>
      http.post('auth/register', user);
 
 const loginUserRequest = (credentials: LoginRequestType) =>
