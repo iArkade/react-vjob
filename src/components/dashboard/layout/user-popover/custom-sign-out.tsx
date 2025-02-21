@@ -36,7 +36,7 @@ export function CustomSignOut(): React.JSX.Element {
 
   return (
     <MenuItem component="div" onClick={handleSignOut} sx={{ justifyContent: 'center' }}>
-      Sign out
+      Cerrar Sesión
     </MenuItem>
   );
 }

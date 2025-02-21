@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -19,18 +17,10 @@ import { AuthStrategy } from '@/lib/auth/strategy';
 import { RouterLink } from '@/components/core/link';
 
 import { CustomSignOut } from './custom-sign-out';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
-
-
-// const user = {
-//   id: 'USR-000',//
-//   name: 'Sofia Rivers',//
-//   avatar: '/assets/avatar.png',
-//   email: 'sofia@devias.io',//
-//   role: 'string',//
-// } satisfies UserProfile;
-
+import BusinessIcon from '@mui/icons-material/Business';
+import { resetEmpresaState } from '@/state/slices/empresaSlice';
 
 export interface UserPopoverProps {
   anchorEl: null | Element;
@@ -39,9 +29,12 @@ export interface UserPopoverProps {
 }
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
-
+  const dispatch = useDispatch();
+  
   const user = useSelector((state: RootState) => state.authSlice.user);
-
+  const selectEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
+  const hasMultipleEmpresas = (user?.empresas ?? []).length > 1;
+  
   return (
     <Popover
       anchorEl={anchorEl}
@@ -59,19 +52,35 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       </Box>
       <Divider />
       <List sx={{ p: 1 }}>
-        <MenuItem component={RouterLink} href={paths.dashboard.settings.account} onClick={onClose}>
+        {/* Menú de selección de empresa (solo aparece si hay más de una) */}
+        {hasMultipleEmpresas && (
+          <MenuItem 
+            component={RouterLink} 
+            href="/empresa" 
+            onClick={() => {
+              dispatch(resetEmpresaState());
+              onClose?.();
+            }}>
+            <ListItemIcon>
+              <BusinessIcon  />
+            </ListItemIcon>
+            Empresas
+          </MenuItem>
+        )}
+
+        <MenuItem component={RouterLink} href={paths.dashboard.settings.account(selectEmpresa.id)} onClick={onClose}>
           <ListItemIcon>
             <UserIcon />
           </ListItemIcon>
           Account
         </MenuItem>
-        <MenuItem component={RouterLink} href={paths.dashboard.settings.security} onClick={onClose}>
+        <MenuItem component={RouterLink} href={paths.dashboard.settings.security(selectEmpresa.id)} onClick={onClose}>
           <ListItemIcon>
             <LockKeyIcon />
           </ListItemIcon>
           Security
         </MenuItem>
-        <MenuItem component={RouterLink} href={paths.dashboard.settings.billing} onClick={onClose}>
+        <MenuItem component={RouterLink} href={paths.dashboard.settings.billing(selectEmpresa.id)} onClick={onClose}>
           <ListItemIcon>
             <CreditCardIcon />
           </ListItemIcon>
