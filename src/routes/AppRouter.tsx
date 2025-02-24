@@ -10,8 +10,6 @@ export const AppRouter = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.authSlice);
   const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
 
-    console.log(user);
-
   if (!isAuthenticated) {
     return (
       <Routes>

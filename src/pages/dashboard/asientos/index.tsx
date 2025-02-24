@@ -14,48 +14,53 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 
 export function Asientos(): React.JSX.Element {
-  //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
-  // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
-  // const [openModal, setOpenModal] = React.useState(false);
+
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const { data: asientos, isLoading, isError } = useAsientos(selectedEmpresa.id);
+  /*
+   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
+    // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
+    // const [openModal, setOpenModal] = React.useState(false);
   //Prueba: esto es para actualizar para cuando le de al botn de edit const handleRefetch = () => {
-  //      refetch(); // Forzar la recarga de datos
-  // };
+    //      refetch(); // Forzar la recarga de datos
+    // };
+  
+    // const [searchParams, setSearchParams] = useSearchParams();
+    // const navigate = useNavigate();
+  
+    // const handleOpenModal = (asiento: Asiento) => {
+    //      if (asiento?.id) {
+    //           setSelectedAsiento(asiento);
+    //           setOpenModal(true);
+    //           navigate(/dashboard/asientos?previewId=${asiento.id});
+    //      }
+    // };
+  
+    // const handleCloseModal = () => {
+    //      setSelectedAsiento(null);
+    //      setOpenModal(false);
+    //      navigate('/dashboard/asientos');
+    // };
+  
+    // React.useEffect(() => {
+    //      const previewId = searchParams.get('previewId');
+  
+    //      // Si hay un previewId en la URL y tenemos asientos cargados
+    //      if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
+    //           const asiento = asientos.find(a => a?.id?.toString() === previewId);
+  
+    //           if (asiento) {
+    //                setSelectedAsiento(asiento);
+    //                setOpenModal(true);
+    //           } else {
+    //                //console.error(Asiento con ID ${previewId} no encontrado.);
+    //                navigate('/dashboard/asientos');
+    //           }
+    //      }
+    // }, [searchParams, asientos, openModal]);
+  */
 
-  // const [searchParams, setSearchParams] = useSearchParams();
-  // const navigate = useNavigate();
 
-  // const handleOpenModal = (asiento: Asiento) => {
-  //      if (asiento?.id) {
-  //           setSelectedAsiento(asiento);
-  //           setOpenModal(true);
-  //           navigate(/dashboard/asientos?previewId=${asiento.id});
-  //      }
-  // };
-
-  // const handleCloseModal = () => {
-  //      setSelectedAsiento(null);
-  //      setOpenModal(false);
-  //      navigate('/dashboard/asientos');
-  // };
-
-  // React.useEffect(() => {
-  //      const previewId = searchParams.get('previewId');
-
-  //      // Si hay un previewId en la URL y tenemos asientos cargados
-  //      if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
-  //           const asiento = asientos.find(a => a?.id?.toString() === previewId);
-
-  //           if (asiento) {
-  //                setSelectedAsiento(asiento);
-  //                setOpenModal(true);
-  //           } else {
-  //                //console.error(Asiento con ID ${previewId} no encontrado.);
-  //                navigate('/dashboard/asientos');
-  //           }
-  //      }
-  // }, [searchParams, asientos, openModal]);
 
   return (
     <React.Fragment>
@@ -79,7 +84,7 @@ export function Asientos(): React.JSX.Element {
             <div>
               <Button
                 component={RouterLink}
-                href={paths.dashboard.asientos.create}
+                href={paths.dashboard.asientos.create(selectedEmpresa.id)}
                 startIcon={<PlusIcon />}
                 variant="contained"
               >
@@ -100,12 +105,14 @@ export function Asientos(): React.JSX.Element {
           </Card>
         </Stack>
       </Box>
-      {/* <AsientoDetailsModal
-                    open={openModal}
-                    onClose={handleCloseModal}
-                    asiento={selectedAsiento}
-                    previewId={searchParams.get('previewId') || ''}
-               /> */}
+      
+      { /* <AsientoDetailsModal
+            open={openModal}
+            onClose={handleCloseModal}
+            asiento={selectedAsiento}
+            previewId={searchParams.get('previewId') || ''}
+        /> */}
+      
     </React.Fragment>
   );
 }

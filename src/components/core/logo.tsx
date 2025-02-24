@@ -27,13 +27,6 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
   
   let url: string;
 
-  // if(user?.role == 'superadmin')
-  // {
-  //   url = 
-  // }
-
-  
-
   if (selectedEmpresa.logo) {
     // Use the logo from Redux if available
     url = selectedEmpresa.logo;
