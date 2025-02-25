@@ -10,8 +10,6 @@ export const AppRouter = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.authSlice);
   const selectedEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
 
-    console.log(user);
-
   if (!isAuthenticated) {
     return (
       <Routes>
@@ -21,15 +19,29 @@ export const AppRouter = () => {
     );
   }
 
+  // Si el usuario es superadmin
   if (user?.systemRole === 'superadmin') {
+    // Si el superadmin tiene una empresa seleccionada, redirigir al dashboard de la empresa
+    if (selectedEmpresa?.id) {
+      return (
+        <Routes>
+          <Route path="/empresa/:empresaId/dashboard/*" element={<PrivateRoutes />} />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="*" element={<Navigate to={`/empresa/${selectedEmpresa.id}/dashboard`} />} />
+        </Routes>
+      );
+    }
+
+    // Si el superadmin no tiene una empresa seleccionada, redirigir a la tabla de empresas
     return (
       <Routes>
         <Route path="/admin/*" element={<AdminRoutes />} />
-        <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard/empresas" />} />
       </Routes>
     );
   }
 
+  // Si el usuario no es superadmin y no tiene una empresa seleccionada, redirigir a la página de selección de empresa
   if (!selectedEmpresa?.id) {
     return (
       <Routes>
@@ -39,10 +51,11 @@ export const AppRouter = () => {
     );
   }
 
+  // Si el usuario no es superadmin pero tiene una empresa seleccionada, redirigir al dashboard de la empresa
   return (
-      <Routes>
-        <Route path="/empresa/:empresaId/dashboard/*" element={<PrivateRoutes />} />
-        <Route path="*" element={<Navigate to={`/empresa/${selectedEmpresa.id}/dashboard`} />} />
-      </Routes>
+    <Routes>
+      <Route path="/empresa/:empresaId/dashboard/*" element={<PrivateRoutes />} />
+      <Route path="*" element={<Navigate to={`/empresa/${selectedEmpresa.id}/dashboard`} />} />
+    </Routes>
   );
 };
