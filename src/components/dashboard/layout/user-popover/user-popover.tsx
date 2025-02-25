@@ -30,11 +30,11 @@ export interface UserPopoverProps {
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
   const dispatch = useDispatch();
-  
+
   const user = useSelector((state: RootState) => state.authSlice.user);
   const selectEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
   const hasMultipleEmpresas = (user?.empresas ?? []).length > 1;
-  
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -52,20 +52,37 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       </Box>
       <Divider />
       <List sx={{ p: 1 }}>
-        {/* Menú de selección de empresa (solo aparece si hay más de una) */}
-        {hasMultipleEmpresas && (
-          <MenuItem 
-            component={RouterLink} 
-            href="/empresa" 
+
+        {user?.systemRole === 'superadmin' ? (
+          <MenuItem
+            component={RouterLink}
+            href="/admin/dashboard/empresas"
             onClick={() => {
               dispatch(resetEmpresaState());
               onClose?.();
-            }}>
+            }}
+          >
             <ListItemIcon>
-              <BusinessIcon  />
+              <BusinessIcon />
             </ListItemIcon>
             Empresas
           </MenuItem>
+        ) : (
+          hasMultipleEmpresas && (
+            <MenuItem
+              component={RouterLink}
+              href="/empresa"
+              onClick={() => {
+                dispatch(resetEmpresaState());
+                onClose?.();
+              }}
+            >
+              <ListItemIcon>
+                <BusinessIcon />
+              </ListItemIcon>
+              Empresas
+            </MenuItem>
+          )
         )}
 
         <MenuItem component={RouterLink} href={paths.dashboard.settings.account(selectEmpresa.id)} onClick={onClose}>

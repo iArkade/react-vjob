@@ -122,7 +122,7 @@ export function AsientosForm({
   const queryClient = useQueryClient();
 
   const handleCancel = () => {
-    navigate(paths.dashboard.asientos.index);
+    navigate(paths.dashboard.asientos.index(selectedEmpresa.id));
   };
 
   const methods = useForm<Values>({
@@ -284,7 +284,7 @@ export function AsientosForm({
           );
         }
 
-        navigate(paths.dashboard.asientos.index);
+        navigate(paths.dashboard.asientos.index(selectedEmpresa.id));
       } catch (err) {
         console.log(err);
         logger.error(err);

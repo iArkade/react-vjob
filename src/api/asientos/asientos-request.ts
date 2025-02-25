@@ -88,8 +88,13 @@ export const useUpdateAsiento = (
   });
 };
 
-const deleteAsiento = async (id: number) => {
-  const response = await http.delete(`asientos/${id}`);
+type DeleteAsientoVars = {
+  id: number;
+  empresa_id: number;
+};
+
+const deleteAsiento = async ({ id, empresa_id }: DeleteAsientoVars) => {
+  const response = await http.delete(`asientos/${id}`, { params: { empresa_id } });
   return response.data;
 };
 

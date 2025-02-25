@@ -154,7 +154,7 @@ export default function AsientoTable({
     page * rowsPerPage + rowsPerPage
   );
 
-  const handleDelete = async (asientoId: number) => {
+  const handleDelete = async (asientoId: number, empresaId: number) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "No podrás revertir esta acción.",
@@ -167,7 +167,7 @@ export default function AsientoTable({
     });
 
     if (result.isConfirmed) {
-      deleteAsiento(asientoId, {
+      deleteAsiento({id: asientoId, empresa_id: empresaId}, {
         onSuccess: () => {
           Swal.fire(
             "¡Borrado!",
@@ -196,10 +196,10 @@ export default function AsientoTable({
     const actions: Record<ActionType, () => void> = {
       edit: () => {
         queryClient.invalidateQueries(["asiento", asiento.id]);
-        navigate(paths.dashboard.asientos.details(asiento.id!));
+        navigate(paths.dashboard.asientos.details(asiento.empresa_id, asiento.id!));
       },
-      delete: () => handleDelete(asiento.id!),
-      print: () => navigate(paths.dashboard.asientos.pdf(asiento.id!)),
+      delete: () => handleDelete(asiento.id!, asiento.empresa_id),
+      print: () => navigate(paths.dashboard.asientos.pdf(asiento.empresa_id, asiento.id!)),
     };
 
     actions[action]();

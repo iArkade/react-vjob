@@ -164,7 +164,7 @@ export function Usuarios(): React.JSX.Element {
     };
 
     return (
-        <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', p: 3 }}>
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', p: 3, mt: 2 }}>
             <Paper elevation={3}>
                 <Toolbar sx={{ px: { xs: 2, sm: 3 } }}>
                     <Typography

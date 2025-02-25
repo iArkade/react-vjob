@@ -66,7 +66,14 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
     >
       <Stack spacing={2} sx={{ p: 2 }}>
         <div>
-          <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
+          <Box 
+            component={RouterLink} 
+            href={paths.home} 
+            sx={{ display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <Logo color="light" height={32} width={'auto'} /> 
           </Box>
         </div>

@@ -58,7 +58,14 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
       }}
     >
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
+        <Box 
+          component={RouterLink} 
+          href={paths.home} 
+          sx={{
+            display: { xs: 'none', md: 'inline-block' },
+            textAlign: 'center' // Centrar el contenido
+          }}
+        >
           <Logo color={logoColor} height={32} width={'auto'} />
         </Box>
       </Stack>

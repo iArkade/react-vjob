@@ -103,7 +103,7 @@ export function MainNav({ color = 'evident', items = [] }: MainNavProps): React.
                 textAlign: 'center' // Centrar el contenido
               }}
             >
-              <Logo color={logoColor} height={32} width={122} />
+              <Logo color={logoColor} height={32} width={'auto'} />
             </Box>
           </Stack>
           <Stack
