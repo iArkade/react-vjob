@@ -59,6 +59,7 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
             href="/admin/dashboard/empresas"
             onClick={() => {
               dispatch(resetEmpresaState());
+              localStorage.removeItem('selectedEmpresa');
               onClose?.();
             }}
           >
@@ -74,6 +75,7 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
               href="/empresa"
               onClick={() => {
                 dispatch(resetEmpresaState());
+                localStorage.removeItem('selectedEmpresa');
                 onClose?.();
               }}
             >
