@@ -90,6 +90,73 @@ export const useCreateUsuario = () => {
      });
 };
 
+const createUsuarioByEmpresaRequest = async (empresaId: number, data: UsuarioRequestType): Promise<UsuarioResponseType> => {
+     try {
+          const token = getAuthToken();
+          const response = await http.post(`usuario/empresa/${empresaId}`, data, {
+               headers: {
+                    Authorization: `Bearer ${token}`,
+               },
+          });
+
+          return {
+               id: response.data.id,
+               email: response.data.email,
+               name: response.data.name,
+               lastname: response.data.lastname,
+               active: response.data.active,
+               systemRole: response.data.systemRole,
+               empresas: response.data.empresas || [],
+          };
+     } catch (error) {
+          return handleError(error);
+     }
+};
+export const useCreateUsuarioByEmpresa = () => {
+     const queryClient = useQueryClient();
+     return useMutation({
+          mutationFn: ({ empresaId, data }: { empresaId: number; data: UsuarioRequestType }) =>
+               createUsuarioByEmpresaRequest(empresaId, data),
+          onSuccess: (_, { empresaId }) => {
+               queryClient.invalidateQueries(["GetUsuario", empresaId]); // Refrescar lista de usuarios de la empresa
+          },
+     });
+};
+
+const updateUsuarioByEmpresaRequest = async (empresaId: number, userId: number, data: UsuarioRequestType): Promise<UsuarioResponseType> => {
+     try {
+          const token = getAuthToken();
+          const response = await http.put(`usuario/empresa/${empresaId}/${userId}`, data, {
+               headers: {
+                    Authorization: `Bearer ${token}`,
+               },
+          });
+
+          return {
+               id: response.data.id,
+               email: response.data.email,
+               name: response.data.name,
+               lastname: response.data.lastname,
+               active: response.data.active,
+               systemRole: response.data.systemRole,
+               empresas: response.data.empresas || [],
+          };
+     } catch (error) {
+          return handleError(error);
+     }
+};
+
+export const useUpdateUsuarioByEmpresa = () => {
+     const queryClient = useQueryClient();
+     return useMutation({
+          mutationFn: ({ empresaId, userId, data }: { empresaId: number; userId: number; data: UsuarioRequestType }) =>
+               updateUsuarioByEmpresaRequest(empresaId, userId, data),
+          onSuccess: (_, { empresaId }) => {
+               queryClient.invalidateQueries(["GetUsuario", empresaId]); // Refrescar lista de usuarios de la empresa
+          },
+     });
+};
+
 const getUsuarioRequest = async (): Promise<UsuarioResponseType[]> => {
      try {
           const token = getAuthToken();
@@ -119,6 +186,40 @@ export const useGetUsuario = () =>
           staleTime: 1000 * 60 * 5, // Datos frescos por 5 minutos
           retry: 2, // Reintentar 2 veces en caso de error
      });
+
+const getUsuariosByEmpresaRequest = async (empresaId: number): Promise<UsuarioResponseType[]> => {
+     try {
+          const token = getAuthToken();
+
+          const response = await http.get(`usuario/empresa/${empresaId}`, {
+               headers: {
+                    Authorization: `Bearer ${token}`,
+               },
+          });
+          //console.log(response.data)
+          return response.data
+          // return response.data.map((user: any) => ({
+          //      id: user.id,
+          //      email: user.email,
+          //      name: user.name,
+          //      lastname: user.lastname,
+          //      active: user.active,
+          //      systemRole: user.systemRole,
+          //      empresas: user.empresas || [],
+          // }));
+     } catch (error) {
+          return handleError(error);
+     }
+};
+export const useGetUsuariosByEmpresa = (empresaId: number) => {
+     return useQuery({
+          queryKey: ['GetUsuariosByEmpresa', empresaId],
+          queryFn: () => getUsuariosByEmpresaRequest(empresaId),
+          enabled: !!empresaId, // Solo corre si empresaId tiene valor
+          staleTime: 1000 * 60 * 5, // Datos frescos por 5 minutos
+          retry: 2, // Reintenta 2 veces si falla
+     });
+};
 
 const updateUsuarioRequest = async (id: number, data: Partial<UsuarioRequestType>) => {
      try {

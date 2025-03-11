@@ -39,10 +39,10 @@ export function UsuariosTable({ users, onEdit, onDelete }: UsuariosTableProps) {
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.systemRole.toLowerCase().includes(searchTerm.toLowerCase())
+        user.systemRole?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleChangePage = (event: unknown, newPage: number): void => {
+    const handleChangePage = (_: unknown, newPage: number): void => {
         setPage(newPage);
     };
 

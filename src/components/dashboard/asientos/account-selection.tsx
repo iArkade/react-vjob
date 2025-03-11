@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
      Dialog,
      DialogActions,
@@ -14,6 +14,7 @@ import {
      Button,
      CircularProgress,
      Typography,
+     TextField,
 } from '@mui/material';
 import { useGetAccountingPlanPaginated } from '@/api/accounting-plan/account-request';
 import { useSelector } from 'react-redux';
@@ -33,20 +34,38 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
           data: accountData,
           isLoading,
           isError
-     } = useGetAccountingPlanPaginated(1, 100, selectedEmpresa.id); 
+     } = useGetAccountingPlanPaginated(1, 1000, selectedEmpresa.id);
 
 
      const accounts = accountData?.data || [];
-     //console.log(accounts)
+
      const isSelectable = (code: string) => !code.endsWith('.');
 
+     // Estado para el filtro de búsqueda
+     const [searchTerm, setSearchTerm] = useState('');
+
+     // Filtrar cuentas por nombre
+     const filteredAccounts = accounts.filter(account =>
+          account.name.toLowerCase().includes(searchTerm.toLowerCase())
+     );
 
      if (isLoading) return <CircularProgress />;
      if (isError) return <Typography>Error al cargar las cuentas</Typography>;
 
      return (
           <Dialog open={open} onClose={onClose}>
-               <DialogTitle>Seleccione una Cuenta</DialogTitle>
+               <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    Seleccione una Cuenta
+                    <TextField
+                         size="small"
+                         variant="outlined"
+                         placeholder="Buscar..."
+                         value={searchTerm}
+                         onChange={(e) => setSearchTerm(e.target.value)}
+                         sx={{ ml: 2, width: '50%' }}
+                    />
+               </DialogTitle>
+
                <DialogContent>
                     <TableContainer component={Paper}>
                          <Table>
@@ -57,7 +76,7 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                                    </TableRow>
                               </TableHead>
                               <TableBody>
-                                   {accounts.map((account) => (
+                                   {filteredAccounts.map((account) => (
                                         <TableRow
                                              key={account.code}
                                              onClick={() => isSelectable(account.code) && onSelect(account.code, account.name)}

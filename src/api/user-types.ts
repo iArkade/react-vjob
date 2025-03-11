@@ -9,6 +9,7 @@ export interface UsuarioBaseType {
      systemRole?: string;
      tokens?: string;
      createdAt?: string;
+     createdById?: string;
 }
 
 // Tipo para registrar un superadmin
