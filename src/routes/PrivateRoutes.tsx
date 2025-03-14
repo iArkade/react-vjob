@@ -17,6 +17,7 @@ import { Usuarios } from '@/pages/dashboard/usuarios'
 import { NotFound } from '@/pages/not-found'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/state/store'
+import PerdidasGanancias from '@/pages/dashboard/informes/perdidas-ganancias'
 
 export const PrivateRoutes = () => {
      const { empresaId } = useParams(); // Obtener el empresaId de la URL
@@ -45,6 +46,7 @@ export const PrivateRoutes = () => {
                     <Route path='asientos/:id' element={<AsientosShow />} />
                     <Route path='asientos/create' element={<AsientosCreate />} />
                     <Route path='asientos/pdf/:id' element={<AsientosPDF />} />
+                    <Route path='perdidas-ganancias' element={<PerdidasGanancias />} />
                     {/* <Route path='blank' element={ <Blank /> }/> */}
                     {/* <Route path='analytics' element={ <Analytics /> }/> */}
 

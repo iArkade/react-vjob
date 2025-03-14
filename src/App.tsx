@@ -17,8 +17,8 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <AuthWrapper /> {/* Usa el componente AuthWrapper */}
+    <BrowserRouter future={{ v7_startTransition: true }}>
+      <AuthWrapper />
       {message !== null && (
         <Snackbar
           open={message !== null}
@@ -32,6 +32,7 @@ function App() {
         </Snackbar>
       )}
     </BrowserRouter>
+
   );
 }
 

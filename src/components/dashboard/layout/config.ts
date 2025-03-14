@@ -37,6 +37,13 @@ const AdminNavItems = (empresaId: string | number): NavItemConfig[] => [
           ],
      },
      {
+          key: 'reportes',
+          title: 'Reportes',
+          items: [
+               { key: 'perdidas-ganancias', title: 'Perdidas y Ganancias', href: paths.dashboard.perdidasGanancias(empresaId), icon: 'chart-pie' },
+          ],
+     },
+     {
           key: 'dashboards',
           title: 'Dashboards',
           items: [
