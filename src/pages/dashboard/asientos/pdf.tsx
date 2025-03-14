@@ -52,7 +52,7 @@ export function AsientosPDF(): React.JSX.Element {
                          color="text.primary"
                          component={RouterLink}
                          //href={`/dashboard/asientos/${asientoId}`}
-                         href={`/dashboard/asientos/`}
+                         href={`/empresa/${selectedEmpresa.id}/dashboard/asientos`}
                          sx={{ alignItems: 'center', display: 'inline-flex', gap: 1,  mt: 2, ml: 2}}
                          variant="subtitle2"
                     >

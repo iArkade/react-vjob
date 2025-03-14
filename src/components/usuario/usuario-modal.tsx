@@ -41,7 +41,6 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
     const { data: empresasDisponibles = [], isLoading } = useGetEmpresa();
     const { mutate: createUsuario, isLoading: isCreating } = useCreateUsuario();
     const { mutate: updateUsuario, isLoading: isUpdating } = useUpdateUsuario();
-
     useEffect(() => {
         if (currentUser) {
             setFormData({

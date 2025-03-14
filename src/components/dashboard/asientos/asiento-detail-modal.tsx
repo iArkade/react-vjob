@@ -35,6 +35,7 @@ interface AsientoDetailsModalProps {
      previewId?: number; 
 }
 
+
 const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose, asiento, previewId }) => {
      //console.log(previewId);
      return (
