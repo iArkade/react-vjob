@@ -27,7 +27,7 @@ interface UsuariosTableProps {
      onDelete: (userId: number) => void;
      user: {
           id: number;
-          systemRole:  string;
+          systemRole: string;
           empresas: { role: string }[];
      };
 }
@@ -113,13 +113,27 @@ export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: Usua
      // Filtrar y ordenar usuarios (memorizado para evitar recálculos innecesarios)
      const filteredUsers = useMemo(() => {
           return users
+               .filter((u) => {
+                    // Excluir al usuario actual
+                    if (u.id === user.id) return false;
+
+                    // Si es superadmin, puede ver todos los usuarios
+                    if (user.systemRole === 'superadmin') return true;
+
+                    // Si es admin, solo puede ver los usuarios que él creó
+                    if (user.empresas[0]?.role === 'admin') {
+                         return u.createdById === user.id; // Solo ver los que él creó
+                    }
+
+                    // Usuarios normales no pueden ver a nadie
+                    return false;
+               })
                .filter((u) =>
                     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     (u.empresas[0]?.companyRole || '').toLowerCase().includes(searchTerm.toLowerCase())
-               )
-               .sort((a, b) => (a.id === user.id ? -1 : b.id === user.id ? 1 : 0));
-     }, [users, searchTerm, user.id]);
+               );
+     }, [users, searchTerm, user.id, user.systemRole, user.empresas]);
 
      // Manejadores de eventos para paginación
      const handleChangePage = (_: unknown, newPage: number): void => {
@@ -151,15 +165,10 @@ export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: Usua
                          </TableHead>
                          <TableBody>
                               {paginatedUsers.map((u) => {
-                                   const userIsCurrentUser = isCurrentUser(u);
-
                                    return (
                                         <TableRow
                                              key={u.id}
                                              hover
-                                             sx={{
-                                                  bgcolor: userIsCurrentUser ? 'rgba(0, 0, 0, 0.05)' : 'inherit',
-                                             }}
                                         >
                                              <TableCell>
                                                   <Box sx={{ display: 'flex', alignItems: 'center' }}>

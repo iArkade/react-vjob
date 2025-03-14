@@ -55,9 +55,12 @@ export function Usuarios(): React.JSX.Element {
         systemRole: user.systemRole || '',  // Garantiza que siempre sea un string
     };
 
+    
     const { data: users = [], isLoading, error } = useGetUsuariosByEmpresa(Number(empresaId));
     const { mutateAsync: createUsuarioByEmpresa } = useCreateUsuarioByEmpresa();
     const { mutateAsync: updateUsuarioByEmpresa } = useUpdateUsuarioByEmpresa();
+
+    //console.log(users, user)
 
     //Estado para el snackbar
     const [snackbar, setSnackbar] = useState<SnackbarState>({
@@ -85,6 +88,7 @@ export function Usuarios(): React.JSX.Element {
             }
 
             if (currentUser) {
+                console.log(data)
                 // Si el usuario ya existe, actualiza
                 await updateUsuarioByEmpresa({ empresaId: Number(empresaId), userId: currentUser.id, data });
                 showSnackbar("Usuario actualizado con éxito", "success");

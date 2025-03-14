@@ -54,7 +54,7 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                     lastname: '',
                     email: '',
                     password: '',
-                    empresas: [{ empresaId, companyRole: 'user' }], // Default role = user
+                    empresas: [{ empresaId, companyRole: 'user' }],
                });
           }
      }, [currentUser, reset, empresaId]);
