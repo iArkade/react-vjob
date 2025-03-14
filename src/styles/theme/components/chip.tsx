@@ -45,15 +45,15 @@ export const MuiChip = {
 
       return { borderColor: 'var(--mui-palette-secondary-200)', color: 'var(--mui-palette-secondary-900)' };
     },
-    soft: ({ ownerState }) => {
+    soft: ({ theme, ownerState }) => {
       return {
         backgroundColor: 'var(--Chip-softBg)',
         color: 'var(--Chip-softColor)',
-        ...(ownerState.disabled && {
+        ...(ownerState?.disabled && {
           backgroundColor: 'var(--Chip-softDisabledBg)',
           color: 'var(--Chip-softDisabledColor)',
         }),
-        ...(ownerState.clickable && { '&:hover': { backgroundColor: 'var(--Chip-softHoverBg)' } }),
+        ...(ownerState?.clickable && { '&:hover': { backgroundColor: 'var(--Chip-softHoverBg)' } }),
         [`& .${chipClasses.deleteIcon}`]: {
           color: 'var(--Chip-softDeleteIconColor)',
           '&:hover': { color: 'var(--Chip-softDeleteIconHoverColor)' },
