@@ -19,7 +19,7 @@ export const useAsientos = (empresa_id: number) => {
       console.error("Error al obtener los asientos:", error);
     },
     refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnMount: false,
   });
 };
 

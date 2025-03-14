@@ -122,8 +122,7 @@ export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: Usua
 
                     // Si es admin, solo puede ver los usuarios que él creó
                     if (user.empresas[0]?.role === 'admin') {
-                         return u.createdById === user.id; // Solo ver los que él creó
-                    }
+                         return u.createdById ? Number(u.createdById) === user.id : false;                    }
 
                     // Usuarios normales no pueden ver a nadie
                     return false;

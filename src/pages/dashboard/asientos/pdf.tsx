@@ -44,6 +44,7 @@ export function AsientosPDF(): React.JSX.Element {
                };
           }),
      };
+     //console.log(transformedAsiento)
 
      return (
           <Stack spacing={3}>

@@ -17,6 +17,7 @@ export function Asientos(): React.JSX.Element {
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const { data: asientos, isLoading, isError } = useAsientos(selectedEmpresa.id);
+  console.log(asientos)
   /*
    //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
     // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
@@ -59,8 +60,6 @@ export function Asientos(): React.JSX.Element {
     //      }
     // }, [searchParams, asientos, openModal]);
   */
-
-
 
   return (
     <React.Fragment>
