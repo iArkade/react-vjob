@@ -15,7 +15,7 @@ import {
     Add as AddIcon,
     Search as SearchIcon,
 } from '@mui/icons-material';
-import { UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
+import { AuthUserEmpresa, UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
 import { useCreateUsuarioByEmpresa, useGetUsuariosByEmpresa, useUpdateUsuarioByEmpresa } from '@/api/user-request';
 import { useParams } from 'react-router-dom';
 import { UsuarioTable } from '@/components/dashboard/usuarios/usuarios-table';
@@ -47,22 +47,16 @@ export function Usuarios(): React.JSX.Element {
     const user = useSelector((state: RootState) => state.authSlice.user) || {
         id: 0,
         systemRole: '',
-        empresas: [] as { role: string; empresaId: string}[]
+        empresas: [] as AuthUserEmpresa[]
     };
 
-    // Buscar la empresa correspondiente al `empresaId`
-    const empresaSeleccionada = user.empresas.find(
-        (emp) => (emp as { empresaId: string }).empresaId === empresaId
-    );
 
     // Si el usuario existe pero systemRole es undefined, le asignamos un valor por defecto
     const formattedUser = {
         ...user,
         systemRole: user.systemRole || '',  // Garantiza que siempre sea un string
-        empresaSeleccionada,
+        empresas: user.empresas.filter(emp => emp.id === Number(empresaId)),
     };
-
-    console.log(formattedUser)
     
     const { data: users = [], isLoading, error } = useGetUsuariosByEmpresa(Number(empresaId));
     const { mutateAsync: createUsuarioByEmpresa } = useCreateUsuarioByEmpresa();
