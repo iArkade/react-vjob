@@ -47,20 +47,27 @@ export function Usuarios(): React.JSX.Element {
     const user = useSelector((state: RootState) => state.authSlice.user) || {
         id: 0,
         systemRole: '',
-        empresas: [] as { role: string }[]
+        empresas: [] as { role: string; empresaId: string}[]
     };
+
+    // Buscar la empresa correspondiente al `empresaId`
+    const empresaSeleccionada = user.empresas.find(
+        (emp) => (emp as { empresaId: string }).empresaId === empresaId
+    );
+
     // Si el usuario existe pero systemRole es undefined, le asignamos un valor por defecto
     const formattedUser = {
         ...user,
         systemRole: user.systemRole || '',  // Garantiza que siempre sea un string
+        empresaSeleccionada,
     };
 
+    console.log(formattedUser)
     
     const { data: users = [], isLoading, error } = useGetUsuariosByEmpresa(Number(empresaId));
     const { mutateAsync: createUsuarioByEmpresa } = useCreateUsuarioByEmpresa();
     const { mutateAsync: updateUsuarioByEmpresa } = useUpdateUsuarioByEmpresa();
 
-    //console.log(users, user)
 
     //Estado para el snackbar
     const [snackbar, setSnackbar] = useState<SnackbarState>({

@@ -25,7 +25,7 @@ interface UsuarioDialogProps {
      };
 }
 
-const roles: string[] = ['admin', 'user'];
+const roles: string[] = ['admin', 'user', 'employer'];
 
 export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, user }: UsuarioDialogProps) {
      const {
@@ -44,7 +44,7 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                     email: currentUser.email,
                     password: '',
                     empresas: [{
-                         empresaId: currentUser.empresas[0]?.empresa.id || empresaId, 
+                         empresaId: currentUser.empresas[0]?.empresa.id || empresaId,
                          companyRole: currentUser.empresas[0]?.companyRole || 'user',
                     }],
                });
@@ -58,12 +58,20 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                });
           }
      }, [currentUser, reset, empresaId]);
+     console.log(user)
+     //console.log(user.empresas[0]?.role)
 
      // Determina si el usuario actual puede editar el rol del usuario que se está editando
      const canEditRole = () => {
-          // Si es un usuario nuevo, el superadmin o admin pueden establecer su rol
+          // Si es un usuario nuevo, el superadmin puede establecer cualquier rol, pero un admin no puede asignar el rol de admin
           if (!currentUser) {
-               return user.systemRole === 'superadmin' || user.empresas[0]?.role === 'admin';
+               if (user.systemRole === 'superadmin') {
+                    return true;
+               }
+               if (user.empresas[0]?.role === 'admin') {
+                    return true; // Admin puede asignar roles, pero controlamos qué roles en el select
+               }
+               return false;
           }
 
           // Si es el usuario actual, no puede cambiar su propio rol
@@ -76,8 +84,9 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                return true;
           }
 
-          // Si el usuario actual es admin, solo puede editar roles de usuarios normales
+          // Si el usuario actual es admin, solo puede editar roles de usuarios normales y NO asignar otro admin
           if (user.empresas[0]?.role === 'admin') {
+               console.log(user.empresas[0]?.role)
                return currentUser.empresas[0]?.companyRole !== 'admin' &&
                     currentUser.systemRole !== 'superadmin';
           }
@@ -85,6 +94,7 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
           // Usuarios normales no pueden editar roles
           return false;
      };
+
 
      return (
           <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -160,13 +170,15 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                                         margin="normal"
                                         error={!!errors.empresas?.[0]?.companyRole}
                                         helperText={errors.empresas?.[0]?.companyRole ? 'El rol es obligatorio' : ''}
-                                        disabled={!canEditRole()} // Deshabilita basado en permisos
+                                        disabled={!canEditRole()}
                                    >
-                                        {roles.map(role => (
-                                             <MenuItem key={role} value={role}>
-                                                  {role}
-                                             </MenuItem>
-                                        ))}
+                                        {roles
+                                             .filter(role => user.systemRole === 'superadmin' || role !== 'admin') // Admin no puede asignar 'admin'
+                                             .map(role => (
+                                                  <MenuItem key={role} value={role}>
+                                                       {role}
+                                                  </MenuItem>
+                                             ))}
                                    </TextField>
                               )}
                          />

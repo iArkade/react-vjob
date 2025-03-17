@@ -196,7 +196,7 @@ const getUsuariosByEmpresaRequest = async (empresaId: number): Promise<UsuarioRe
                     Authorization: `Bearer ${token}`,
                },
           });
-          console.log(response.data)
+          //console.log(response.data)
           return response.data
           // return response.data.map((user: any) => ({
           //      id: user.id,

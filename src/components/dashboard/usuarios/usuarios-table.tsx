@@ -63,7 +63,6 @@ const ActionButtons = ({
           )}
      </>
 );
-
 export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: UsuariosTableProps) {
      const [page, setPage] = useState<number>(0);
      const [rowsPerPage, setRowsPerPage] = useState<number>(10);
