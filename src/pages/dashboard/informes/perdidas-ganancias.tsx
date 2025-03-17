@@ -47,6 +47,8 @@ const PerdidasGanancias: React.FC = () => {
         setModalOpen(true);
     };
 
+    console.log(data);
+    
     return (
         <Container maxWidth="md">
             <Box my={5} p={3} sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
