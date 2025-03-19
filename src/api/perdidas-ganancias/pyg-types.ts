@@ -5,7 +5,7 @@ export interface ProfitLossItem {
     level: number;
     monthly: number;
     total: number;
-    isHeader: boolean;
+    isHeader?: boolean;
 }
 
 export interface ProfitLossResponseType {

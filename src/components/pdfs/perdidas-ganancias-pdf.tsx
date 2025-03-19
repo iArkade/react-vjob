@@ -55,10 +55,13 @@ const styles = StyleSheet.create({
     tableColCode: {
         width: '25%',
         padding: 5,
-        textAlign: 'left', // Alinear el código a la izquierda
+        textAlign: 'left',
     },
     tableCell: {
         fontSize: 10,
+    },
+    boldText: {
+        fontWeight: 'bold', // Estilo para texto en negrita
     },
     totalRow: {
         backgroundColor: '#2ecc71',
@@ -83,15 +86,15 @@ const styles = StyleSheet.create({
 });
 
 const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, endDate, level, report }) => {
-    const formatCurrency = (value: number) => {
+    const formatCurrency = (value: number | null | undefined) => {
+        const numericValue = value || 0;
         return new Intl.NumberFormat('es-EC', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,
-        }).format(value);
+        }).format(numericValue);
     };
 
-    // Obtener la fecha y hora de emisión
     const fechaEmision = new Date().toLocaleString('es-EC', {
         day: '2-digit',
         month: '2-digit',
@@ -101,8 +104,23 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
         second: '2-digit',
     });
 
-    // Función para dividir el reporte en páginas
-    const splitReportIntoPages = (report: ProfitLossItem[], rowsPerPage: number = 18) => {
+    // Ajustar dinámicamente el número de filas por página según el nivel
+    const getRowsPerPage = () => {
+        switch (level) {
+            case 1:
+                return 10; // Menos filas para nivel 1
+            case 2:
+                return 14; // Más filas para nivel 2
+            case 3:
+                return 15; // Más filas para nivel 3
+            case 4:
+                return 16; // Más filas para nivel 4
+            default:
+                return 18; // Valor por defecto
+        }
+    };
+
+    const splitReportIntoPages = (report: ProfitLossItem[], rowsPerPage: number = getRowsPerPage()) => {
         const pages = [];
         for (let i = 0; i < report.length; i += rowsPerPage) {
             pages.push(report.slice(i, i + rowsPerPage));
@@ -110,8 +128,7 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
         return pages;
     };
 
-    const rowsPerPage = 18; // Número de filas por página
-    const pages = splitReportIntoPages(report, rowsPerPage);
+    const pages = splitReportIntoPages(report);
 
     return (
         <Document>
@@ -147,19 +164,30 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
                         {page.map((item, index) => (
                             <View
                                 key={index}
-                                style={item.code === 'NET' ? [styles.tableRow, styles.totalRow] : styles.tableRow}
+                                style={[
+                                    styles.tableRow,
+                                    item.code === 'NET' ? styles.totalRow : {}, // Estilo condicional para la fila NET
+                                ]}
                             >
                                 <View style={styles.tableColCode}>
-                                    <Text style={styles.tableCell}>{item.code}</Text>
+                                    <Text style={[styles.tableCell, item.isHeader ? styles.boldText : {}]}>
+                                        {item.code}
+                                    </Text>
                                 </View>
                                 <View style={styles.tableCol}>
-                                    <Text style={styles.tableCell}>{item.name}</Text>
+                                    <Text style={[styles.tableCell, item.isHeader ? styles.boldText : {}]}>
+                                        {item.name}
+                                    </Text>
                                 </View>
                                 <View style={styles.tableCol}>
-                                    <Text style={styles.tableCell}>{formatCurrency(item.monthly)}</Text>
+                                    <Text style={[styles.tableCell, item.isHeader ? styles.boldText : {}]}>
+                                        {formatCurrency(item.monthly)}
+                                    </Text>
                                 </View>
                                 <View style={styles.tableCol}>
-                                    <Text style={styles.tableCell}>{formatCurrency(item.total)}</Text>
+                                    <Text style={[styles.tableCell, item.isHeader ? styles.boldText : {}]}>
+                                        {formatCurrency(item.total)}
+                                    </Text>
                                 </View>
                             </View>
                         ))}

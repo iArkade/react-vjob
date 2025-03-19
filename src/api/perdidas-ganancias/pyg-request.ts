@@ -40,5 +40,6 @@ export const useGetProfitLoss = (
     queryKey: ['GetProfitLoss', empresaId, startDate, endDate, level],
     queryFn: () => getProfitLossRequest(empresaId, startDate, endDate, level),
     staleTime: 0,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    enabled: false
 });

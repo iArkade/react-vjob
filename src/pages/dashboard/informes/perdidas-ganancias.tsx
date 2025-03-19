@@ -33,22 +33,31 @@ const PerdidasGanancias: React.FC = () => {
         format(new Date(), 'yyyy-MM-dd')
     );
     const [level, setLevel] = useState<number | 'All'>('All');
+    const [modalOpen, setModalOpen] = useState(false);
+
+    // Usar el hook con enabled: false para evitar la carga automática
     const { data, isLoading, error, refetch } = useGetProfitLoss(
         empresaId,
         startDate,
         endDate,
-        level === 'All' ? undefined : level + 1
+        level === 'All' ? undefined : level
     );
-    const [modalOpen, setModalOpen] = useState(false);
+
+    const formattedReport = data?.report?.map(item => ({
+        ...item,
+        monthly: item.monthly || 0,
+        total: item.total || 0,
+    })) || [];
 
     const obtenerDatos = async () => {
         if (!startDate || !endDate) return;
-        await refetch();
+        await refetch(); // Llamar manualmente a refetch para obtener los datos
         setModalOpen(true);
     };
 
     console.log(data);
     
+
     return (
         <Container maxWidth="md">
             <Box my={5} p={3} sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
@@ -147,7 +156,7 @@ const PerdidasGanancias: React.FC = () => {
                                 startDate={startDate || ''}
                                 endDate={endDate || ''}
                                 level={level}
-                                report={data?.report || []}
+                                report={formattedReport}
                             />
                         </PDFViewer>
                     </Box>
