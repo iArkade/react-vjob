@@ -40,9 +40,6 @@ const BalanceGeneral: React.FC = () => {
         level === 'All' ? undefined : level
     );
 
-    console.log(data);
-    
-
     const formattedReport = data?.report?.map(item => ({
         ...item,
         total: item.total || 0,

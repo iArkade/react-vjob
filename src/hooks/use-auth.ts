@@ -54,11 +54,13 @@ const useAuth = () => {
             }
         } else {
             // Si no hay token, redirige al login
-            navigate("/auth/login");
+            if (location.pathname !== "/auth/register") {
+                navigate("/auth/login");
+            }
         }
 
         setLoading(false);
-    }, [dispatch, navigate]);
+    }, [dispatch, navigate, location.pathname]);
 
     return loading;
 };
