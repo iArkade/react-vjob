@@ -58,8 +58,6 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
                });
           }
      }, [currentUser, reset, empresaId]);
-     console.log(user)
-     //console.log(user.empresas[0]?.role)
 
      // Determina si el usuario actual puede editar el rol del usuario que se está editando
      const canEditRole = () => {

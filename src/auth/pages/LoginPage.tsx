@@ -40,9 +40,7 @@ export default function LoginPage() {
                const { email, password } = data;
 
                const response = await login({ email, password });
-               //console.log(response)
                localStorage.setItem("token", response.data.tokens);
-
                dispatch(setUser({
                     id: response.data.id,
                     email: response.data.email,

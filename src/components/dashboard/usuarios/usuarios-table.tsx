@@ -66,7 +66,7 @@ const ActionButtons = ({
 export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: UsuariosTableProps) {
      const [page, setPage] = useState<number>(0);
      const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-
+     
      // Funciones de utilidad para roles y permisos
      const isSuperAdmin = user.systemRole === 'superadmin';
      const isAdmin = user.empresas[0]?.role === 'admin';
@@ -121,7 +121,8 @@ export function UsuarioTable({ users, searchTerm, onEdit, onDelete, user }: Usua
 
                     // Si es admin, solo puede ver los usuarios que él creó
                     if (user.empresas[0]?.role === 'admin') {
-                         return u.createdById ? Number(u.createdById) === user.id : false;                    }
+                         return u.createdBy !== null && u.createdBy?.id === user.id;
+                    }
 
                     // Usuarios normales no pueden ver a nadie
                     return false;

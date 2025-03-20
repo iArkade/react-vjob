@@ -16,7 +16,7 @@ import {
     Search as SearchIcon,
 } from '@mui/icons-material';
 import { AuthUserEmpresa, UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
-import { useCreateUsuarioByEmpresa, useGetUsuariosByEmpresa, useUpdateUsuarioByEmpresa } from '@/api/user-request';
+import { useCreateUsuarioByEmpresa, useDeleteUsuarioByEmpresa, useGetUsuariosByEmpresa, useUpdateUsuarioByEmpresa } from '@/api/user-request';
 import { useParams } from 'react-router-dom';
 import { UsuarioTable } from '@/components/dashboard/usuarios/usuarios-table';
 import { useDispatch } from 'react-redux';
@@ -61,8 +61,9 @@ export function Usuarios(): React.JSX.Element {
     const { data: users = [], isLoading, error } = useGetUsuariosByEmpresa(Number(empresaId));
     const { mutateAsync: createUsuarioByEmpresa } = useCreateUsuarioByEmpresa();
     const { mutateAsync: updateUsuarioByEmpresa } = useUpdateUsuarioByEmpresa();
+    const { mutateAsync: deleteUsuarioByEmpresa } = useDeleteUsuarioByEmpresa();
 
-
+    //console.log(users)
     //Estado para el snackbar
     const [snackbar, setSnackbar] = useState<SnackbarState>({
         open: false,
@@ -89,7 +90,6 @@ export function Usuarios(): React.JSX.Element {
             }
 
             if (currentUser) {
-                console.log(data)
                 // Si el usuario ya existe, actualiza
                 await updateUsuarioByEmpresa({ empresaId: Number(empresaId), userId: currentUser.id, data });
                 showSnackbar("Usuario actualizado con éxito", "success");
@@ -109,11 +109,14 @@ export function Usuarios(): React.JSX.Element {
         }
     };
 
-    const handleDeleteUser = (id: number) => {
-        // deleteUsuario.mutate(id, {
-        //     onSuccess: () => showSnackbar('Usuario eliminado', 'success'),
-        //     onError: () => showSnackbar('Error al eliminar el usuario', 'error')
-        // });
+    const handleDeleteUser = async  (userId: number) => {
+        try {
+            await deleteUsuarioByEmpresa({ empresaId: Number(empresaId), userId });
+            showSnackbar('Usuario eliminado con éxito', 'success');
+        } catch (error) {
+            console.error(error);
+            showSnackbar('Error al eliminar el usuario', 'error');
+        }
     };
 
     const showSnackbar = (message: string, severity: AlertColor): void => {
