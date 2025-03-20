@@ -16,19 +16,17 @@ import {
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { PDFViewer } from '@react-pdf/renderer';
-import PerdidasGananciasPDF from '@/components/pdfs/perdidas-ganancias-pdf';
+
 import { format } from 'date-fns';
-import { useGetProfitLoss } from '@/api/perdidas-ganancias/pyg-request';
 import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
+import BalanceGeneralPDF from '@/components/pdfs/balance-general-pdf';
+import { useGetBalanceGeneral } from '@/api/balance-general/balance-request';
 
-const PerdidasGanancias: React.FC = () => {
+const BalanceGeneral: React.FC = () => {
     const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
     const empresaId = selectedEmpresa.id;
 
-    const [startDate, setStartDate] = useState<string>(
-        format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd')
-    );
     const [endDate, setEndDate] = useState<string>(
         format(new Date(), 'yyyy-MM-dd')
     );
@@ -36,23 +34,28 @@ const PerdidasGanancias: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
 
     // Usar el hook con enabled: false para evitar la carga automática
-    const { data, isLoading, error, refetch } = useGetProfitLoss(
+    const { data, isLoading, error, refetch } = useGetBalanceGeneral(
         empresaId,
-        startDate,
         endDate,
         level === 'All' ? undefined : level
     );
 
+    console.log(data);
+    
+
     const formattedReport = data?.report?.map(item => ({
         ...item,
-        monthly: item.monthly || 0,
         total: item.total || 0,
     })) || [];
 
     const obtenerDatos = async () => {
-        if (!startDate || !endDate) return;
-        await refetch(); // Llamar manualmente a refetch para obtener los datos
-        setModalOpen(true);
+        if (!endDate) return;
+        try {
+            await refetch(); // Llamar manualmente a refetch para obtener los datos
+            setModalOpen(true); // Abrir el modal con el PDF
+        } catch (err) {
+            console.error('Error al obtener el balance general:', err);
+        }
     };
     
 
@@ -60,21 +63,11 @@ const PerdidasGanancias: React.FC = () => {
         <Container maxWidth="md">
             <Box my={5} p={3} sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                    Estado de Pérdidas y Ganancias
+                    Balance General
                 </Typography>
 
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Grid container spacing={2} justifyContent="center" sx={{ mt: 3 }}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Desde"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
@@ -150,8 +143,7 @@ const PerdidasGanancias: React.FC = () => {
                             Vista Previa del Informe
                         </Typography>
                         <PDFViewer width="100%" height="100%">
-                            <PerdidasGananciasPDF
-                                startDate={startDate || ''}
+                            <BalanceGeneralPDF
                                 endDate={endDate || ''}
                                 level={level}
                                 report={formattedReport}
@@ -164,4 +156,4 @@ const PerdidasGanancias: React.FC = () => {
     );
 };
 
-export default PerdidasGanancias;
+export default BalanceGeneral;

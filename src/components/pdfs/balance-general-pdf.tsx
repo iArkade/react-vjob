@@ -1,13 +1,13 @@
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { ProfitLossItem } from '@/api/perdidas-ganancias/pyg-types'; // Asegúrate de importar la interfaz correcta
+import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { BalanceGeneralItem } from '@/api/balance-general/balance-types';
 
-interface PerdidasGananciasPDFProps {
-    startDate: string;
+interface BalanceGeneralPDFProps {
     endDate: string;
     level: number | 'All';
-    report: ProfitLossItem[];
+    report: BalanceGeneralItem[];
 }
 
+// Definir estilos mejorados
 const styles = StyleSheet.create({
     page: {
         padding: 40,
@@ -82,9 +82,6 @@ const styles = StyleSheet.create({
     nameHeader: {
         width: '50%',
         borderRight: '1px solid #e2e8f0',
-    },
-    mensualHeader: {
-        width: '25%',
     },
     totalHeader: {
         width: '25%',
@@ -166,7 +163,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, endDate, level, report }) => {
+const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, report }) => {
     const formatCurrency = (value: number | null | undefined) => {
         const numericValue = value || 0;
         return new Intl.NumberFormat('es-EC', {
@@ -174,6 +171,15 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
             currency: 'USD',
             minimumFractionDigits: 2,
         }).format(numericValue);
+    };
+
+    const formatEndDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-EC', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
     const fechaEmision = new Date().toLocaleString('es-EC', {
@@ -184,6 +190,7 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
         minute: '2-digit',
     });
 
+    // Obtener nivel de indentación para el nombre basado en el nivel de la cuenta
     const getLevelStyle = (level: number) => {
         switch (level) {
             case 1: return styles.level1;
@@ -194,18 +201,23 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
         }
     };
 
-    const getRowStyle = (item: ProfitLossItem, index: number) => {
-        if (item.code === 'NET') {
+    // Determinar el estilo de una fila basado en su código y si es un total
+    const getRowStyle = (item: BalanceGeneralItem, index: number) => {
+        if (item.code === 'TOTALPYP') {
             return styles.finalTotal;
+        }
+        if (item.code.startsWith('TOTAL')) {
+            return styles.mainTotal;
         }
         if (item.isHeader && item.level === 1) {
             return styles.sectionTotal;
         }
-
+        
         return index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd;
     };
 
-    const splitReportIntoPages = (report: ProfitLossItem[], rowsPerPage: number = 20) => {
+    // Dividir el reporte en páginas
+    const splitReportIntoPages = (report: BalanceGeneralItem[], rowsPerPage: number = 21) => {
         const pages = [];
         for (let i = 0; i < report.length; i += rowsPerPage) {
             pages.push(report.slice(i, i + rowsPerPage));
@@ -221,10 +233,8 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
                 <Page key={pageIndex} size="A4" style={styles.page}>
                     {/* Encabezado */}
                     <Text style={styles.header}>VJOB</Text>
-                    <Text style={styles.header}>ESTADO DE PÉRDIDAS Y GANANCIAS</Text>
-                    <Text style={styles.subheader}>
-                        Desde: {startDate} | Hasta: {endDate}
-                    </Text>
+                    <Text style={styles.header}>ESTADO DE SITUACIÓN FINANCIERA</Text>
+                    <Text style={styles.subheader}>Al {formatEndDate(endDate)}</Text>
 
                     {/* Información adicional */}
                     <View style={styles.infoContainer}>
@@ -241,18 +251,15 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
                     {/* Tabla */}
                     <View style={styles.table}>
                         {/* Encabezado de la tabla */}
-                        <View style={styles.tableRow}>
+                        <View style={[styles.tableRow]}>
                             <View style={[styles.tableColHeader, styles.codeHeader]}>
                                 <Text style={styles.tableCell}>CÓDIGO</Text>
                             </View>
                             <View style={[styles.tableColHeader, styles.nameHeader]}>
-                                <Text style={styles.tableCell}>NOMBRE</Text>
-                            </View>
-                            <View style={[styles.tableColHeader, styles.mensualHeader]}>
-                                <Text style={styles.tableCell}>MENSUAL</Text>
+                                <Text style={styles.tableCell}>CUENTA</Text>
                             </View>
                             <View style={[styles.tableColHeader, styles.totalHeader]}>
-                                <Text style={styles.tableCell}>TOTAL</Text>
+                                <Text style={styles.tableCell}>SALDO</Text>
                             </View>
                         </View>
 
@@ -287,14 +294,6 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
                                         styles.tableCell,
                                         item.isHeader ? styles.boldText : {}
                                     ]}>
-                                        {formatCurrency(item.monthly)}
-                                    </Text>
-                                </View>
-                                <View style={styles.tableColTotal}>
-                                    <Text style={[
-                                        styles.tableCell,
-                                        item.isHeader ? styles.boldText : {}
-                                    ]}>
                                         {formatCurrency(item.total)}
                                     </Text>
                                 </View>
@@ -312,4 +311,4 @@ const PerdidasGananciasPDF: React.FC<PerdidasGananciasPDFProps> = ({ startDate, 
     );
 };
 
-export default PerdidasGananciasPDF;
+export default BalanceGeneralPDF;

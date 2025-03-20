@@ -85,6 +85,7 @@ export const paths = {
                     `/empresa/${empresaId}/dashboard/asientos/pdf/${asientoId}`,
           },
           perdidasGanancias: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/perdidas-ganancias`,
+          balanceGeneral: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/balance-general`,
           blank: '/dashboard/blank',
           analytics: '/dashboard/analytics',
           blog: {
