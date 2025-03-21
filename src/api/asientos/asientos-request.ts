@@ -1,10 +1,29 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import http from "../http";
 import { Asiento } from "./asientos-types";
+import { AxiosError } from "axios";
 
+// Función mejorada para obtener mensajes de error
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    // Error de Axios (respuesta del backend)
+    return error.response?.data?.message || error.message;
+  } else if (error instanceof Error) {
+    // Error estándar
+    return error.message;
+  }
+  // Error desconocido
+  return "Algo salió mal";
+}
+
+// Obtener todos los asientos
 const getAsientos = async (empresa_id: number) => {
-  const response = await http.get(`asientos?empresa_id=${empresa_id}`);
-  return response.data;
+  try {
+    const response = await http.get(`asientos?empresa_id=${empresa_id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 };
 
 export const useAsientos = (empresa_id: number) => {
@@ -16,62 +35,75 @@ export const useAsientos = (empresa_id: number) => {
       queryClient.invalidateQueries(["asiento"]);
     },
     onError: (error) => {
-      console.error("Error al obtener los asientos:", error);
+      console.error(getErrorMessage(error)); // Muestra el mensaje de error específico
     },
     refetchOnWindowFocus: true,
     refetchOnMount: false,
   });
 };
 
+// Obtener un asiento por ID
 const getAsiento = async (id: number, empresa_id: number) => {
-  const response = await http.get(`asientos/${id}?empresa_id=${empresa_id}`);
-  return response.data;
+  try {
+    const response = await http.get(`asientos/${id}?empresa_id=${empresa_id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 };
 
 export const useAsiento = (id: number, empresa_id: number) => {
   return useQuery<Asiento>({
-    queryKey: ["asiento", empresa_id],
+    queryKey: ["asiento", id, empresa_id], // Incluir el ID en la queryKey
     queryFn: () => getAsiento(id, empresa_id),
     onError: (error) => {
-      console.error("Error al obtener los asientos:", error);
+      console.error(getErrorMessage(error)); // Muestra el mensaje de error específico
     },
-    // This helps to refresh the page when fetching the data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    staleTime: 0, // Always consider data stale
+    staleTime: 0,
     cacheTime: 0,
-  }); 
+  });
 };
 
+// Crear un asiento
 const createAsiento = async (data: Asiento) => {
-  //console.log(data)
-  const response = await http.post("/asientos", data);
-  return response.data;
+  try {
+    const response = await http.post("/asientos", data);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 };
 
-export const useCreateAsiento = () => {
+export const useCreateAsiento = (onErrorF: (error: string) => void) => {
   const queryClient = useQueryClient();
 
   return useMutation(createAsiento, {
     onSuccess: () => {
       queryClient.invalidateQueries(["asientos"]);
-
       console.log("Asiento creado exitosamente");
     },
     onError: (error) => {
-      console.error("Error al crear el asiento:", error);
+      const errorMessage = getErrorMessage(error);
+      onErrorF(errorMessage); // Propaga el mensaje de error
     },
   });
 };
 
+// Actualizar un asiento
 const updateAsiento = async ({ id, data, empresa_id }: { id: number; data: Asiento; empresa_id: number }) => {
-  const response = await http.put(`/asientos/${id}?empresa_id=${empresa_id}`, data);
-  return response.data;
+  try {
+    const response = await http.put(`/asientos/${id}?empresa_id=${empresa_id}`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 };
 
 export const useUpdateAsiento = (
   onSuccessF: () => void,
-  onErrorF: (error: any) => void
+  onErrorF: (error: string) => void
 ) => {
   const queryClient = useQueryClient();
 
@@ -79,26 +111,31 @@ export const useUpdateAsiento = (
     onSuccess: () => {
       queryClient.invalidateQueries(["asientos"]);
       onSuccessF();
-
       console.log("Asiento actualizado exitosamente");
     },
     onError: (error) => {
-      onErrorF(error);
+      const errorMessage = getErrorMessage(error);
+      onErrorF(errorMessage); // Propaga el mensaje de error
     },
   });
 };
 
+// Eliminar un asiento
 type DeleteAsientoVars = {
   id: number;
   empresa_id: number;
 };
 
 const deleteAsiento = async ({ id, empresa_id }: DeleteAsientoVars) => {
-  const response = await http.delete(`asientos/${id}`, { params: { empresa_id } });
-  return response.data;
+  try {
+    const response = await http.delete(`asientos/${id}`, { params: { empresa_id } });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 };
 
-export const useDeleteAsiento = () => {
+export const useDeleteAsiento = (onErrorF: (error: string) => void) => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteAsiento, {
@@ -107,7 +144,8 @@ export const useDeleteAsiento = () => {
       console.log("Asiento eliminado exitosamente");
     },
     onError: (error) => {
-      console.error("Error al eliminar el asiento:", error);
+      const errorMessage = getErrorMessage(error);
+      onErrorF(errorMessage); // Propaga el mensaje de error
     },
   });
 };

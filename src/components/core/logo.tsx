@@ -35,7 +35,11 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
     url = "http://localhost:4000/uploads/logos/logo-principal.png";
   }
 
-  return <Box alt="logo" component="img" height={height} src={url} width={width} margin={'auto'} />;
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = "http://localhost:4000/uploads/logos/sinlogo.png";
+  };
+
+  return <Box alt="logo" component="img" height={height} src={url} width={width} margin={'auto'} onError={handleImageError} />;
 }
 
 export interface DynamicLogoProps {

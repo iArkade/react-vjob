@@ -50,9 +50,13 @@ export function OverviewPage(): React.JSX.Element {
                   <strong>RUC:</strong> {selectedEmpresa.ruc}
                 </p>
                 <img
-                  src={selectedEmpresa.logo}
+                  src={selectedEmpresa.logo || "http://localhost:4000/uploads/logos/logo-principal.png"} // Usa una imagen predeterminada si no hay logo
                   alt={`Logo de ${selectedEmpresa.nombre}`}
                   style={{ maxWidth: "200px", height: "auto" }} // Estilo opcional
+                  onError={(e) => {
+                    // Si la imagen no se carga, reemplaza la URL por una imagen predeterminada
+                    e.currentTarget.src = "http://localhost:4000/uploads/logos/sinlogo.png";
+                  }}
                 />
               </div>
             ) : (

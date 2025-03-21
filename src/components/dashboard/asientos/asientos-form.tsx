@@ -37,6 +37,7 @@ import {
   Box,
 } from "@mui/material";
 import {
+  getErrorMessage,
   useCreateAsiento,
   useUpdateAsiento,
 } from "@/api/asientos/asientos-request";
@@ -128,13 +129,13 @@ export function AsientosForm({
   const methods = useForm<Values>({
     defaultValues: asiento
       ? {
-          ...defaultValues,
-          ...asiento,
-          lineItems:
-            asiento.lineItems && asiento.lineItems.length > 0
-              ? asiento.lineItems
-              : defaultValues.lineItems,
-        }
+        ...defaultValues,
+        ...asiento,
+        lineItems:
+          asiento.lineItems && asiento.lineItems.length > 0
+            ? asiento.lineItems
+            : defaultValues.lineItems,
+      }
       : defaultValues,
     resolver: zodResolver(asientoSchema),
   });
@@ -160,6 +161,7 @@ export function AsientosForm({
     getValues,
     setValue,
     watch,
+    setFocus,
   } = methods;
 
   //console.log(errors);
@@ -169,46 +171,58 @@ export function AsientosForm({
     data: centros = [],
     isLoading: isLoadingCentros,
     isError: isErrorCentros,
-  } = useGetCentroCosto(selectedEmpresa.id); 
+  } = useGetCentroCosto(selectedEmpresa.id);
 
-  
+
 
   const {
     data: transacciones = [],
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
-  } = useGetTransaccionContable(selectedEmpresa.id); 
+  } = useGetTransaccionContable(selectedEmpresa.id);
 
   const dispatch = useDispatch();
 
-  const onUpdateSuccess = React.useCallback(() => {
-    dispatch(
-      setFeedback({
-        message: "Asiento actualizado exitosamente",
-        severity: "success",
-        isError: false,
-      })
-    );
-  }, [dispatch]);
-
-  const onUpdateError = React.useCallback(
-    (error: any) => {
-      logger.error("Error al actualizar el asiento:", error);
+  const onSuccess = React.useCallback(
+    (message: string) => {
       dispatch(
         setFeedback({
-          message: "Algo salió mal al actualizar el asiento",
+          message,
+          severity: "success",
+          isError: false,
+        })
+      );
+      navigate(paths.dashboard.asientos.index(selectedEmpresa.id));
+    },
+    [dispatch, navigate, selectedEmpresa.id]
+  );
+
+  const onError = React.useCallback(
+    (errorMessage: string) => {
+      dispatch(
+        setFeedback({
+          message: errorMessage,
           severity: "error",
           isError: true,
         })
       );
+      if (errorMessage.includes("código de transacción")) {
+        setFocus("codigo_transaccion");
+      }
     },
-    [dispatch]
+    [dispatch, setFocus]
   );
 
-  const { mutate: createAsiento } = useCreateAsiento();
+  React.useEffect(() => {
+    if (errors.codigo_transaccion) {
+      setFocus("codigo_transaccion");
+    }
+  }, [errors.codigo_transaccion, setFocus]);
+
+  const { mutate: createAsiento } = useCreateAsiento(onError);
   const { mutate: updateAsiento } = useUpdateAsiento(
-    onUpdateSuccess,
-    onUpdateError
+    () => onSuccess("Asiento actualizado exitosamente"),
+    onError
   );
 
   const validateTotals = (totalDebe: number, totalHaber: number) => {
@@ -241,64 +255,37 @@ export function AsientosForm({
 
   const onSubmit = React.useCallback(
     async (data: Values): Promise<void> => {
-      try {
-        //console.log("Datos enviados:",data)
-        const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
-        const totalHaber = parseFloat(
-          (getValues("total_haber") || 0).toFixed(2)
-        );
+      const totalDebe = parseFloat((getValues("total_debe") || 0).toFixed(2));
+      const totalHaber = parseFloat((getValues("total_haber") || 0).toFixed(2));
 
-        if (!validateTotals(totalDebe, totalHaber)) return;
+      if (!validateTotals(totalDebe, totalHaber)) return;
 
-        const { total, lineItems, ...asientoData } = data;
-        const dataToSend = {
-          ...asientoData,
+      const { total, lineItems, ...asientoData } = data;
+      const dataToSend = {
+        ...asientoData,
+        empresa_id: selectedEmpresa.id,
+        total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
+        total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
+        lineItems: lineItems.map((item) => ({
+          ...item,
+          debe: parseFloat(item?.debe?.toString() || "0"),
+          haber: parseFloat(item?.haber?.toString() || "0"),
+        })),
+      };
+
+      if (id) {
+        await updateAsiento({
+          id: Number(id),
+          data: dataToSend,
           empresa_id: selectedEmpresa.id,
-          total_debe: parseFloat(asientoData.total_debe.toFixed(2)),
-          total_haber: parseFloat(asientoData.total_haber.toFixed(2)),
-          lineItems: lineItems.map((item) => {
-            return {
-              ...item,
-              debe: parseFloat(item?.debe?.toString() || "0"),
-              haber: parseFloat(item?.haber?.toString() || "0"),
-            };
-          }),
-        };
-        //id del use Params arriba
-        if (id) {
-          updateAsiento({
-            id: Number(id),
-            data: dataToSend,
-            empresa_id: selectedEmpresa.id
-          });
-
-          queryClient.invalidateQueries(["asiento", id]);
-        } else {
-          createAsiento(dataToSend);
-          dispatch(
-            setFeedback({
-              message: "Asiento creado exitosamente",
-              severity: "success",
-              isError: false,
-            })
-          );
-        }
-
-        navigate(paths.dashboard.asientos.index(selectedEmpresa.id));
-      } catch (err) {
-        console.log(err);
-        logger.error(err);
-        dispatch(
-          setFeedback({
-            message: "Algo salió mal!",
-            severity: "error",
-            isError: true,
-          })
-        );
+        });
+      } else {
+        await createAsiento(dataToSend);
       }
     },
-    [id, navigate, createAsiento, updateAsiento, getValues, validateTotals]
+    [id, createAsiento, updateAsiento, getValues, validateTotals, selectedEmpresa.id, queryClient]
   );
+
 
   const handleCentroChange = React.useCallback(
     (selectedCentro: string) => {
