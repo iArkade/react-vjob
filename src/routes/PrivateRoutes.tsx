@@ -18,6 +18,7 @@ import { NotFound } from '@/pages/not-found'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/state/store'
 import PerdidasGanancias from '@/pages/dashboard/informes/perdidas-ganancias'
+import { Security } from '@/pages/dashboard/settings/security'
 
 export const PrivateRoutes = () => {
      const { empresaId } = useParams(); // Obtener el empresaId de la URL
@@ -35,6 +36,7 @@ export const PrivateRoutes = () => {
                     <Route index element={<OverviewPage />} />
                     <Route path="/settings" element={<LayoutSettings />}>
                          <Route path='account' element={<Account />} />
+                         <Route path='security' element={<Security />} />
                          <Route path='company' element={<Company />} />
                     </Route>
 

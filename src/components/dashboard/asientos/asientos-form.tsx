@@ -180,7 +180,7 @@ export function AsientosForm({
   } = useGetTransaccionContable(selectedEmpresa.id); 
 
   const dispatch = useDispatch();
-
+  
   const onUpdateSuccess = React.useCallback(() => {
     dispatch(
       setFeedback({

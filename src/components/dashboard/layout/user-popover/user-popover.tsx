@@ -6,7 +6,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import MenuItem from '@mui/material/MenuItem';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
-import { CreditCard as CreditCardIcon } from '@phosphor-icons/react/dist/ssr/CreditCard';
+// import { CreditCard as CreditCardIcon } from '@phosphor-icons/react/dist/ssr/CreditCard';
 import { LockKey as LockKeyIcon } from '@phosphor-icons/react/dist/ssr/LockKey';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 
@@ -91,20 +91,15 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
           <ListItemIcon>
             <UserIcon />
           </ListItemIcon>
-          Account
+          Cuenta
         </MenuItem>
         <MenuItem component={RouterLink} href={paths.dashboard.settings.security(selectEmpresa.id)} onClick={onClose}>
           <ListItemIcon>
             <LockKeyIcon />
           </ListItemIcon>
-          Security
+          Seguridad
         </MenuItem>
-        <MenuItem component={RouterLink} href={paths.dashboard.settings.billing(selectEmpresa.id)} onClick={onClose}>
-          <ListItemIcon>
-            <CreditCardIcon />
-          </ListItemIcon>
-          Billing
-        </MenuItem>
+        
       </List>
       <Divider />
       <Box sx={{ p: 1 }}>

@@ -16,8 +16,7 @@ import { RootState } from "@/state/store";
 export function Asientos(): React.JSX.Element {
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
-  const { data: asientos, isLoading, isError } = useAsientos(selectedEmpresa.id);
-  console.log(asientos)
+  const { data: asientos, isLoading, isError, error } = useAsientos(selectedEmpresa.id);
   /*
    //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
     // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
@@ -60,6 +59,9 @@ export function Asientos(): React.JSX.Element {
     //      }
     // }, [searchParams, asientos, openModal]);
   */
+
+  if (isLoading) return <div>Cargando...</div>;
+  if (error) return <div>Error al cargar usuarios</div>;
 
   return (
     <React.Fragment>

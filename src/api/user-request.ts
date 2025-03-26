@@ -34,8 +34,11 @@ const getAuthToken = (): string => {
 const registerUserRequest = (user: RegistrarUsuarioType) =>
      http.post('auth/register', user);
 
-const loginUserRequest = (credentials: LoginRequestType) =>
-     http.post('auth/login', credentials);
+export const useRegisterUser = () =>
+     useMutation({
+          mutationKey: ['RegisterUser'],
+          mutationFn: registerUserRequest,
+     });
 
 const logoutUserRequest = () => {
      const token = getAuthToken();
@@ -46,11 +49,15 @@ const logoutUserRequest = () => {
      });
 };
 
-export const useRegisterUser = () =>
+export const useLogoutUser = () =>
      useMutation({
-          mutationKey: ['RegisterUser'],
-          mutationFn: registerUserRequest,
+          mutationKey: ['LogoutUser'],
+          mutationFn: logoutUserRequest,
      });
+
+
+const loginUserRequest = (credentials: LoginRequestType) =>
+     http.post('auth/login', credentials);
 
 export const useLoginUser = () =>
      useMutation({
@@ -58,11 +65,6 @@ export const useLoginUser = () =>
           mutationFn: loginUserRequest,
      });
 
-export const useLogoutUser = () =>
-     useMutation({
-          mutationKey: ['LogoutUser'],
-          mutationFn: logoutUserRequest,
-     });
 
 const createUsuarioRequest = async (data: UsuarioRequestType) => {
      try {

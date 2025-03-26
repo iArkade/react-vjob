@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -19,23 +18,11 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { usePathname } from '@/hooks/use-pathname';
 import { RouterLink } from '@/components/core/link';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 
 // NOTE: First level elements are groups.
-
-const navItems = [
-
-     {
-          key: 'personal',
-          title: 'Personal',
-          items: [
-               { key: 'account', title: 'Account', href: paths.dashboard.settings.account, icon: 'user-circle' },
-               { key: 'empresa', title: 'Empresa', href: paths.dashboard.settings.company, icon: 'building' },
-               { key: 'notifications', title: 'Notifications', href: paths.dashboard.settings.notifications, icon: 'bell' },
-               { key: 'security', title: 'Security', href: paths.dashboard.settings.security, icon: 'lock-key' },
-          ],
-     },
-] satisfies NavItemConfig[];
 
 const icons = {
      'credit-card': CreditCardIcon,
@@ -47,8 +34,24 @@ const icons = {
      bell: BellIcon,
 } as Record<string, Icon>;
 
+
+
 export function SideNav(): React.JSX.Element {
      const pathname = usePathname();
+     const selectEmpresa = useSelector((state: RootState) => state.empresaSlice.selectedEmpresa);
+     const navItems = [
+
+          {
+               key: 'personal',
+               title: 'Personal',
+               items: [
+                    { key: 'account', title: 'Cuenta', href: paths.dashboard.settings.account(selectEmpresa.id), icon: 'user-circle' },
+                    // { key: 'empresa', title: 'Empresa', href: paths.dashboard.settings.company, icon: 'building' },
+                    // { key: 'notifications', title: 'Notifications', href: paths.dashboard.settings.notifications, icon: 'bell' },
+                    { key: 'security', title: 'Seguridad', href: paths.dashboard.settings.security(selectEmpresa.id), icon: 'lock-key' },
+               ],
+          },
+     ] satisfies NavItemConfig[];
 
      return (
           <div>
@@ -80,7 +83,7 @@ export function SideNav(): React.JSX.Element {
                               </Stack>
                          ))}
                     </Stack>
-                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+                    {/* <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                          <Avatar src="/assets/avatar.png">AV</Avatar>
                          <div>
                               <Typography variant="subtitle1">Sofia Rivers</Typography>
@@ -88,7 +91,7 @@ export function SideNav(): React.JSX.Element {
                                    sofia@devias.io
                               </Typography>
                          </div>
-                    </Stack>
+                    </Stack> */}
                </Stack>
           </div>
      );
