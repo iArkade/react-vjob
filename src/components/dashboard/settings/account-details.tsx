@@ -1,6 +1,3 @@
-'use client';
-
-import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -8,21 +5,84 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import InputAdornment from '@mui/material/InputAdornment';
-import InputLabel from '@mui/material/InputLabel';
-import Link from '@mui/material/Link';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { Camera as CameraIcon } from '@phosphor-icons/react/dist/ssr/Camera';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 
-import { Option } from '@/components/core/option';
+import { Controller, useForm } from 'react-hook-form';
+import { UsuarioRequestType } from '@/api/user-types';
+import { TextField } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useUpdateUsuarioByEmpresa } from '@/api/user-request';
+import { setFeedback } from '@/state/slices/feedBackSlice';
 
 export function AccountDetails(): React.JSX.Element {
+     const dispatch = useDispatch();
+     const navigate = useNavigate();
+     const { empresaId } = useParams<{ empresaId: string }>();
+     const user = useSelector((state: RootState) => state.authSlice.user);
+
+     const { mutateAsync: updateUsuarioByEmpresa } = useUpdateUsuarioByEmpresa();
+
+     const {
+          handleSubmit,
+          reset,
+          control,
+          formState: { errors }
+     } = useForm<UsuarioRequestType>({
+          defaultValues: {
+               name: "",
+               lastname: "",
+               password: ""
+          }
+     });
+     ;
+
+     // Efecto para actualizar los valores cuando `user` cambia
+     useEffect(() => {
+          reset({
+               name: user?.name || "",
+               lastname: user?.lastname || "",
+               password: "" // La contraseña se mantiene vacía
+          });
+     }, [user, reset]);
+
+     const onSubmit = async (data: UsuarioRequestType) => {
+          if (!user) return;
+
+          try {
+               await updateUsuarioByEmpresa({ empresaId: Number(empresaId), userId: user.id, data });
+
+               dispatch(
+                    setFeedback({
+                         message: "Usuario actualizado con éxito",
+                         severity: "success",
+                         isError: false,
+                    })
+               );
+
+               console.log("Datos enviados:", data);
+          } catch (error: any) {
+               console.error("Error al actualizar usuario:", error);
+               let mensajeError = error.mensaje || "Ocurrió un error desconocido."; // Usa un mensaje predeterminado si no hay mensaje
+               dispatch(
+                    setFeedback({
+                         message: mensajeError,
+                         severity: "error",
+                         isError: true,
+                    })
+               );
+          }
+     };
+
+     // Regresar a la página anterior
+     const handleCancel = () => navigate(-1); 
+     // const handleCancel = () => {
+     //     navigate('../../');
+     // };
+
      return (
           <Card>
                <CardHeader
@@ -35,104 +95,73 @@ export function AccountDetails(): React.JSX.Element {
                />
                <CardContent>
                     <Stack spacing={3}>
-                         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-                              <Box
-                                   sx={{
-                                        border: '1px dashed var(--mui-palette-divider)',
-                                        borderRadius: '50%',
-                                        display: 'inline-flex',
-                                        p: '4px',
-                                   }}
-                              >
-                                   <Box sx={{ borderRadius: 'inherit', position: 'relative' }}>
-                                        <Box
-                                             sx={{
-                                                  alignItems: 'center',
-                                                  bgcolor: 'rgba(0, 0, 0, 0.5)',
-                                                  borderRadius: 'inherit',
-                                                  bottom: 0,
-                                                  color: 'var(--mui-palette-common-white)',
-                                                  cursor: 'pointer',
-                                                  display: 'flex',
-                                                  justifyContent: 'center',
-                                                  left: 0,
-                                                  opacity: 0,
-                                                  position: 'absolute',
-                                                  right: 0,
-                                                  top: 0,
-                                                  zIndex: 1,
-                                                  '&:hover': { opacity: 1 },
-                                             }}
-                                        >
-                                             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                                                  <CameraIcon fontSize="var(--icon-fontSize-md)" />
-                                                  <Typography color="inherit" variant="subtitle2">
-                                                       Select
-                                                  </Typography>
-                                             </Stack>
-                                        </Box>
-                                        <Avatar src="/assets/avatar.png" sx={{ '--Avatar-size': '100px' }} />
-                                   </Box>
-                              </Box>
-                              <Button color="secondary" size="small">
-                                   Remove
-                              </Button>
-                         </Stack>
                          <Stack spacing={2}>
-                              <FormControl>
-                                   <InputLabel>Full name</InputLabel>
-                                   <OutlinedInput defaultValue="Sofia Rivers" name="fullName" />
-                              </FormControl>
-                              <FormControl disabled>
-                                   <InputLabel>Email address</InputLabel>
-                                   <OutlinedInput name="email" type="email" value="sofia@devias.io" />
-                                   <FormHelperText>
-                                        Please <Link variant="inherit">contact us</Link> to change your email
-                                   </FormHelperText>
-                              </FormControl>
-                              <Stack direction="row" spacing={2}>
-                                   <FormControl sx={{ width: '160px' }}>
-                                        <InputLabel>Dial code</InputLabel>
-                                        <Select
-                                             name="countryCode"
-                                             startAdornment={
-                                                  <InputAdornment position="start">
-                                                       <Box
-                                                            alt="Spain"
-                                                            component="img"
-                                                            src="/assets/flag-es.svg"
-                                                            sx={{ display: 'block', height: '20px', width: 'auto' }}
-                                                       />
-                                                  </InputAdornment>
-                                             }
-                                             value="+34"
-                                        >
-                                             <Option value="+1">United States</Option>
-                                             <Option value="+49">Germany</Option>
-                                             <Option value="+34">Spain</Option>
-                                        </Select>
-                                   </FormControl>
-                                   <FormControl sx={{ flex: '1 1 auto' }}>
-                                        <InputLabel>Phone number</InputLabel>
-                                        <OutlinedInput defaultValue="965 245 7623" name="phone" />
-                                   </FormControl>
-                              </Stack>
-                              <FormControl>
-                                   <InputLabel>Title</InputLabel>
-                                   <OutlinedInput name="title" placeholder="e.g Golang Developer" />
-                              </FormControl>
-                              <FormControl>
-                                   <InputLabel>Biography (optional)</InputLabel>
-                                   <OutlinedInput name="bio" placeholder="Describe yourself..." />
-                                   <FormHelperText>0/200 characters</FormHelperText>
-                              </FormControl>
+                              {/* FORMULARIO */}
+                              <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 2 }}>
+                                   <Controller
+                                        name="name"
+                                        control={control}
+                                        rules={{ required: 'El nombre es obligatorio' }}
+                                        render={({ field }) => (
+                                             <TextField
+                                                  {...field}
+                                                  label="Nombre"
+                                                  fullWidth
+                                                  size="small"
+                                                  margin="normal"
+                                                  error={!!errors.name}
+                                                  helperText={errors.name?.message}
+                                             />
+                                        )}
+                                   />
+
+                                   <Controller
+                                        name="lastname"
+                                        control={control}
+                                        rules={{ required: 'El apellido es obligatorio' }}
+                                        render={({ field }) => (
+                                             <TextField
+                                                  {...field}
+                                                  label="Apellido"
+                                                  fullWidth
+                                                  size="small"
+                                                  margin="normal"
+                                                  error={!!errors.lastname}
+                                                  helperText={errors.lastname?.message}
+                                             />
+                                        )}
+                                   />
+
+                                   <Controller
+                                        name="password"
+                                        control={control}
+                                        rules={{
+                                             minLength: { value: 6, message: 'La contraseña debe tener al menos 6 caracteres' }
+                                        }}
+                                        render={({ field }) => (
+                                             <TextField
+                                                  {...field}
+                                                  label="Nueva contraseña (opcional)"
+                                                  type="password"
+                                                  fullWidth
+                                                  size="small"
+                                                  margin="normal"
+                                                  error={!!errors.password}
+                                                  helperText={errors.password?.message}
+                                                  autoComplete="new-password"
+                                             />
+                                        )}
+                                   />
+
+                                   {/* BOTONES DENTRO DEL FORM PARA QUE FUNCIONE EL SUBMIT */}
+                                   <CardActions sx={{ justifyContent: 'flex-end', mt: 2 }}>
+                                        <Button color="secondary" onClick={handleCancel}>Cancelar</Button>
+                                        <Button type="submit" variant="contained">Guardar Cambios</Button>
+                                   </CardActions>
+                              </Box>
                          </Stack>
                     </Stack>
                </CardContent>
-               <CardActions sx={{ justifyContent: 'flex-end' }}>
-                    <Button color="secondary">Cancel</Button>
-                    <Button variant="contained">Save changes</Button>
-               </CardActions>
           </Card>
      );
 }

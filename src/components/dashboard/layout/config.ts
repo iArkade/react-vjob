@@ -60,11 +60,16 @@ const AdminNavItems = (empresaId: string | number): NavItemConfig[] => [
                     key: 'settings',
                     title: 'Ajustes',
                     href: paths.dashboard.settings.account(empresaId),
+                    matcher: {
+                         type: 'startsWith',
+                         href: `/empresa/${empresaId}/dashboard/settings`,
+                    }, 
                     icon: 'gear',
                },
           ],
      },
 ];
+
 const regularNavItems = (empresaId: string | number): NavItemConfig[] => [
      {
           key: 'contabilidad',
@@ -92,12 +97,12 @@ export const getLayoutConfig = (
      empresaId: string | number // ID de la empresa seleccionada
 ): NavItemConfig[] => { // devolver un array de NavItemConfig
      if (systemRole === 'superadmin') {
-          
+
           if (companyRole === 'admin') {
                return AdminNavItems(empresaId); // AdminNavItems(empresaId) devuelve un array
           }// superadminNavItems ya es un array
 
-          return superadminNavItems; 
+          return superadminNavItems;
      }
 
      if (systemRole === 'user') {

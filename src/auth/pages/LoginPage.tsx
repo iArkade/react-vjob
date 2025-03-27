@@ -5,7 +5,7 @@ import Link from '@mui/material/Link';
 import { useDispatch } from 'react-redux';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLoginUser } from "../../api/user-request";
-import { setUser } from "../../state/slices/authSlice";
+import { setJustLoggedIn, setUser } from "../../state/slices/authSlice";
 import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Snackbar, Stack } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { LoginRequestType } from "@/api/user-types";
@@ -37,36 +37,24 @@ export default function LoginPage() {
 
      const onSubmit = async (data: LoginRequestType) => {
           try {
-               const { email, password } = data;
+               const response = await login(data);
+               const { tokens, ...userData } = response.data;
 
-               const response = await login({ email, password });
-               //console.log(response)
-               localStorage.setItem("token", response.data.tokens);
+               localStorage.setItem('token', tokens);
 
-               dispatch(setUser({
-                    id: response.data.id,
-                    email: response.data.email,
-                    name: response.data.name,
-                    lastname: response.data.lastname,
-                    systemRole: response.data.systemRole,
-                    empresas: response.data.empresas,
-               }));
-
+               dispatch(setUser(userData));
+               dispatch(setJustLoggedIn(true));
                navigate('/empresa');
 
           } catch (error: any) {
-               if (error.response && error.response.data) {
-                    // Set a form-wide error using React Hook Form's setError
-                    setError('root', {
-                         type: 'manual',
-                         message: error.response.data.message,
-                    });
-               } else {
-                    setError('root', {
-                         type: 'manual',
-                         message: "Se ha producido un error inesperado. Por favor, inténtelo de nuevo.",
-                    });
-               }
+               const message =
+                    error?.response?.data?.message ||
+                    "Se ha producido un error inesperado. Por favor, inténtelo de nuevo.";
+
+               setError('root', {
+                    type: 'manual',
+                    message,
+               });
           }
      };
 

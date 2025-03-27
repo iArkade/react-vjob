@@ -34,8 +34,11 @@ const getAuthToken = (): string => {
 const registerUserRequest = (user: RegistrarUsuarioType) =>
      http.post('auth/register', user);
 
-const loginUserRequest = (credentials: LoginRequestType) =>
-     http.post('auth/login', credentials);
+export const useRegisterUser = () =>
+     useMutation({
+          mutationKey: ['RegisterUser'],
+          mutationFn: registerUserRequest,
+     });
 
 const logoutUserRequest = () => {
      const token = getAuthToken();
@@ -46,11 +49,15 @@ const logoutUserRequest = () => {
      });
 };
 
-export const useRegisterUser = () =>
+export const useLogoutUser = () =>
      useMutation({
-          mutationKey: ['RegisterUser'],
-          mutationFn: registerUserRequest,
+          mutationKey: ['LogoutUser'],
+          mutationFn: logoutUserRequest,
      });
+
+
+const loginUserRequest = (credentials: LoginRequestType) =>
+     http.post('auth/login', credentials);
 
 export const useLoginUser = () =>
      useMutation({
@@ -58,11 +65,6 @@ export const useLoginUser = () =>
           mutationFn: loginUserRequest,
      });
 
-export const useLogoutUser = () =>
-     useMutation({
-          mutationKey: ['LogoutUser'],
-          mutationFn: logoutUserRequest,
-     });
 
 const createUsuarioRequest = async (data: UsuarioRequestType) => {
      try {
@@ -157,6 +159,32 @@ export const useUpdateUsuarioByEmpresa = () => {
      });
 };
 
+const deleteUsuarioByEmpresaRequest = async (empresaId: number, userId: number): Promise<void> => {
+     try {
+          const token = getAuthToken();
+          await http.delete(`usuario/empresa/${empresaId}/${userId}`, {
+               headers: {
+                    Authorization: `Bearer ${token}`,
+               },
+          });
+     } catch (error) {
+          return handleError(error);
+     }
+};
+
+export const useDeleteUsuarioByEmpresa = () => {
+     const queryClient = useQueryClient();
+
+     return useMutation({
+          mutationFn: ({ empresaId, userId }: { empresaId: number; userId: number }) =>
+               deleteUsuarioByEmpresaRequest(empresaId, userId),
+          onSuccess: (_, { empresaId }) => {
+               queryClient.invalidateQueries(["GetUsuariosByEmpresa", empresaId]);
+          },
+     });
+};
+
+
 const getUsuarioRequest = async (): Promise<UsuarioResponseType[]> => {
      try {
           const token = getAuthToken();
@@ -196,17 +224,7 @@ const getUsuariosByEmpresaRequest = async (empresaId: number): Promise<UsuarioRe
                     Authorization: `Bearer ${token}`,
                },
           });
-          console.log(response.data)
           return response.data
-          // return response.data.map((user: any) => ({
-          //      id: user.id,
-          //      email: user.email,
-          //      name: user.name,
-          //      lastname: user.lastname,
-          //      active: user.active,
-          //      systemRole: user.systemRole,
-          //      empresas: user.empresas || [],
-          // }));
      } catch (error) {
           return handleError(error);
      }

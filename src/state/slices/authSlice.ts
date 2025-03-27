@@ -5,11 +5,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface AuthState {
      user: AuthUserType | null;
      isAuthenticated: boolean;
+     justLoggedIn: boolean;
 }
 
 const initialState: AuthState = {
      user: null,
      isAuthenticated: false,
+     justLoggedIn: false
 };
 
 const authSlice = createSlice({
@@ -20,6 +22,9 @@ const authSlice = createSlice({
                state.user = action.payload;
                state.isAuthenticated = true;
           },
+          setJustLoggedIn(state, action: PayloadAction<boolean>) {
+               state.justLoggedIn = action.payload;
+          },
           clearUser: (state) => {
                state.user = null;
                state.isAuthenticated = false;
@@ -28,9 +33,10 @@ const authSlice = createSlice({
                state.user = null;
                state.isAuthenticated = false;
                localStorage.clear(); // Clear all related storage
+               state.justLoggedIn = false;
           },
      },
 });
 
-export const { setUser, clearUser, logout } = authSlice.actions;
+export const { setUser, setJustLoggedIn, clearUser, logout } = authSlice.actions;
 export default authSlice.reducer;

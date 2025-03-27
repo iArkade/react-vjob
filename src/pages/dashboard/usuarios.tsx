@@ -7,16 +7,13 @@ import {
     Box,
     Toolbar,
     InputAdornment,
-    Alert,
-    Snackbar,
-    AlertColor,
 } from '@mui/material';
 import {
     Add as AddIcon,
     Search as SearchIcon,
 } from '@mui/icons-material';
-import { UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
-import { useCreateUsuarioByEmpresa, useGetUsuariosByEmpresa, useUpdateUsuarioByEmpresa } from '@/api/user-request';
+import { AuthUserEmpresa, UsuarioRequestType, UsuarioResponseType } from '@/api/user-types';
+import { useCreateUsuarioByEmpresa, useDeleteUsuarioByEmpresa, useGetUsuariosByEmpresa, useUpdateUsuarioByEmpresa } from '@/api/user-request';
 import { useParams } from 'react-router-dom';
 import { UsuarioTable } from '@/components/dashboard/usuarios/usuarios-table';
 import { useDispatch } from 'react-redux';
@@ -27,16 +24,11 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
 
-
-interface SnackbarState {
-    open: boolean;
-    message: string;
-    severity: AlertColor;
-}
-
 export function Usuarios(): React.JSX.Element {
 
     const queryClient = useQueryClient();
+
+    const dispatch = useDispatch();
 
     const [open, setOpen] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<UsuarioResponseType | null>(null);
@@ -47,27 +39,21 @@ export function Usuarios(): React.JSX.Element {
     const user = useSelector((state: RootState) => state.authSlice.user) || {
         id: 0,
         systemRole: '',
-        empresas: [] as { role: string }[]
+        empresas: [] as AuthUserEmpresa[]
     };
+
+
     // Si el usuario existe pero systemRole es undefined, le asignamos un valor por defecto
     const formattedUser = {
         ...user,
         systemRole: user.systemRole || '',  // Garantiza que siempre sea un string
+        empresas: user.empresas.filter(emp => emp.id === Number(empresaId)),
     };
 
-    
     const { data: users = [], isLoading, error } = useGetUsuariosByEmpresa(Number(empresaId));
     const { mutateAsync: createUsuarioByEmpresa } = useCreateUsuarioByEmpresa();
     const { mutateAsync: updateUsuarioByEmpresa } = useUpdateUsuarioByEmpresa();
-
-    //console.log(users, user)
-
-    //Estado para el snackbar
-    const [snackbar, setSnackbar] = useState<SnackbarState>({
-        open: false,
-        message: '',
-        severity: 'success'
-    });
+    const { mutateAsync: deleteUsuarioByEmpresa } = useDeleteUsuarioByEmpresa();
 
     const handleOpenDialog = (user?: UsuarioResponseType) => {
         setCurrentUser(user || null);
@@ -83,19 +69,40 @@ export function Usuarios(): React.JSX.Element {
     const onSubmit = async (data: UsuarioRequestType) => {
         try {
             if (!empresaId) {
-                showSnackbar("Error: No se encontró la empresa", "error");
+                dispatch(
+                    setFeedback({
+                        message:
+                            "No se encontró la empresa",
+                        severity: "error",
+                        isError: true,
+                    })
+                );
                 return;
             }
 
             if (currentUser) {
-                console.log(data)
                 // Si el usuario ya existe, actualiza
                 await updateUsuarioByEmpresa({ empresaId: Number(empresaId), userId: currentUser.id, data });
-                showSnackbar("Usuario actualizado con éxito", "success");
+                dispatch(
+                    setFeedback({
+                        message:
+                            "Usuario actualizado con éxito",
+                        severity: "success",
+                        isError: false,
+                    })
+                );
+
             } else {
                 // Si es un nuevo usuario, crea
                 await createUsuarioByEmpresa({ empresaId: Number(empresaId), data });
-                showSnackbar("Usuario creado con éxito", "success");
+                dispatch(
+                    setFeedback({
+                        message:
+                            "Usuario creado con éxito",
+                        severity: "success",
+                        isError: false,
+                    })
+                );
             }
 
             await queryClient.invalidateQueries({ queryKey: ['GetUsuariosByEmpresa', Number(empresaId)] });
@@ -104,23 +111,39 @@ export function Usuarios(): React.JSX.Element {
         } catch (error: any) {
             console.error(error);
             let mensajeError = error.mensaje || "Ocurrió un error desconocido."; // Usa un mensaje predeterminado si no hay mensaje
-            showSnackbar(mensajeError, "error");
+            dispatch(
+                setFeedback({
+                    message: mensajeError,
+                    severity: "error",
+                    isError: true,
+                })
+            );
+
         }
     };
 
-    const handleDeleteUser = (id: number) => {
-        // deleteUsuario.mutate(id, {
-        //     onSuccess: () => showSnackbar('Usuario eliminado', 'success'),
-        //     onError: () => showSnackbar('Error al eliminar el usuario', 'error')
-        // });
-    };
-
-    const showSnackbar = (message: string, severity: AlertColor): void => {
-        setSnackbar({ open: true, message, severity });
-    };
-
-    const handleCloseSnackbar = (): void => {
-        setSnackbar(prev => ({ ...prev, open: false }));
+    const handleDeleteUser = async (userId: number) => {
+        try {
+            await deleteUsuarioByEmpresa({ empresaId: Number(empresaId), userId });
+            dispatch(
+                setFeedback({
+                    message:
+                        "Usuario eliminado con éxito",
+                    severity: "success",
+                    isError: false,
+                })
+            );
+        } catch (error) {
+            console.error(error);
+            dispatch(
+                setFeedback({
+                    message:
+                        "Error al eliminar el usuario",
+                    severity: "error",
+                    isError: true,
+                })
+            );
+        }
     };
 
     if (isLoading) return <div>Cargando...</div>;
@@ -180,21 +203,6 @@ export function Usuarios(): React.JSX.Element {
                 empresaId={Number(empresaId)}
                 user={formattedUser}
             />
-
-            {/* Snackbar para notificaciones */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={4000}
-                onClose={handleCloseSnackbar}
-            >
-                <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

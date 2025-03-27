@@ -65,10 +65,10 @@ export const paths = {
           settings: {
                company: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/company`,
                account: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/account`,
+               security: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/security`,
                billing: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/billing`,
                integrations: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/integrations`,
                notifications: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/notifications`,
-               security: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/security`,
                team: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/settings/team`,
           },
           planCuentas: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/plan-cuentas`,

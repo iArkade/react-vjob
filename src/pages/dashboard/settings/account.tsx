@@ -12,7 +12,7 @@ export function Account(): React.JSX.Element {
           <React.Fragment>
                <Stack spacing={4}>
                     <div>
-                         <Typography variant="h4">Account</Typography>
+                         <Typography variant="h4">Cuenta</Typography>
                     </div>
                     <Stack spacing={4}>
                          <AccountDetails />
@@ -24,3 +24,4 @@ export function Account(): React.JSX.Element {
           </React.Fragment>
      );
 }
+
