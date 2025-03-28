@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { 
+import {
     Paper,
     Table,
     TableBody,
@@ -12,6 +12,7 @@ import {
     CircularProgress,
     Alert,
     TablePagination,
+    Box,
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import CostCenterRow from './costcenter-row';
@@ -45,11 +46,11 @@ const CostCenterTable: React.FC = () => {
     //     item.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     //     item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     // );
-    const filteredTransactions = useMemo(() => 
+    const filteredTransactions = useMemo(() =>
         costCenters.filter(item =>
             item.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-        ), 
+        ),
         [costCenters, searchTerm]
     );
 
@@ -82,7 +83,7 @@ const CostCenterTable: React.FC = () => {
         setPage(newPage);
     }, []);
 
-    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => { 
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     }, []);
@@ -91,9 +92,20 @@ const CostCenterTable: React.FC = () => {
         setSelectedRowId(prevId => (prevId === id ? null : id));
     }, []);
 
+
     if (isLoading) {
-        return <CircularProgress />;
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
+
 
     if (isError) {
         return <Alert severity="error">Error al cargar las transacciones</Alert>;
@@ -130,7 +142,7 @@ const CostCenterTable: React.FC = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <CostCenterForm onSubmit={addcostCenter} existingCostCenters={costCenters}/>
+                        <CostCenterForm onSubmit={addcostCenter} existingCostCenters={costCenters} />
                         {filteredTransactions.map((costCenter) => (
                             <CostCenterRow
                                 key={costCenter.id}
@@ -141,7 +153,7 @@ const CostCenterTable: React.FC = () => {
                                 onRowClick={handleRowClick}
                             />
                         ))}
-                        
+
                     </TableBody>
                 </Table>
                 <TablePagination
@@ -167,7 +179,7 @@ const CostCenterTable: React.FC = () => {
                         </Alert>
                     </Snackbar> */
                 }
-    
+
             </TableContainer>
         </Paper>
     );

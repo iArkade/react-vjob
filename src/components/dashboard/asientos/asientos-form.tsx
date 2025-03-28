@@ -21,7 +21,6 @@ import { z as zod } from "zod";
 
 import { paths } from "@/paths";
 
-import { logger } from "@/lib/default-logger";
 import { Option } from "@/components/core/option";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -35,9 +34,9 @@ import {
   TableContainer,
   Paper,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import {
-  getErrorMessage,
   useCreateAsiento,
   useUpdateAsiento,
 } from "@/api/asientos/asientos-request";
@@ -57,10 +56,7 @@ import { RootState } from "@/state/store";
 
 dayjs.locale("es");
 
-const getCurrentDate = (): string => {
-  const today = new Date();
-  return today?.toISOString()?.split("T")?.[0]; // Devuelve 'YYYY-MM-DD'
-};
+const getCurrentDate = (): string => dayjs().format("YYYY-MM-DD");
 
 const asientoItemSchema = zod.object({
   id: zod.number().optional(),
@@ -174,7 +170,6 @@ export function AsientosForm({
   } = useGetCentroCosto(selectedEmpresa.id);
 
 
-
   const {
     data: transacciones = [],
     isLoading: isLoadingTransacciones,
@@ -219,7 +214,12 @@ export function AsientosForm({
     }
   }, [errors.codigo_transaccion, setFocus]);
 
-  const { mutate: createAsiento } = useCreateAsiento(onError);
+  const { mutate: createAsiento } = useCreateAsiento(
+    selectedEmpresa.id,
+    () => onSuccess("Asiento creado exitosamente"),
+    onError
+  );
+
   const { mutate: updateAsiento } = useUpdateAsiento(
     () => onSuccess("Asiento actualizado exitosamente"),
     onError
@@ -285,7 +285,6 @@ export function AsientosForm({
     },
     [id, createAsiento, updateAsiento, getValues, validateTotals, selectedEmpresa.id, queryClient]
   );
-
 
   const handleCentroChange = React.useCallback(
     (selectedCentro: string) => {
@@ -443,7 +442,8 @@ export function AsientosForm({
                             )}
                             {isLoadingTransacciones ? (
                               <Option value="">
-                                <em>Cargando transacciones...</em>
+                                <CircularProgress size={20} />
+                                <Typography sx={{ ml: 1 }}>Cargando transacciones...</Typography>
                               </Option>
                             ) : (
                               transacciones?.map(
@@ -607,7 +607,8 @@ export function AsientosForm({
 
                             {isLoadingCentros ? (
                               <Option value="">
-                                <em>Cargando centros...</em>
+                                <CircularProgress size={20} />
+                                <Typography sx={{ ml: 1 }}>Cargando centros...</Typography>
                               </Option>
                             ) : (
                               centros?.map((centro: DatCentro) => (

@@ -10,58 +10,51 @@ import AsientoTable from "@/components/dashboard/asientos/asientos-table";
 import { RouterLink } from "@/components/core/link";
 import { paths } from "@/paths";
 import { useAsientos } from "@/api/asientos/asientos-request";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { setFeedback } from "@/state/slices/feedBackSlice";
+import { Alert, CircularProgress } from "@mui/material";
 
 export function Asientos(): React.JSX.Element {
+  const dispatch = useDispatch();
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const { data: asientos, isLoading, isError, error } = useAsientos(selectedEmpresa.id);
-  /*
-   //TODO  THIS IS GOING TO BE USED ON THE FUTURE TO OPEN A MODAL TO EDIT THE ASIENTO
-    // const [selectedAsiento, setSelectedAsiento] = React.useState<Asiento | null>(null);
-    // const [openModal, setOpenModal] = React.useState(false);
-  //Prueba: esto es para actualizar para cuando le de al botn de edit const handleRefetch = () => {
-    //      refetch(); // Forzar la recarga de datos
-    // };
   
-    // const [searchParams, setSearchParams] = useSearchParams();
-    // const navigate = useNavigate();
-  
-    // const handleOpenModal = (asiento: Asiento) => {
-    //      if (asiento?.id) {
-    //           setSelectedAsiento(asiento);
-    //           setOpenModal(true);
-    //           navigate(/dashboard/asientos?previewId=${asiento.id});
-    //      }
-    // };
-  
-    // const handleCloseModal = () => {
-    //      setSelectedAsiento(null);
-    //      setOpenModal(false);
-    //      navigate('/dashboard/asientos');
-    // };
-  
-    // React.useEffect(() => {
-    //      const previewId = searchParams.get('previewId');
-  
-    //      // Si hay un previewId en la URL y tenemos asientos cargados
-    //      if (previewId && asientos?.length && !openModal) { // Añadimos !openModal para evitar loops
-    //           const asiento = asientos.find(a => a?.id?.toString() === previewId);
-  
-    //           if (asiento) {
-    //                setSelectedAsiento(asiento);
-    //                setOpenModal(true);
-    //           } else {
-    //                //console.error(Asiento con ID ${previewId} no encontrado.);
-    //                navigate('/dashboard/asientos');
-    //           }
-    //      }
-    // }, [searchParams, asientos, openModal]);
-  */
 
-  if (isLoading) return <div>Cargando...</div>;
-  if (error) return <div>Error al cargar usuarios</div>;
+  const onSuccess = () => {
+    dispatch(setFeedback({
+      message: "Asiento eliminado exitosamente",
+      severity: "success",
+      isError: false,
+    }));
+  };
+  
+  const onError = (message: string) => {
+    dispatch(setFeedback({
+      message,
+      severity: "error",
+      isError: true,
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
+        <CircularProgress />
+        <Typography sx={{ ml: 1 }}>Cargando...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error">Error al cargar usuarios</Alert>;
+  }
 
   return (
     <React.Fragment>
@@ -99,7 +92,8 @@ export function Asientos(): React.JSX.Element {
                 asientos={asientos} // Pasamos los datos
                 isLoading={isLoading} // Estado de carga
                 isError={isError} // Estado de error
-              //onOpenModal={handleOpenModal} // Pasamos la función de apertura del modal
+                onSuccessF={onSuccess}
+                onErrorF={onError}
               />
             </Box>
             <Divider />

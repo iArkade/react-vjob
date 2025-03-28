@@ -80,10 +80,20 @@ export function CustomTable<T extends CustomRow>({
             setIsSaving(false);
         }
     };
-
+    
     if (isLoading) {
-        return <CircularProgress />;
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
+
 
     if (isError) {
         return <Alert severity="error">Error: {(error as Error).message}</Alert>;

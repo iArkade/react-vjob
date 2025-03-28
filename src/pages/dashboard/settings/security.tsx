@@ -7,6 +7,7 @@ import { RootState } from '@/state/store';
 import { useDispatch, useSelector } from 'react-redux';
 import LoginHistory from '@/components/dashboard/settings/login-history';
 import { setJustLoggedIn } from '@/state/slices/authSlice';
+import { Alert, Box, CircularProgress } from '@mui/material';
 
 
 export function Security(): React.JSX.Element {
@@ -23,9 +24,10 @@ export function Security(): React.JSX.Element {
      React.useEffect(() => {
           if (user?.id && justLoggedIn) {
                saveLogin(
-                    { 
-                         userId: user.id, 
-                         userName: `${user.name} ${user.lastname}` },
+                    {
+                         userId: user.id,
+                         userName: `${user.name} ${user.lastname}`
+                    },
                     {
                          onSuccess: () => {
                               refetch()
@@ -41,8 +43,23 @@ export function Security(): React.JSX.Element {
           setPage(Math.max(0, newPage));
      };
 
-     if (isLoading) return <div>Cargando...</div>;
-     if (error) return <div>Error al cargar el historial</div>;
+     if (isLoading) {
+          return (
+               <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    height="100%"
+               >
+                    <CircularProgress />
+                    <Typography sx={{ ml: 1 }}>Cargando...</Typography>
+               </Box>
+          );
+     }
+
+     if (error) {
+          return <Alert severity="error">Error al cargar el historial</Alert>;
+     }
 
      return (
           <Stack spacing={4}>

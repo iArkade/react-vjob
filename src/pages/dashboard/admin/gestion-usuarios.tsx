@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { UsuariosTable } from '@/components/usuario/usuario-table';
 import { UsuariosModal } from '@/components/usuario/usuario-modal';
@@ -44,8 +44,24 @@ export function GestionUsuarios() {
         });
     };
 
-    if (isLoading) return <div>Cargando...</div>;
-    if (error) return <div>Error al cargar usuarios</div>;
+    if (isLoading) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+                <Typography sx={{ ml: 1 }}>Cargando...</Typography>
+
+            </Box>
+        );
+    }
+
+    if (error) {
+        return <Alert severity="error">Error al cargar usuarios</Alert>;
+    }
 
     return (
         <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', p: 3 }}>
@@ -60,8 +76,8 @@ export function GestionUsuarios() {
                 </Button>
             </Box>
 
-            <UsuariosTable 
-                users={users} 
+            <UsuariosTable
+                users={users}
                 onEdit={handleOpenDialog}
                 onDelete={handleDeleteUser}
             />
@@ -70,10 +86,10 @@ export function GestionUsuarios() {
                 open={open}
                 onClose={handleCloseDialog}
                 currentUser={currentUser}
-                showSnackbar={(message, severity = 'success') => 
+                showSnackbar={(message, severity = 'success') =>
                     dispatch(setFeedback({ message, severity, isError: severity === 'error' }))
                 }
             />
-        </Box> 
+        </Box>
     );
 }

@@ -7,6 +7,8 @@ import {
   IconButton,
   Select,
   FormHelperText,
+  CircularProgress,
+  Typography,
 } from "@mui/material";
 import { Trash as TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { Option } from "@/components/core/option";
@@ -45,7 +47,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
       setValue(`lineItems.${index}.id`, item.id);
     }
   }, [item?.id, index, setValue]);
-  
+
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
 
   const {
@@ -118,7 +120,8 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
 
                 {isLoadingCentros ? (
                   <Option value="">
-                    <em>Cargando centros...</em>
+                    <CircularProgress size={20} />
+                    <Typography sx={{ ml: 1 }}>Cargando centros...</Typography>
                   </Option>
                 ) : (
                   centros?.map((centro: DatCentro) => (
@@ -146,6 +149,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 fullWidth
+                autoComplete="off"
                 error={!!lineItemErrors?.cta}
                 onClick={() => {
                   handleOpenModal(index);

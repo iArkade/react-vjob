@@ -219,7 +219,7 @@ const EmpresaModal: React.FC<EmpresaModalProps> = ({ open, onClose, onSave, empr
                                 control={control}
                                 rules={{
                                     validate: {
-                                        length: (value) => value.length === 10 || 'Debe tener 10 dígitos.',
+                                        length: (value) => value.length === 7 || 'Debe tener 7 dígitos.',
                                     },
                                 }}
                                 render={({ field }) => (

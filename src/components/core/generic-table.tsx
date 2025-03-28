@@ -135,6 +135,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
         );
     }
 
+
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             {searchableColumns.length > 0 && (

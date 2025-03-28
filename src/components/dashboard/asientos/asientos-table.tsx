@@ -24,7 +24,8 @@ import Swal from "sweetalert2";
 import { useDeleteAsiento } from "@/api/asientos/asientos-request";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/paths";
-import { useQueryClient } from "react-query";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
@@ -38,6 +39,8 @@ interface AsientoTableProps {
   asientos?: Asiento[];
   isLoading: boolean;
   isError: boolean;
+  onSuccessF: () => void;
+  onErrorF: (error: string) => void;
   //onOpenModal: (asiento: Asiento) => void;
 }
 
@@ -132,12 +135,20 @@ export default function AsientoTable({
   asientos = [],
   isLoading,
   isError,
+  onSuccessF,
+  onErrorF,
 }: AsientoTableProps) {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
-  const { mutate: deleteAsiento } = useDeleteAsiento();
-  const queryClient = useQueryClient();
+  
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
+
+  const { mutate: deleteAsiento } = useDeleteAsiento(
+    selectedEmpresa.id,
+    onSuccessF,
+    onErrorF
+  );
 
   // Pagination handlers
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
@@ -195,7 +206,6 @@ export default function AsientoTable({
 
     const actions: Record<ActionType, () => void> = {
       edit: () => {
-        queryClient.invalidateQueries(["asiento", asiento.id]);
         navigate(paths.dashboard.asientos.details(asiento.empresa_id, asiento.id!));
       },
       delete: () => handleDelete(asiento.id!, asiento.empresa_id),

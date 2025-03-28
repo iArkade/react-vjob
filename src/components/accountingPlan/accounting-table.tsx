@@ -11,7 +11,8 @@ import {
     Paper,
     InputAdornment,
     TextField,
-    TableContainer
+    TableContainer,
+    Box
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import AccountRow from './accounting-row';
@@ -47,9 +48,9 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
 
     const filteredAccounts = useMemo(() => {
         if (!searchTerm) return allAccounts || [];
-        
+
         // Usar índices o búsqueda binaria para conjuntos de datos grandes
-        return (allAccounts || []).filter(item => 
+        return (allAccounts || []).filter(item =>
             item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -100,7 +101,16 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
     }, []);
 
     if (isLoading) {
-        return <CircularProgress />;
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (isError) {

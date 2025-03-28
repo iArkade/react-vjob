@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Typography, Alert, Box, Divider, Stack, Card } from '@mui/material';
+import { Button, Typography, Alert, Box, Divider, Stack, Card, CircularProgress } from '@mui/material';
 import EmpresaTable from '@/components/empresa/empresa-table';
 import EmpresaModal from '@/components/empresa/empresa-modal';
 import {
@@ -23,7 +23,7 @@ const GestionEmpresas: React.FC = () => {
     const { data: empresas = [], isLoading, error } = useGetEmpresa();
 
     //console.log(empresas);
-    
+
 
     // Mutation hooks
     const createEmpresa = useCreateEmpresa();
@@ -93,8 +93,20 @@ const GestionEmpresas: React.FC = () => {
         });
     };
 
+    if (isLoading) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-    if (isLoading) return <Typography>Cargando...</Typography>;
+
     if (error) return <Alert severity="error">Error al cargar empresas</Alert>;
 
     return (

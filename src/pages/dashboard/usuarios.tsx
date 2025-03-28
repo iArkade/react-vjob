@@ -7,6 +7,8 @@ import {
     Box,
     Toolbar,
     InputAdornment,
+    CircularProgress,
+    Alert,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -146,8 +148,24 @@ export function Usuarios(): React.JSX.Element {
         }
     };
 
-    if (isLoading) return <div>Cargando...</div>;
-    if (error) return <div>Error al cargar usuarios</div>;
+    if (isLoading) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return <Alert severity="error">Error al cargar usuarios</Alert>;
+    }
+
+
 
     return (
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', p: 3, mt: 2 }}>

@@ -27,15 +27,11 @@ const getAsientos = async (empresa_id: number) => {
 };
 
 export const useAsientos = (empresa_id: number) => {
-  const queryClient = useQueryClient();
   return useQuery<Asiento[]>({
     queryKey: ["asientos", empresa_id],
     queryFn: () => getAsientos(empresa_id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["asiento"]);
-    },
     onError: (error) => {
-      console.error(getErrorMessage(error)); // Muestra el mensaje de error específico
+      console.error(getErrorMessage(error));
     },
     refetchOnWindowFocus: true,
     refetchOnMount: false,
@@ -76,17 +72,22 @@ const createAsiento = async (data: Asiento) => {
   }
 };
 
-export const useCreateAsiento = (onErrorF: (error: string) => void) => {
+export const useCreateAsiento = (
+  empresa_id: number,
+  onSuccessF: () => void,
+  onErrorF: (error: string) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(createAsiento, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["asientos"]);
+      queryClient.invalidateQueries(["asientos", empresa_id], { refetchActive: true });
+      onSuccessF();
       console.log("Asiento creado exitosamente");
     },
     onError: (error) => {
       const errorMessage = getErrorMessage(error);
-      onErrorF(errorMessage); // Propaga el mensaje de error
+      onErrorF(errorMessage);
     },
   });
 };
@@ -108,14 +109,14 @@ export const useUpdateAsiento = (
   const queryClient = useQueryClient();
 
   return useMutation(updateAsiento, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["asientos"]);
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries(["asientos", variables.empresa_id], { refetchActive: true });
       onSuccessF();
       console.log("Asiento actualizado exitosamente");
     },
     onError: (error) => {
       const errorMessage = getErrorMessage(error);
-      onErrorF(errorMessage); // Propaga el mensaje de error
+      onErrorF(errorMessage);
     },
   });
 };
@@ -135,17 +136,22 @@ const deleteAsiento = async ({ id, empresa_id }: DeleteAsientoVars) => {
   }
 };
 
-export const useDeleteAsiento = (onErrorF: (error: string) => void) => {
+export const useDeleteAsiento = (
+  empresa_id: number,
+  onSuccessF: () => void,
+  onErrorF: (error: string) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteAsiento, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["asientos"]);
+      queryClient.invalidateQueries(["asientos", empresa_id], { refetchActive: true });
+      onSuccessF();
       console.log("Asiento eliminado exitosamente");
     },
     onError: (error) => {
       const errorMessage = getErrorMessage(error);
-      onErrorF(errorMessage); // Propaga el mensaje de error
+      onErrorF(errorMessage);
     },
   });
 };
