@@ -34,7 +34,7 @@ export const useAsientos = (empresa_id: number) => {
       console.error(getErrorMessage(error));
     },
     refetchOnWindowFocus: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
   });
 };
 

@@ -20,7 +20,6 @@ export function Asientos(): React.JSX.Element {
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const { data: asientos, isLoading, isError, error } = useAsientos(selectedEmpresa.id);
-  
 
   const onSuccess = () => {
     dispatch(setFeedback({
@@ -29,7 +28,7 @@ export function Asientos(): React.JSX.Element {
       isError: false,
     }));
   };
-  
+
   const onError = (message: string) => {
     dispatch(setFeedback({
       message,
@@ -100,14 +99,14 @@ export function Asientos(): React.JSX.Element {
           </Card>
         </Stack>
       </Box>
-      
+
       { /* <AsientoDetailsModal
             open={openModal}
             onClose={handleCloseModal}
             asiento={selectedAsiento}
             previewId={searchParams.get('previewId') || ''}
         /> */}
-      
+
     </React.Fragment>
   );
 }

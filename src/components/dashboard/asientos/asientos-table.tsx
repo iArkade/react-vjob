@@ -180,19 +180,19 @@ export default function AsientoTable({
     if (result.isConfirmed) {
       deleteAsiento({id: asientoId, empresa_id: empresaId}, {
         onSuccess: () => {
-          Swal.fire(
-            "¡Borrado!",
-            "El registro ha sido eliminado correctamente.",
-            "success"
-          );
+          // Swal.fire(
+          //   "¡Borrado!",
+          //   "El registro ha sido eliminado correctamente.",
+          //   "success"
+          // );
         },
         onError: (error) => {
           console.error(error);
-          Swal.fire(
-            "Error",
-            "No se pudo eliminar el asiento. Intenta nuevamente.",
-            "error"
-          );
+          // Swal.fire(
+          //   "Error",
+          //   "No se pudo eliminar el asiento. Intenta nuevamente.",
+          //   "error"
+          // );
         },
       });
     }
