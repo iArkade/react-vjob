@@ -1,4 +1,4 @@
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { BalanceGeneralItem } from '@/api/balance-general/balance-types';
 
 interface BalanceGeneralPDFProps {
@@ -161,6 +161,21 @@ const styles = StyleSheet.create({
         borderTopColor: '#e2e8f0',
         paddingTop: 5,
     },
+    balanceCorrect: {
+        color: '#38a169',
+        fontWeight: 'bold'
+    },
+    balanceIncorrect: {
+        color: '#e53e3e',
+        fontWeight: 'bold'
+    },
+    warningBox: {
+        marginTop: 10,
+        padding: 8,
+        backgroundColor: '#fff5f5',
+        border: '1px solid #fed7d7',
+        borderRadius: 4
+    }
 });
 
 const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, report }) => {
@@ -174,13 +189,16 @@ const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, r
     };
 
     const formatEndDate = (dateString: string) => {
-        const date = new Date(dateString);
+        // Añadir hora UTC explícita para evitar cambios
+        const date = new Date(`${dateString}T00:00:00Z`); // <- "Z" indica UTC
         return date.toLocaleDateString('es-EC', {
+            timeZone: 'UTC', // Fuerza UTC en el formateo
             day: '2-digit',
             month: 'long',
             year: 'numeric'
         });
     };
+
 
     const fechaEmision = new Date().toLocaleString('es-EC', {
         day: '2-digit',
@@ -203,7 +221,7 @@ const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, r
 
     // Determinar el estilo de una fila basado en su código y si es un total
     const getRowStyle = (item: BalanceGeneralItem, index: number) => {
-        if (item.code === 'TOTALPYP') {
+        if (item.code === 'TOTALPYP' || item.code === 'NET') {
             return styles.finalTotal;
         }
         if (item.code.startsWith('TOTAL')) {
@@ -212,7 +230,7 @@ const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, r
         if (item.isHeader && item.level === 1) {
             return styles.sectionTotal;
         }
-        
+
         return index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd;
     };
 
@@ -244,6 +262,12 @@ const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, r
                         </View>
                         <View style={styles.infoRight}>
                             <Text style={styles.infoText}>Fecha de emisión: {fechaEmision}</Text>
+                            {/* <Text style={[
+                                styles.infoText,
+                                balanceCorrecto ? styles.balanceCorrect : styles.balanceIncorrect
+                            ]}>
+                                {balanceCorrecto ? 'Balance Correcto ✓' : 'Balance Desequilibrado ✗'}
+                            </Text> */}
                             <Text style={styles.infoText}>Página {pageIndex + 1} de {pages.length}</Text>
                         </View>
                     </View>

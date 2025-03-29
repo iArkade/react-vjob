@@ -39,6 +39,8 @@ const BalanceGeneral: React.FC = () => {
         endDate,
         level === 'All' ? undefined : level
     );
+    
+    
 
     const formattedReport = data?.report?.map(item => ({
         ...item,
