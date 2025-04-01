@@ -15,6 +15,7 @@ import {
      CircularProgress,
      Typography,
      TextField,
+     TablePagination,
 } from '@mui/material';
 import { useGetAccountingPlanPaginated } from '@/api/accounting-plan/account-request';
 import { useSelector } from 'react-redux';
@@ -30,24 +31,27 @@ interface AccountSelectionModalProps {
 export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ open, onClose, onSelect }) => {
 
      const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
+     const [page, setPage] = useState(1); // base 1
+     const [rowsPerPage, setRowsPerPage] = useState(10);
+     const [searchTerm, setSearchTerm] = useState('');
+
      const {
           data: accountData,
           isLoading,
           isError
-     } = useGetAccountingPlanPaginated(1, 1000, selectedEmpresa.id);
+     } = useGetAccountingPlanPaginated(page, rowsPerPage, selectedEmpresa.id);
 
 
      const accounts = accountData?.data || [];
+     const total = accountData?.total || 0;
 
      const isSelectable = (code: string) => !code.endsWith('.');
 
-     // Estado para el filtro de búsqueda
-     const [searchTerm, setSearchTerm] = useState('');
-
      // Filtrar cuentas por nombre
-     const filteredAccounts = accounts.filter(account =>
-          account.name.toLowerCase().includes(searchTerm.toLowerCase())
-     );
+     const filteredAccounts = React.useMemo(() =>
+          accounts.filter(account =>
+               account.name.toLowerCase().includes(searchTerm.toLowerCase())
+          ), [accounts, searchTerm]);
 
      if (isLoading) return <CircularProgress />;
      if (isError) return <Typography>Error al cargar las cuentas</Typography>;
@@ -76,22 +80,43 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                                    </TableRow>
                               </TableHead>
                               <TableBody>
-                                   {filteredAccounts.map((account) => (
-                                        <TableRow
-                                             key={account.code}
-                                             onClick={() => isSelectable(account.code) && onSelect(account.code, account.name)}
-                                             style={{
-                                                  cursor: isSelectable(account.code) ? 'pointer' : 'default',
-                                                  backgroundColor: isSelectable(account.code) ? 'inherit' : '#d1cdcd',
-                                             }}
-                                        >
-                                             <TableCell>{account.code}</TableCell>
-                                             <TableCell>{account.name}</TableCell>
+                                   {filteredAccounts.length === 0 ? (
+                                        <TableRow>
+                                             <TableCell colSpan={2}>
+                                                  <Typography variant="body2" sx={{ p: 2, textAlign: 'center' }}>
+                                                       No se encontraron cuentas con ese nombre.
+                                                  </Typography>
+                                             </TableCell>
                                         </TableRow>
-                                   ))}
+                                   ) : (
+                                        filteredAccounts.map((account) => (
+                                             <TableRow
+                                                  key={account.code}
+                                                  onClick={() => isSelectable(account.code) && onSelect(account.code, account.name)}
+                                                  style={{
+                                                       cursor: isSelectable(account.code) ? 'pointer' : 'default',
+                                                       backgroundColor: isSelectable(account.code) ? 'inherit' : '#d1cdcd',
+                                                  }}
+                                             >
+                                                  <TableCell>{account.code}</TableCell>
+                                                  <TableCell>{account.name}</TableCell>
+                                             </TableRow>
+                                        ))
+                                   )}
                               </TableBody>
                          </Table>
                     </TableContainer>
+                    <TablePagination
+                         component="div"
+                         count={total}
+                         page={page - 1}
+                         rowsPerPage={rowsPerPage}
+                         onPageChange={(event, newPage) => setPage(newPage + 1)}
+                         onRowsPerPageChange={(event) => {
+                              setRowsPerPage(parseInt(event.target.value, 10));
+                              setPage(1);
+                         }}
+                    />
                </DialogContent>
                <DialogActions>
                     <Button onClick={onClose} color="primary">

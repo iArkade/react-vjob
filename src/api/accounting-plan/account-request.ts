@@ -36,7 +36,7 @@ const createAccountingPlanRequest = async (data: AccountingPlanRequestType) => {
         const response = await http.post('accounting-plan', { code: data.code, name: data.name, empresa_id: data.empresa_id });
         return response.data;
     } catch (error) {
-        handleError(error); 
+        handleError(error);
     }
 };
 
@@ -60,13 +60,19 @@ const getAccountingPlanPaginatedRequest = async (page: number, limit: number, em
     }
 };
 
-export const useGetAccountingPlanPaginated = (page: number, limit: number, empresa_id: number, refreshTrigger?: number,) =>
+export const useGetAccountingPlanPaginated = (
+    page: number,
+    limit: number,
+    empresa_id: number,
+    refreshTrigger?: number,
+) =>
     useQuery({
         queryKey: ['GetAccountingPlan', page, limit, empresa_id, refreshTrigger],
         queryFn: () => getAccountingPlanPaginatedRequest(page, limit, empresa_id),
+        enabled: !!empresa_id,
         keepPreviousData: true,
-        staleTime: 0, // Ensure fresh data
-        refetchOnWindowFocus: false
+        staleTime: 0,
+        refetchOnWindowFocus: false,
     });
 
 const getAccountingPlanRequest = async (empresa_id: number): Promise<AccountingPlanResponseType[]> => {
@@ -74,7 +80,7 @@ const getAccountingPlanRequest = async (empresa_id: number): Promise<AccountingP
         const response = await http.get(`accounting-plan/all?empresa_id=${empresa_id}`);
         return response.data;
     } catch (error) {
-        return handleError(error);
+        throw  handleError(error);
     }
 };
 

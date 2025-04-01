@@ -149,7 +149,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
               <OutlinedInput
                 {...field}
                 fullWidth
-                autoComplete="off"
+                autoComplete="new-cta"
                 error={!!lineItemErrors?.cta}
                 onClick={() => {
                   handleOpenModal(index);

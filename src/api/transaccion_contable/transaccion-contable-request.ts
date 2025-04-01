@@ -71,6 +71,9 @@ export const useGetTransaccionContable = (empresa_id: number) =>
     useQuery({
         queryKey: ['GetTransaccionContable', empresa_id],
         queryFn: () => getTransaccionContableRequest(empresa_id),
+        refetchOnWindowFocus: true,
+        //refetchInterval: 10000,
+        staleTime: 0,  
         onError: (error) => {
             console.error('Error al obtener las transacciones:', error);
         }

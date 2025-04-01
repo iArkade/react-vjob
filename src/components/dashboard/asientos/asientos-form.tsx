@@ -176,6 +176,8 @@ export function AsientosForm({
     isError: isErrorTransacciones,
   } = useGetTransaccionContable(selectedEmpresa.id);
 
+  console.log(transacciones)
+  
   const dispatch = useDispatch();
 
   const onSuccess = React.useCallback(
@@ -369,7 +371,7 @@ export function AsientosForm({
         (transaccion: TransaccionContableResponseType) =>
           transaccion.codigo_transaccion === selectedTransaccion
       );
-      //console.log(selectedTransaccionData);
+      console.log(selectedTransaccionData);
       if (selectedTransaccionData) {
         const currentYear = new Date().getFullYear();
         const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;
