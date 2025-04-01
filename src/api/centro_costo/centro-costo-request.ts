@@ -71,6 +71,9 @@ export const useGetCentroCosto = (empresa_id: number) =>
     useQuery({
         queryKey: ['GetCentroCosto', empresa_id],
         queryFn: () => getCentroCostoRequest(empresa_id),
+        refetchOnWindowFocus: false,      
+        refetchOnMount: false,            
+        staleTime: 1000 * 60 * 5, 
     });
 
 

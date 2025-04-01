@@ -177,6 +177,7 @@ export function AsientosForm({
   } = useGetTransaccionContable(selectedEmpresa.id);
 
   console.log(transacciones)
+  console.log(centros)
   
   const dispatch = useDispatch();
 
@@ -189,7 +190,7 @@ export function AsientosForm({
           isError: false,
         })
       );
-      navigate(paths.dashboard.asientos.index(selectedEmpresa.id));
+      navigate(paths.dashboard.asientos.index(selectedEmpresa.id), { state: { refresh: true } });
     },
     [dispatch, navigate, selectedEmpresa.id]
   );

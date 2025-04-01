@@ -32,8 +32,8 @@ const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
 const DEFAULT_ROWS_PER_PAGE = 5;
 
 // Types
-type OrderStatus = "Pendiente" | "Activo" | "Cancelado" | "Rechazado";
-type ActionType = "edit" | "delete" | "print";
+export type OrderStatus = "Pendiente" | "Activo" | "Cancelado" | "Rechazado";
+export type ActionType = "edit" | "delete" | "print";
 
 interface AsientoTableProps {
   asientos?: Asiento[];
@@ -41,7 +41,6 @@ interface AsientoTableProps {
   isError: boolean;
   onSuccessF: () => void;
   onErrorF: (error: string) => void;
-  //onOpenModal: (asiento: Asiento) => void;
 }
 
 // Status configuration
@@ -55,7 +54,7 @@ const STATUS_COLORS: Record<
   Rechazado: "default",
 };
 
-const AsientoRow = ({
+const AsientoTableRow = ({
   asiento,
   handleAction,
 }: {
@@ -138,6 +137,7 @@ export default function AsientoTable({
   onSuccessF,
   onErrorF,
 }: AsientoTableProps) {
+  //console.log(asientos)
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
@@ -247,7 +247,7 @@ export default function AsientoTable({
         </TableHead>
         <TableBody>
           {paginatedAsientos.map((asiento) => (
-            <AsientoRow
+            <AsientoTableRow
               key={asiento.id}
               asiento={asiento}
               handleAction={handleAction}

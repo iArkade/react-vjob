@@ -33,8 +33,9 @@ export const useAsientos = (empresa_id: number) => {
     onError: (error) => {
       console.error(getErrorMessage(error));
     },
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 5, // Considera los datos frescos por 5 minutos
   });
 };
 
