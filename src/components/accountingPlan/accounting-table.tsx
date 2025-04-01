@@ -45,15 +45,23 @@ const AccountingPlanTable: React.FC<AccountingPlanTableProps> = ({ refreshTrigge
         clearMessages } = useAccountingPlan(page + 1, rowsPerPage, selectedEmpresa.id, refreshTrigger);
 
     const memoizedAccounts = useMemo(() => allAccounts || [], [allAccounts]);
-
+    
     const filteredAccounts = useMemo(() => {
-        if (!searchTerm) return allAccounts || [];
-
-        // Usar índices o búsqueda binaria para conjuntos de datos grandes
-        return (allAccounts || []).filter(item =>
-            item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        if (!searchTerm.trim()) return allAccounts || [];
+    
+        return (allAccounts || []).filter(item => {
+            // Búsqueda por nombre 
+            const nameMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            // Búsqueda jerárquica por código
+            const normalizedSearch = searchTerm.endsWith('.') ? searchTerm : `${searchTerm}.`;
+            const codeMatch = 
+                item.code === normalizedSearch.slice(0, -1) ||  // Ej: busca "4." encuentra "4"
+                item.code.startsWith(normalizedSearch) ||      // Ej: busca "4." encuentra "4.1", "4.1.1"
+                item.code === searchTerm;                       // Ej: busca "4" encuentra "4" (sin punto)
+    
+            return nameMatch || codeMatch;
+        });
     }, [allAccounts, searchTerm]);
 
     const paginatedAccounts = useMemo(() =>
