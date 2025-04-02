@@ -221,7 +221,7 @@ const BalanceGeneralPDF: React.FC<BalanceGeneralPDFProps> = ({ endDate, level, r
 
     // Determinar el estilo de una fila basado en su código y si es un total
     const getRowStyle = (item: BalanceGeneralItem, index: number) => {
-        if (item.code === 'TOTALPYP' || item.code === 'NET') {
+        if (item.code === 'TOTALPYPNET' || item.code === 'NET') {
             return styles.finalTotal;
         }
         if (item.code.startsWith('TOTAL')) {

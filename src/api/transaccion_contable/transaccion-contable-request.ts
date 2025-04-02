@@ -71,12 +71,13 @@ export const useGetTransaccionContable = (empresa_id: number) =>
     useQuery({
         queryKey: ['GetTransaccionContable', empresa_id],
         queryFn: () => getTransaccionContableRequest(empresa_id),
-        refetchOnWindowFocus: true,
-        //refetchInterval: 10000,
-        staleTime: 0,  
+        refetchOnWindowFocus: false,    // Evita recarga al cambiar de pestaña
+        staleTime: 30 * 60 * 1000,      // 30 min antes de considerar los datos obsoletos
+        cacheTime: 60 * 60 * 1000,      // 1 hora en cache
+        enabled: !!empresa_id,          // Solo se ejecuta si hay un `empresa_id` válido
         onError: (error) => {
             console.error('Error al obtener las transacciones:', error);
-        }
+        },
     });
 
 

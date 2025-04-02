@@ -176,7 +176,6 @@ export function AsientosForm({
     isError: isErrorTransacciones,
   } = useGetTransaccionContable(selectedEmpresa.id);
 
-  console.log(transacciones)
   
   const dispatch = useDispatch();
 
