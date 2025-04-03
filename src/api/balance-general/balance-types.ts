@@ -12,3 +12,5 @@ export interface BalanceGeneralResponseType {
     endDate: string;
     level: number | 'All';
 }
+
+

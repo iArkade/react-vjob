@@ -1,6 +1,8 @@
 import { paths } from '@/paths';
 import { NavItemConfig } from '@/types/nav';
 
+// para agregar iconos hay que dirigirse al archivo nav-icons.tsx
+
 const superadminNavItems: NavItemConfig[] = [
      {
           key: 'management',
@@ -40,8 +42,9 @@ const AdminNavItems = (empresaId: string | number): NavItemConfig[] => [
           key: 'reportes',
           title: 'Reportes',
           items: [
-               { key: 'perdidas-ganancias', title: 'Perdidas y Ganancias', href: paths.dashboard.perdidasGanancias(empresaId), icon: 'chart-pie' },
-               { key: 'balance-general', title: 'Balance General', href: paths.dashboard.balanceGeneral(empresaId), icon: 'chart-pie' },
+               { key: 'perdidas-ganancias', title: 'Perdidas y Ganancias', href: paths.dashboard.perdidasGanancias(empresaId), icon: 'trend-up' },
+               { key: 'balance-general', title: 'Balance General', href: paths.dashboard.balanceGeneral(empresaId), icon: 'scales' },
+               { key: 'mayor-general', title: 'Mayor General', href: paths.dashboard.mayorGeneral(empresaId), icon: 'list-numbers' },
           ],
      },
      {

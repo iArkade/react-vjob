@@ -174,6 +174,7 @@ export function AsientosForm({
     data: transacciones = [],
     isLoading: isLoadingTransacciones,
     isError: isErrorTransacciones,
+    refetch: refetchTransacciones
   } = useGetTransaccionContable(selectedEmpresa.id);
 
   console.log(transacciones)
@@ -367,12 +368,19 @@ export function AsientosForm({
   }, [lineItems, setValue]);
 
   const handleTransaccionChange = React.useCallback(
-    (selectedTransaccion: string) => {
-      const selectedTransaccionData = transacciones.find(
+    async (selectedTransaccion: string) => {
+      const { data: freshTransacciones } = await refetchTransacciones();
+
+      if (!freshTransacciones) {
+        console.error("No se pudo obtener transacciones actualizadas");
+        return;
+      }
+
+      const selectedTransaccionData = freshTransacciones.find(
         (transaccion: TransaccionContableResponseType) =>
           transaccion.codigo_transaccion === selectedTransaccion
       );
-      console.log(selectedTransaccionData);
+
       if (selectedTransaccionData) {
         const currentYear = new Date().getFullYear();
         const nroAsiento = `${currentYear}-${selectedTransaccionData.codigo_transaccion}-${selectedTransaccionData.secuencial}`;
@@ -381,7 +389,7 @@ export function AsientosForm({
         console.error("Transacción seleccionada no encontrada");
       }
     },
-    [transacciones, setValue]
+    [refetchTransacciones, setValue]
   );
 
   const [openModal, setOpenModal] = React.useState(false);

@@ -38,7 +38,7 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
           isError
      } = useGetAccountingPlan(selectedEmpresa.id);
 
-     console.log(accounts)
+     //console.log(accounts)
 
      const isSelectable = (code: string) => !code.endsWith('.');
 

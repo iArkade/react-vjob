@@ -17,9 +17,12 @@ import { Usuarios } from '@/pages/dashboard/usuarios'
 import { NotFound } from '@/pages/not-found'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/state/store'
-import PerdidasGanancias from '@/pages/dashboard/informes/perdidas-ganancias'
 import { Security } from '@/pages/dashboard/settings/security'
+import PerdidasGanancias from '@/pages/dashboard/informes/perdidas-ganancias'
 import BalanceGeneral from '@/pages/dashboard/informes/balance-general'
+import MayorGeneral from '@/pages/dashboard/informes/mayor-general'
+
+
 
 export const PrivateRoutes = () => {
      const { empresaId } = useParams(); // Obtener el empresaId de la URL
@@ -51,6 +54,7 @@ export const PrivateRoutes = () => {
                     <Route path='asientos/pdf/:id' element={<AsientosPDF />} />
                     <Route path='perdidas-ganancias' element={<PerdidasGanancias />} />
                     <Route path='balance-general' element={<BalanceGeneral />} />
+                    <Route path='mayor-general' element={<MayorGeneral />} />
                     {/* <Route path='blank' element={ <Blank /> }/> */}
                     {/* <Route path='analytics' element={ <Analytics /> }/> */}
 
