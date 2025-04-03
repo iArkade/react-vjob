@@ -14,14 +14,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { setFeedback } from "@/state/slices/feedBackSlice";
 import { Alert, CircularProgress } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function Asientos(): React.JSX.Element {
   const dispatch = useDispatch();
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
-  const { data: asientos, isLoading, isError, error } = useAsientos(selectedEmpresa.id);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const refresh = location.state?.refresh;
+  const { data: asientos, isLoading, isError, error, refetch } = useAsientos(selectedEmpresa.id);
+
+  React.useEffect(() => {
+    if (refresh) {
+      refetch();
+      navigate(location.pathname, { replace: true, state: {} });
+
+    }
+  }, [refresh, refetch, navigate, location.pathname]);
 
   const onSuccess = () => {
+    refetch();
     dispatch(setFeedback({
       message: "Asiento eliminado exitosamente",
       severity: "success",

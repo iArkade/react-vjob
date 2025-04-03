@@ -153,11 +153,11 @@ const LineItemRow: React.FC<LineItemRowProps> = ({
                 error={!!lineItemErrors?.cta}
                 onClick={() => {
                   handleOpenModal(index);
-
                   if (lineItemErrors?.cta) {
                     clearErrors(`lineItems.${index}.cta`);
                   }
                 }}
+                readOnly
               />
               {lineItemErrors?.cta && (
                 <FormHelperText error>

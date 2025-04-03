@@ -88,6 +88,10 @@ export const useGetAccountingPlan = (empresa_id: number) =>
     useQuery({
         queryKey: ['GetAccountingPlan', empresa_id],
         queryFn: () => getAccountingPlanRequest(empresa_id),
+        staleTime: Infinity, 
+        refetchOnWindowFocus: false, 
+        refetchOnMount: false, 
+        enabled: !!empresa_id,
     });
 
 

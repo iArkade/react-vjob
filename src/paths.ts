@@ -86,6 +86,7 @@ export const paths = {
           },
           perdidasGanancias: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/perdidas-ganancias`,
           balanceGeneral: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/balance-general`,
+          mayorGeneral: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/mayor-general`,
           libroDiario: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/libro-diario`,
           blank: '/dashboard/blank',
           analytics: '/dashboard/analytics',

@@ -15,9 +15,8 @@ import {
      CircularProgress,
      Typography,
      TextField,
-     TablePagination,
 } from '@mui/material';
-import { useGetAccountingPlanPaginated } from '@/api/accounting-plan/account-request';
+import { useGetAccountingPlan } from '@/api/accounting-plan/account-request';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
@@ -31,27 +30,48 @@ interface AccountSelectionModalProps {
 export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ open, onClose, onSelect }) => {
 
      const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
-     const [page, setPage] = useState(1); // base 1
-     const [rowsPerPage, setRowsPerPage] = useState(10);
      const [searchTerm, setSearchTerm] = useState('');
 
      const {
-          data: accountData,
+          data: accounts = [],
           isLoading,
           isError
-     } = useGetAccountingPlanPaginated(page, rowsPerPage, selectedEmpresa.id);
+     } = useGetAccountingPlan(selectedEmpresa.id);
 
-
-     const accounts = accountData?.data || [];
-     const total = accountData?.total || 0;
+     //console.log(accounts)
 
      const isSelectable = (code: string) => !code.endsWith('.');
 
-     // Filtrar cuentas por nombre
-     const filteredAccounts = React.useMemo(() =>
-          accounts.filter(account =>
-               account.name.toLowerCase().includes(searchTerm.toLowerCase())
-          ), [accounts, searchTerm]);
+     //Filtrar por codigo y nombre
+     const filteredAccounts = React.useMemo(() => {
+          if (!searchTerm.trim()) return accounts || [];
+
+          return (accounts || []).filter(item => {
+               //busqueda por nombre y sin acentos
+
+               // const normalize = (text: string) =>
+               //      text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+               // const nameMatch = normalize(item.name).includes(normalize(searchTerm));
+               
+               // Búsqueda por nombre 
+               const nameMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+               // Búsqueda jerárquica por código
+               const normalizedSearch = searchTerm.endsWith('.') ? searchTerm : `${searchTerm}.`;
+               const codeMatch =
+                    item.code === normalizedSearch.slice(0, -1) ||  // Ej: busca "4." encuentra "4"
+                    item.code.startsWith(normalizedSearch) ||      // Ej: busca "4." encuentra "4.1", "4.1.1"
+                    item.code === searchTerm;                       // Ej: busca "4" encuentra "4" (sin punto)
+
+               return nameMatch || codeMatch;
+          });
+     }, [accounts, searchTerm]);
+
+     React.useEffect(() => {
+          if (!open) {
+               setSearchTerm('');
+          }
+     }, [open]);
 
      if (isLoading) return <CircularProgress />;
      if (isError) return <Typography>Error al cargar las cuentas</Typography>;
@@ -92,7 +112,11 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                                         filteredAccounts.map((account) => (
                                              <TableRow
                                                   key={account.code}
-                                                  onClick={() => isSelectable(account.code) && onSelect(account.code, account.name)}
+                                                  onClick={() => {
+                                                       if (isSelectable(account.code)) {
+                                                            onSelect(account.code, account.name);
+                                                       }
+                                                  }}
                                                   style={{
                                                        cursor: isSelectable(account.code) ? 'pointer' : 'default',
                                                        backgroundColor: isSelectable(account.code) ? 'inherit' : '#d1cdcd',
@@ -106,17 +130,6 @@ export const AccountSelectionModal: React.FC<AccountSelectionModalProps> = ({ op
                               </TableBody>
                          </Table>
                     </TableContainer>
-                    <TablePagination
-                         component="div"
-                         count={total}
-                         page={page - 1}
-                         rowsPerPage={rowsPerPage}
-                         onPageChange={(event, newPage) => setPage(newPage + 1)}
-                         onRowsPerPageChange={(event) => {
-                              setRowsPerPage(parseInt(event.target.value, 10));
-                              setPage(1);
-                         }}
-                    />
                </DialogContent>
                <DialogActions>
                     <Button onClick={onClose} color="primary">
