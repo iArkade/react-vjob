@@ -52,7 +52,7 @@ const LibroDiario: React.FC = () => {
         codigoTransaccion || undefined
     );
 
-    console.log(data?.asientos.length);
+    //console.log(data?.asientos.length);
 
     const handleTransaccionChange = (event: SelectChangeEvent) => {
         setCodigoTransaccion(event.target.value as string);
