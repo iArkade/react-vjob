@@ -94,7 +94,9 @@ export const useCreateUsuario = () => {
 
 const createUsuarioByEmpresaRequest = async (empresaId: number, data: UsuarioRequestType): Promise<UsuarioResponseType> => {
      try {
+
           const token = getAuthToken();
+          console.log(token)
           const response = await http.post(`usuario/empresa/${empresaId}`, data, {
                headers: {
                     Authorization: `Bearer ${token}`,

@@ -64,7 +64,7 @@ export function GestionUsuarios() {
     }
 
     return (
-        <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', p: 3 }}>
+        <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', p: 3, mt:3 }}>
             <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                     id="open-user-modal-btn"

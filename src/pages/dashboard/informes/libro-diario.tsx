@@ -44,8 +44,6 @@ const LibroDiario: React.FC = () => {
         isError: isErrorTransacciones,
     } = useGetTransaccionContable(selectedEmpresa.id);
 
-    
-    
 
     const { data, isLoading, error, refetch } = useGetLibroDiario(
         empresaId,
@@ -54,7 +52,7 @@ const LibroDiario: React.FC = () => {
         codigoTransaccion || undefined
     );
 
-    console.log(data?.asientos.length);
+    //console.log(data?.asientos.length);
 
     const handleTransaccionChange = (event: SelectChangeEvent) => {
         setCodigoTransaccion(event.target.value as string);
