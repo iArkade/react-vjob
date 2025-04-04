@@ -22,6 +22,7 @@ import PerdidasGanancias from '@/pages/dashboard/informes/perdidas-ganancias'
 import BalanceGeneral from '@/pages/dashboard/informes/balance-general'
 import LibroDiario from '@/pages/dashboard/informes/libro-diario'
 import MayorGeneral from '@/pages/dashboard/informes/mayor-general'
+import BalanceComprobacion from '@/pages/dashboard/informes/balance-comprobacion'
 
 
 
@@ -57,6 +58,7 @@ export const PrivateRoutes = () => {
                     <Route path='balance-general' element={<BalanceGeneral />} />
                     <Route path='libro-diario' element={<LibroDiario />} />
                     <Route path='mayor-general' element={<MayorGeneral />} />
+                    <Route path='balance-comprobacion' element={<BalanceComprobacion />} />
                     {/* <Route path='blank' element={ <Blank /> }/> */}
                     {/* <Route path='analytics' element={ <Analytics /> }/> */}
 

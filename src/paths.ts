@@ -88,6 +88,7 @@ export const paths = {
           balanceGeneral: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/balance-general`,
           mayorGeneral: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/mayor-general`,
           libroDiario: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/libro-diario`,
+          balanceComprobacion: (empresaId: string | number) => `/empresa/${empresaId}/dashboard/balance-comprobacion`,
           blank: '/dashboard/blank',
           analytics: '/dashboard/analytics',
           blog: {

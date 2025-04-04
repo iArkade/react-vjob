@@ -44,6 +44,7 @@ const AdminNavItems = (empresaId: string | number): NavItemConfig[] => [
           items: [
                { key: 'perdidas-ganancias', title: 'Perdidas y Ganancias', href: paths.dashboard.perdidasGanancias(empresaId), icon: 'trend-up' },
                { key: 'balance-general', title: 'Balance General', href: paths.dashboard.balanceGeneral(empresaId), icon: 'scales' },
+               { key: 'balance-comprobacion', title: 'Balance de Comprobacion', href: paths.dashboard.balanceComprobacion(empresaId), icon: 'scales' },
                { key: 'mayor-general', title: 'Mayor General', href: paths.dashboard.mayorGeneral(empresaId), icon: 'list-numbers' },
                { key: 'libro-diario', title: 'Libro Diario', href: paths.dashboard.libroDiario(empresaId), icon: 'chart-pie' },
           ],
