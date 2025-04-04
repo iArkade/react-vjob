@@ -9,6 +9,11 @@ import {
      CircularProgress,
      Grid,
      IconButton,
+     MenuItem,
+     FormControl,
+     InputLabel,
+     Select,
+     SelectChangeEvent,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -19,21 +24,23 @@ import { useSelector } from 'react-redux';
 import MayorGeneralPDF from '@/components/pdfs/mayor-general-pdf';
 import { useGetMayorGeneral } from '@/api/mayor-general/mayor-request';
 import CloseIcon from '@mui/icons-material/Close';
+import { useGetTransaccionContable } from '@/api/transaccion_contable/transaccion-contable-request';
+import CuentasSelectionModal from '@/components/dashboard/informes/cuentas-selection-modal';
 
 const MayorGeneral: React.FC = () => {
      const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
      const empresaId = selectedEmpresa.id;
 
-     const [startDate, setStartDate] = useState<string>(
-          format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd')
-     );
-     const [endDate, setEndDate] = useState<string>(
-          format(new Date(), 'yyyy-MM-dd')
-     );
+     const [startDate, setStartDate] = useState(format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd'));
+     const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
      const [initialAccount, setInitialAccount] = useState('');
      const [finalAccount, setFinalAccount] = useState('');
-     const [transaction, setTransaction] = useState('');
+     const [codigoTransaccion, setCodigoTransaccion] = useState('');
+     const [cuentaTarget, setCuentaTarget] = useState<'initial' | 'final' | null>(null);
      const [modalOpen, setModalOpen] = useState(false);
+     const [modalCuentasOpen, setModalCuentasOpen] = useState(false);
+
+     const { data: transacciones = [], isLoading: isLoadingTransacciones } = useGetTransaccionContable(empresaId);
 
      const {
           data: mayorGeneralData,
@@ -46,40 +53,34 @@ const MayorGeneral: React.FC = () => {
           endDate,
           initialAccount,
           finalAccount,
-          transaction,
+          codigoTransaccion,
      );
 
      const obtenerDatos = async () => {
           const result = await refetch();
-          if (result.data) {
-               setModalOpen(true);
-          }
-     };
-     const cerrarModal = () => {
-          setModalOpen(false);
-          setInitialAccount('');
-          setFinalAccount('');
-          setTransaction('');
-          setStartDate(format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd'));
-          setEndDate(format(new Date(), 'yyyy-MM-dd'));
-
+          if (result.data) setModalOpen(true);
      };
 
      return (
           <Container maxWidth="md">
                <Box my={5} p={3} sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-                    <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+                    <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
                          Mayor General
                     </Typography>
 
-                    <Grid container spacing={2} justifyContent="center" sx={{ mt: 3 }}>
+                    {/* Selección de cuentas */}
+                    <Grid container spacing={2} sx={{ mt: 3 }}>
                          <Grid item xs={12} sm={6}>
                               <TextField
                                    fullWidth
                                    label="Cuenta Inicial"
                                    value={initialAccount}
-                                   onChange={(e) => setInitialAccount(e.target.value)}
-                                   placeholder="Ej. 1.1.1.01.01"
+                                   onClick={() => {
+                                        setCuentaTarget('initial');
+                                        setModalCuentasOpen(true);
+                                   }}
+                                   placeholder="Selecciona una cuenta"
+                                   InputProps={{ readOnly: true }}
                               />
                          </Grid>
 
@@ -88,13 +89,19 @@ const MayorGeneral: React.FC = () => {
                                    fullWidth
                                    label="Cuenta Final"
                                    value={finalAccount}
-                                   onChange={(e) => setFinalAccount(e.target.value)}
-                                   placeholder="Ej. 1.1.1.01.02"
+                                   onClick={() => {
+                                        setCuentaTarget('final');
+                                        setModalCuentasOpen(true);
+                                   }}
+                                   placeholder="Selecciona una cuenta"
+                                   InputProps={{ readOnly: true }}
                               />
                          </Grid>
                     </Grid>
+
+                    {/* Fechas */}
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
-                         <Grid container spacing={2} justifyContent="center" sx={{ mt: 3 }}>
+                         <Grid container spacing={2} sx={{ mt: 3 }}>
                               <Grid item xs={12} sm={6}>
                                    <TextField
                                         label="Desde"
@@ -116,17 +123,32 @@ const MayorGeneral: React.FC = () => {
                          </Grid>
                     </LocalizationProvider>
 
-                    <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+                    {/* Código de transacción */}
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
                          <Grid item xs={12}>
-                              <TextField
-                                   label="Transacciones"
-                                   value={transaction}
-                                   onChange={(e) => setTransaction(e.target.value)}
-                                   placeholder="Ej. TRASL+, FACT, ING, etc."
-                              />
+                              <FormControl>
+                                   <InputLabel id="transaccion-label">Código de Transacción</InputLabel>
+                                   <Select
+                                        labelId="transaccion-label"
+                                        value={codigoTransaccion}
+                                        label="Código de Transacción"
+                                        onChange={(e: SelectChangeEvent) => setCodigoTransaccion(e.target.value)}
+                                        disabled={isLoadingTransacciones}
+                                   >
+                                        <MenuItem value="">
+                                             <em>Ninguno</em>
+                                        </MenuItem>
+                                        {transacciones.map((t) => (
+                                             <MenuItem key={t.id} value={t.codigo_transaccion}>
+                                                  {t.codigo_transaccion} - {t.nombre}
+                                             </MenuItem>
+                                        ))}
+                                   </Select>
+                              </FormControl>
                          </Grid>
                     </Grid>
 
+                    {/* Botón Generar */}
                     <Box display="flex" justifyContent="center" mt={3}>
                          <Button
                               variant="contained"
@@ -146,15 +168,12 @@ const MayorGeneral: React.FC = () => {
                          </Typography>
                     )}
 
-                    {/* Modal para mostrar vista previa del PDF */}
-                    {/* Cerrar sin que afecte en nada a los datos antes de la busqueda
-                         onClose={() => setModalOpen(false)}
-                    */}
+                    {/* Modal PDF */}
                     <Modal
                          open={modalOpen}
                          onClose={(_, reason) => {
                               if (isLoading && (reason === 'backdropClick' || reason === 'escapeKeyDown')) return;
-                              cerrarModal();
+                              setModalOpen(false);
                          }}
                     >
                          <Box
@@ -173,34 +192,18 @@ const MayorGeneral: React.FC = () => {
                                    flexDirection: 'column',
                               }}
                          >
-                              <Box
-                                   sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        mb: 1, // Margen inferior para separar del contenido
-                                        position: 'relative' // Para centrado absoluto del título
-                                   }}
-                              >
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, position: 'relative' }}>
                                    <Typography
                                         variant="h6"
-                                        sx={{
-                                             position: 'absolute',
-                                             left: '50%',
-                                             transform: 'translateX(-50%)',
-                                             fontWeight: 'bold'
-                                        }}
+                                        sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontWeight: 'bold' }}
                                    >
                                         Vista Previa del Informe
                                    </Typography>
-                                   <IconButton
-                                        onClick={cerrarModal}
-                                        disabled={isLoading}
-                                        sx={{ ml: 'auto' }}
-                                   >
+                                   <IconButton onClick={() => setModalOpen(false)} disabled={isLoading} sx={{ ml: 'auto' }}>
                                         <CloseIcon />
                                    </IconButton>
                               </Box>
+
                               {mayorGeneralData ? (
                                    <PDFViewer width="100%" height="100%">
                                         <MayorGeneralPDF
@@ -213,12 +216,26 @@ const MayorGeneral: React.FC = () => {
                                         />
                                    </PDFViewer>
                               ) : (
-                                   <Typography textAlign="center" mt={2}>
-                                        No hay datos para mostrar.
-                                   </Typography>
+                                   <Typography textAlign="center" mt={2}>No hay datos para mostrar.</Typography>
                               )}
                          </Box>
                     </Modal>
+
+                    {/* Modal de selección de cuenta */}
+                    <CuentasSelectionModal
+                         open={modalCuentasOpen}
+                         onClose={() => {
+                              setModalCuentasOpen(false);
+                              setCuentaTarget(null);
+                         }}
+                         empresaId={empresaId}
+                         onCuentaSeleccionada={(code) => {
+                              if (cuentaTarget === 'initial') setInitialAccount(code);
+                              if (cuentaTarget === 'final') setFinalAccount(code);
+                              setModalCuentasOpen(false);
+                              setCuentaTarget(null);
+                         }}
+                    />
                </Box>
           </Container>
      );
