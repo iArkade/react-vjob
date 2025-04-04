@@ -96,6 +96,7 @@ export function Usuarios(): React.JSX.Element {
 
             } else {
                 // Si es un nuevo usuario, crea
+                console.log(data)
                 await createUsuarioByEmpresa({ empresaId: Number(empresaId), data });
                 dispatch(
                     setFeedback({

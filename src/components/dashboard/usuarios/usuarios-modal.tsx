@@ -35,6 +35,8 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
           formState: { errors }
      } = useForm<UsuarioRequestType>();
 
+     //console.log(user)
+
      React.useEffect(() => {
           if (currentUser) {
                reset({
@@ -84,7 +86,7 @@ export function UsuarioModal({ open, onClose, onSubmit, currentUser, empresaId, 
 
           // Si el usuario actual es admin, solo puede editar roles de usuarios normales y NO asignar otro admin
           if (user.empresas[0]?.role === 'admin') {
-               console.log(user.empresas[0]?.role)
+               //console.log(user.empresas[0]?.role)
                return currentUser.empresas[0]?.companyRole !== 'admin' &&
                     currentUser.systemRole !== 'superadmin';
           }
