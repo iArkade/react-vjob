@@ -56,8 +56,6 @@ const BalanceComprobacion: React.FC = () => {
         level === 'All' ? undefined : level,
     );
 
-    console.log(balanceData);
-
 
     const obtenerDatos = async () => {
         const result = await refetch();
