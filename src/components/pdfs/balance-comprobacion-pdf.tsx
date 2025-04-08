@@ -257,6 +257,12 @@ const styles = StyleSheet.create({
         fontSize: 9,
         color: '#2c5282',
     },
+    positiveValue: {
+        color: '#000000', // Negro para valores positivos
+    },
+    negativeValue: {
+        color: '#e53e3e', // Rojo para valores negativos
+    },
 });
 
 const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
@@ -275,13 +281,43 @@ const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
     diferenciaMovimientos,
     diferenciaSaldos
 }) => {
-    const formatCurrency = (value: number | null | undefined) => {
-        const numericValue = value || 0;
-        return new Intl.NumberFormat('es-EC', {
+    const formatCurrency = (value: number | null | undefined, isNegative = false) => {
+        const numericValue = Math.abs(value || 0);
+        const formatted = new Intl.NumberFormat('es-EC', {
             style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(numericValue);
+
+        return formatted;
+    };
+
+    const formatValueWithSign = (value: number, tipoCuenta?: string) => {
+        // Determinar si el valor debe mostrarse como negativo según la naturaleza de la cuenta
+        let isNegative = false;
+
+        if (tipoCuenta) {
+            if (tipoCuenta === 'activo' || tipoCuenta === 'gasto') {
+                // Para activos y gastos: 
+                // - Saldo normal: DEUDOR (positivo)
+                // - Saldo no normal: ACREEDOR (negativo, mostrar en rojo)
+                isNegative = value < 0;
+            } else { // pasivo, patrimonio, ingreso
+                // Para pasivos, patrimonio e ingresos:
+                // - Saldo normal: ACREEDOR (positivo)
+                // - Saldo no normal: DEUDOR (negativo, mostrar en rojo)
+                isNegative = value < 0;
+            }
+        } else {
+            // Para totales y diferencias
+            isNegative = value < 0;
+        }
+
+        return (
+            <Text style={isNegative ? styles.negativeValue : styles.positiveValue}>
+                {isNegative ? `(${formatCurrency(Math.abs(value))})` : formatCurrency(value)}
+            </Text>
+        );
     };
 
     const formatDate = (dateString: string) => {
@@ -394,29 +430,23 @@ const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
                                     <Text style={styles.tableCell}>{item.nombre}</Text>
                                 </View>
                                 <View style={styles.tableColSaldoAnterior}>
-                                    <Text style={styles.tableCell}>
-                                        {formatCurrency(item.saldoAnteriorDebe - item.saldoAnteriorHaber)}
-                                    </Text>
+                                    {item.tipoCuenta === 'activo' || item.tipoCuenta === 'gasto'
+                                        ? formatValueWithSign(item.saldoAnteriorDebe - item.saldoAnteriorHaber)
+                                        : formatValueWithSign(item.saldoAnteriorHaber - item.saldoAnteriorDebe)}
                                 </View>
+                                {/* Movimientos */}
                                 <View style={styles.tableColMovDebe}>
-                                    <Text style={styles.tableCell}>
-                                        {formatCurrency(item.movimientosDebe)}
-                                    </Text>
+                                    {formatValueWithSign(item.movimientosDebe)}
                                 </View>
                                 <View style={styles.tableColMovHaber}>
-                                    <Text style={styles.tableCell}>
-                                        {formatCurrency(item.movimientosHaber)}
-                                    </Text>
+                                    {formatValueWithSign(item.movimientosHaber)}
                                 </View>
+                                {/* Saldos */}
                                 <View style={styles.tableColSaldoDebe}>
-                                    <Text style={styles.tableCell}>
-                                        {formatCurrency(item.saldoDebe)}
-                                    </Text>
+                                    {item.saldoDebe > 0 ? formatValueWithSign(item.saldoDebe) : formatValueWithSign(0)}
                                 </View>
                                 <View style={styles.tableColSaldoHaber}>
-                                    <Text style={styles.tableCell}>
-                                        {formatCurrency(item.saldoHaber)}
-                                    </Text>
+                                    {item.saldoHaber > 0 ? formatValueWithSign(item.saldoHaber) : formatValueWithSign(0)}
                                 </View>
                             </View>
                         ))}
@@ -430,22 +460,22 @@ const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
                                         <Text>GRAN TOTAL:</Text>
                                     </View>
                                     <View style={styles.totalValueCell}>
-                                        <Text>{formatCurrency(totalSaldoAnteriorDebe - totalSaldoAnteriorHaber)}</Text>
+                                        {formatValueWithSign(totalSaldoAnteriorDebe - totalSaldoAnteriorHaber)}
                                     </View>
                                     <View style={styles.totalValueCell}>
-                                        <Text>{formatCurrency(totalMovimientosDebe)}</Text>
+                                        {formatValueWithSign(totalMovimientosDebe)}
                                     </View>
                                     <View style={styles.totalValueCell}>
-                                        <Text>{formatCurrency(totalMovimientosHaber)}</Text>
+                                        {formatValueWithSign(totalMovimientosHaber)}
                                     </View>
                                     <View style={styles.totalValueCell}>
-                                        <Text>{formatCurrency(totalSaldosDebe)}</Text>
+                                        {formatValueWithSign(totalSaldosDebe)}
                                     </View>
                                     <View style={styles.totalValueCell}>
-                                        <Text>{formatCurrency(totalSaldosHaber)}</Text>
+                                        {formatValueWithSign(totalSaldosHaber)}
                                     </View>
                                 </View>
-                                
+
                                 {/* DIFERENCIAS */}
                                 <View style={styles.differenceRow}>
                                     <View style={styles.differenceLabelCell}>
@@ -453,11 +483,11 @@ const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
                                     </View>
                                     <View style={styles.differenceValueCell}></View>
                                     <View style={styles.differenceValueCell}>
-                                        <Text>{diferenciaMovimientos !== 0 ? formatCurrency(diferenciaMovimientos) : 0}</Text>
+                                        {diferenciaMovimientos !== 0 && formatValueWithSign(diferenciaMovimientos)}
                                     </View>
                                     <View style={styles.differenceValueCell}></View>
                                     <View style={styles.differenceValueCell}>
-                                        <Text>{diferenciaSaldos !== 0 ? formatCurrency(diferenciaSaldos) : 0}</Text>
+                                        {diferenciaSaldos !== 0 && formatValueWithSign(diferenciaSaldos)}
                                     </View>
                                     <View style={styles.differenceValueCell}></View>
                                 </View>

@@ -23,6 +23,7 @@ import { useSelector } from 'react-redux';
 import BalanceComprobacionPDF from '@/components/pdfs/balance-comprobacion-pdf';
 import { useGetBalanceComprobacion } from '@/api/balance-comprobacion/balanceC-request';
 import CloseIcon from '@mui/icons-material/Close';
+import CuentasSelectionModal from '@/components/dashboard/informes/cuentas-selection-modal';
 
 const BalanceComprobacion: React.FC = () => {
     const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
@@ -36,6 +37,8 @@ const BalanceComprobacion: React.FC = () => {
     );
     const [initialAccount, setInitialAccount] = useState('');
     const [finalAccount, setFinalAccount] = useState('');
+    const [cuentaTarget, setCuentaTarget] = useState<'initial' | 'final' | null>(null);
+    const [modalCuentasOpen, setModalCuentasOpen] = useState(false);
     const [level, setLevel] = useState<number | 'All'>('All');
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -54,7 +57,7 @@ const BalanceComprobacion: React.FC = () => {
     );
 
     console.log(balanceData);
-    
+
 
     const obtenerDatos = async () => {
         const result = await refetch();
@@ -80,8 +83,12 @@ const BalanceComprobacion: React.FC = () => {
                             fullWidth
                             label="Cuenta Inicial"
                             value={initialAccount}
-                            onChange={(e) => setInitialAccount(e.target.value)}
-                            placeholder="Ej. 1.1.1.01.01"
+                            onClick={() => {
+                                setCuentaTarget('initial');
+                                setModalCuentasOpen(true);
+                            }}
+                            placeholder="Seleccione una cuenta"
+                            InputProps={{ readOnly: true }}
                         />
                     </Grid>
 
@@ -90,8 +97,12 @@ const BalanceComprobacion: React.FC = () => {
                             fullWidth
                             label="Cuenta Final"
                             value={finalAccount}
-                            onChange={(e) => setFinalAccount(e.target.value)}
-                            placeholder="Ej. 1.1.1.01.02"
+                            onClick={() => {
+                                setCuentaTarget('final');
+                                setModalCuentasOpen(true);
+                            }}
+                            placeholder="Seleccione una cuenta"
+                            InputProps={{ readOnly: true }}
                         />
                     </Grid>
                 </Grid>
@@ -238,6 +249,22 @@ const BalanceComprobacion: React.FC = () => {
                         )}
                     </Box>
                 </Modal>
+
+                {/* Modal de selección de cuenta */}
+                <CuentasSelectionModal
+                    open={modalCuentasOpen}
+                    onClose={() => {
+                        setModalCuentasOpen(false);
+                        setCuentaTarget(null);
+                    }}
+                    empresaId={empresaId}
+                    onCuentaSeleccionada={(code) => {
+                        if (cuentaTarget === 'initial') setInitialAccount(code);
+                        if (cuentaTarget === 'final') setFinalAccount(code);
+                        setModalCuentasOpen(false);
+                        setCuentaTarget(null);
+                    }}
+                />
             </Box>
         </Container>
     );

@@ -7,7 +7,8 @@ export interface BalanceComprobacionItem {
     saldoAnteriorDebe: number; 
     saldoAnteriorHaber: number; 
     saldoDebe: number;       
-    saldoHaber: number;      
+    saldoHaber: number;
+    tipoCuenta: string;      
     level: number;           
 }
 
