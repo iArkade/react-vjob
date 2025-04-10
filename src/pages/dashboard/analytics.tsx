@@ -5,6 +5,8 @@ import { CustomTable, CustomColumn } from '@/components/core/custom-table';
 import { useGetAccountingPlan, useCreateAccountingPlan } from '@/api/accounting-plan/account-request';
 import { AccountingPlanRequestType,  AccountingPlanResponseType} from '@/api/accounting-plan/account-types';
 import { UseQueryResult } from 'react-query';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 // Definimos AccountingPlanRow para que coincida con AccountingPlanResponseType
 type AccountingPlanRow = AccountingPlanResponseType;
@@ -16,6 +18,7 @@ export function Page(): React.JSX.Element {
     { name: 'Created_At', field: 'createdAt' },
   ];
 
+  const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   const createAccountingPlan = useCreateAccountingPlan();
 
   const saveNewRows = async (newRows: Partial<AccountingPlanRow>[]) => {
@@ -23,6 +26,7 @@ export function Page(): React.JSX.Element {
       // Asegúrate de que los campos requeridos estén presentes
       if (row.code && row.name) {
         const newRow: AccountingPlanRequestType = {
+          empresa_id: selectedEmpresa.id,
           code: row.code,
           name: row.name,
           // Añade aquí otros campos requeridos si los hay

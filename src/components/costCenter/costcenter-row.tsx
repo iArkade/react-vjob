@@ -28,8 +28,8 @@ const CostCenterRow: React.FC<CostCenterRowProps> = memo(
 
         const [isChanged, setIsChanged] = useState(false);
         const [isDarkTheme, setIsDarkTheme] = useState(false);
-        const [errorMessage, setErrorMessage] = useState<string | null>(null);
-        const [isEditing, setIsEditing] = useState(false);
+        const [_errorMessage, setErrorMessage] = useState<string | null>(null);
+        const [_isEditing, setIsEditing] = useState(false);
 
         useEffect(() => {
             const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");

@@ -8,7 +8,7 @@ export interface AccountingPlanResponseType {
 }
 
 export interface AccountingPlanRequestType {
-code: string;
-name: string;
-empresa_id: number; // Opcional si se asigna automáticamente en el backend
+    code: string;
+    name: string;
+    empresa_id: number; // Opcional si se asigna automáticamente en el backend
 }

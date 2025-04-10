@@ -281,7 +281,7 @@ const BalanceComprobacionPDF: React.FC<BalanceComprobacionPDFProps> = ({
     diferenciaMovimientos,
     diferenciaSaldos
 }) => {
-    const formatCurrency = (value: number | null | undefined, isNegative = false) => {
+    const formatCurrency = (value: number | null | undefined, _isNegative = false) => {
         const numericValue = Math.abs(value || 0);
         const formatted = new Intl.NumberFormat('es-EC', {
             style: 'decimal',

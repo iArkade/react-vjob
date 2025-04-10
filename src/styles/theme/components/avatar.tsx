@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import type { Components } from '@mui/material/styles';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 

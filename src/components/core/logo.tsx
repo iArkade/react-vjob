@@ -19,10 +19,9 @@ export interface LogoProps {
   width?: number | string;
 }
 
-export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
+export function Logo({ height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
   
 
-  const { user } = useSelector((state: RootState) => state.authSlice);
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
   
   let url: string;

@@ -265,7 +265,7 @@ const TransactionForm: React.FC<TransactionFormProps> = memo(
           <Checkbox
             ref={checkboxRef}
             checked={newTransaction.activo}
-            onChange={(e, checked) => {
+            onChange={(_e, checked) => {
               setNewTransaction((prev) => ({
                 ...prev,
                 activo: checked,

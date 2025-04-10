@@ -1,5 +1,5 @@
 import { LibroDiarioAsiento, LibroDiarioResponseType } from '@/api/libro-diario/libro-types';
-import { Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
     page: {

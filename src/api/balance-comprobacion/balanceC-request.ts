@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query';
 import http from "../http";
-import { BalanceComprobacionResponseType } from './balanceC-types';
+import { BalanceComprobacionResponse } from './balanceC-types';
 
 const getBalanceComprobacionRequest = async (
     empresaId: number,
@@ -9,7 +9,7 @@ const getBalanceComprobacionRequest = async (
     initialAccount?: string,
     finalAccount?: string,
     level?: number,
-): Promise<BalanceComprobacionResponseType> => {
+): Promise<BalanceComprobacionResponse> => {
     try {
         let url = `reportes/balance-comprobacion/${empresaId}`;
         const params = new URLSearchParams();

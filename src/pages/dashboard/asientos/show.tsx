@@ -24,7 +24,7 @@ export function AsientosShow(): React.JSX.Element {
   } = useAsiento(asientoId as number, selectedEmpresa.id); 
 
   React.useEffect(() => {
-    refetch().then((result) => console.log("Refetched Data:"));
+    refetch().then((_result) => console.log("Refetched Data:"));
     //result.data puedo mandar en el console
   }, [location.pathname, refetch]);
 

@@ -19,7 +19,6 @@ import { Camera as CameraIcon } from '@phosphor-icons/react/dist/ssr/Camera';
 import { Building } from '@phosphor-icons/react';
 import { EmpresaResponseType } from '@/api/empresas/empresa-types';
 import { Controller, useForm } from 'react-hook-form';
-import { useUpdateEmpresa } from '@/api/empresas/empresa-request';
 
 export function CompanyDetails(): React.JSX.Element {
 
@@ -38,7 +37,6 @@ export function CompanyDetails(): React.JSX.Element {
                logo: '',
           };
      const {
-          handleSubmit,
           control,
           formState: { errors },
           trigger,
@@ -51,23 +49,6 @@ export function CompanyDetails(): React.JSX.Element {
 
      // const { mutate: updateEmpresa, isLoading } = useUpdateEmpresa();
 
-     const onSubmit = (data: EmpresaResponseType) => {
-          //console.log('Formulario enviado:', data);
-          const id = 1; 
-          const updatedData = { ...data, logo: avatarSrc };
-          // updateEmpresa(
-          //      { id, data: updatedData },
-          //      {
-          //           onSuccess: () => {
-          //                console.log('Empresa updated successfully');
-          //                localStorage.setItem('empresa', JSON.stringify(updatedData));
-          //           },
-          //           onError: (error) => {
-          //                console.error('Error updating empresa:', error);
-          //           },
-          //      }
-          // );
-     };
 
      return (
           <Card>
@@ -79,7 +60,7 @@ export function CompanyDetails(): React.JSX.Element {
                     }
                     title="Datos básicos"
                />
-               <form onSubmit={handleSubmit(onSubmit)}>
+               <form>
                     <CardContent>
                          <Stack spacing={3}>
                               <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>

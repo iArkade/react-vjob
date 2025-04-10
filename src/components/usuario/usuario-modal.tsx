@@ -38,9 +38,9 @@ export function UsuariosModal({ open, onClose, currentUser, showSnackbar }: Usua
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { data: empresasDisponibles = [], isLoading } = useGetEmpresa();
-    const { mutate: createUsuario, isLoading: isCreating } = useCreateUsuario();
-    const { mutate: updateUsuario, isLoading: isUpdating } = useUpdateUsuario();
+    const { data: empresasDisponibles = [] } = useGetEmpresa();
+    const { mutate: createUsuario } = useCreateUsuario();
+    const { mutate: updateUsuario } = useUpdateUsuario();
     useEffect(() => {
         if (currentUser) {
             setFormData({

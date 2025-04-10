@@ -53,10 +53,7 @@ interface GenericTableProps {
 const GenericTable: React.FC<GenericTableProps> = ({
     columns,
     data,
-    totalItems,
     isLoading,
-    error,
-    success,
     onAdd,
     onUpdate,
     onDelete,
@@ -87,7 +84,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
         });
     }, [data, searchQuery, searchableColumns]);
 
-    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+    const handleChangePage = useCallback((_event: unknown, newPage: number) => {
         setPage(newPage);
     }, []);
 
@@ -99,15 +96,6 @@ const GenericTable: React.FC<GenericTableProps> = ({
     const handleEdit = useCallback((id: number) => {
         setEditingId(prevId => prevId === id ? null : id);
     }, []);
-
-    const handleDelete = useCallback(async (id: number) => {
-        try {
-            await onDelete(id);
-            setMessages({ error: '', success: 'Item deleted successfully' });
-        } catch (err) {
-            setMessages({ error: 'Error deleting item', success: '' });
-        }
-    }, [onDelete]);
 
     const handleSubmit = useCallback(async (data: any) => {
         try {

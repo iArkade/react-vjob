@@ -19,12 +19,12 @@ export function CustomThemeProvider({ children }: ThemeProviderProps): React.JSX
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');  
 
   // 2. Estado para manejar el modo del tema
-  const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(prefersDarkMode ? 'dark' : 'light');
+  const [themeMode, _setThemeMode] = React.useState<'light' | 'dark'>(prefersDarkMode ? 'dark' : 'light');
 
   // 3. Función para alternar entre temas
-  const toggleThemeMode = () => {
-    setThemeMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
+  // const toggleThemeMode = () => {
+  //   setThemeMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  // };
 
   const theme = createTheme({
     primaryColor: 'neonBlue',

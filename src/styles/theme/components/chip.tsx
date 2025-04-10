@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import { chipClasses } from '@mui/material/Chip';
 import type { Components } from '@mui/material/styles';
 import { XCircle as XCircleIcon } from '@phosphor-icons/react/dist/ssr/XCircle';
@@ -45,7 +45,7 @@ export const MuiChip = {
 
       return { borderColor: 'var(--mui-palette-secondary-200)', color: 'var(--mui-palette-secondary-900)' };
     },
-    soft: ({ theme, ownerState }) => {
+    soft: ({ ownerState }) => {
       return {
         backgroundColor: 'var(--Chip-softBg)',
         color: 'var(--Chip-softColor)',

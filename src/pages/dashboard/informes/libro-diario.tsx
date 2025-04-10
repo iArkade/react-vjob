@@ -41,7 +41,7 @@ const LibroDiario: React.FC = () => {
     const {
         data: transacciones = [],
         isLoading: isLoadingTransacciones,
-        isError: isErrorTransacciones,
+        isError: _isErrorTransacciones,
     } = useGetTransaccionContable(selectedEmpresa.id);
 
 

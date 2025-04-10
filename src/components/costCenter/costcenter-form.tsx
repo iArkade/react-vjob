@@ -5,7 +5,6 @@ import {
   TextField,
   Button,
   Checkbox,
-  OutlinedInput,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { CentroCostoRequestType } from "@/api/centro_costo/centro-costo.types";
@@ -174,7 +173,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = memo(
             ref={checkboxRef}
             tabIndex={0} // Hace que el contenedor del Checkbox sea parte del flujo de tabulación
             checked={newCostCenter.activo}
-            onChange={(e, checked) => {
+            onChange={(_e, checked) => {
               setNewCostCenter((prev) => ({
                 ...prev,
                 activo: checked,

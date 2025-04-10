@@ -116,7 +116,7 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
                     <Controller
                          name="logo"
                          control={control}
-                         render={({ field }) => (
+                         render={({ }) => (
                               <div>
                                    <label htmlFor="logo-upload">Logo</label>
                                    <br />

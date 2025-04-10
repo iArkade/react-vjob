@@ -8,7 +8,7 @@ import { setUser } from '../../state/slices/authSlice';
 import { useRegisterUser } from '../../api/user-request';
 import { Alert, Card, CardContent, CardHeader, FormControl, FormHelperText, InputLabel, OutlinedInput, Snackbar, Stack } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { UsersType } from '@/api/user-types';
+import { RegistrarUsuarioType } from '@/api/user-types';
 import { useState } from 'react';
 
 
@@ -28,7 +28,7 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<UsersType>({
+  } = useForm<RegistrarUsuarioType>({
     defaultValues: {
       name: '',
       lastname: '',
@@ -44,7 +44,7 @@ export default function RegisterPage() {
     setErrorMessage(null);
   };
 
-  const onSubmit = async (data: UsersType) => {
+  const onSubmit = async (data: RegistrarUsuarioType) => {
     try {
       const { name, lastname, email, password } = data;
 
@@ -59,7 +59,8 @@ export default function RegisterPage() {
           email: response.data.email,
           name: response.data.name,
           lastname: response.data.lastname,
-          role: response.data.systemRole,
+          systemRole: response.data.systemRole,
+          empresas: response.data.empresas
       }));
       navigate('/empresa');
     } catch (error: any) {

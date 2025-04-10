@@ -13,7 +13,7 @@ export function Empresa(): React.JSX.Element {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [selectedCompany, setSelectedCompany] = React.useState<string>("");
-    const { data: companies, refetch } = useGetEmpresa();
+    const { data: companies } = useGetEmpresa();
     const { user } = useSelector((state: RootState) => state.authSlice);
 
     const handleSelectChange = (event: SelectChangeEvent<string>) => {

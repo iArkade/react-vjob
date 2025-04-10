@@ -34,8 +34,8 @@ const TransactionRow: React.FC<TransactionRowProps> = memo(
 
         const [isChanged, setIsChanged] = useState(false);
         const [isDarkTheme, setIsDarkTheme] = useState(false);
-        const [isEditing, setIsEditing] = useState(false);
-        const [errorMessage, setErrorMessage] = useState<string | null>(null);
+        const [_isEditing, setIsEditing] = useState(false);
+        const [_errorMessage, setErrorMessage] = useState<string | null>(null);
 
         useEffect(() => {
             const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");

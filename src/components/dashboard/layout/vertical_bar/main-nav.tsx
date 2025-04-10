@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -13,7 +12,6 @@ import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 
 import type { NavItemConfig } from '@/types/nav';
-import type { UserProfile } from '@/types/user';
 import { useDialog } from '@/hooks/use-dialog';
 import { usePopover } from '@/hooks/use-popover';
 
@@ -129,13 +127,6 @@ function NotificationsButton(): React.JSX.Element {
   );
 }
 
-const user = {
-  id: 'USR-000',
-  name: 'Sofia Rivers',
-  avatar: '/assets/avatar.png',
-  email: 'sofia@devias.io',
-  role: 'string',
-} satisfies UserProfile;
 
 function UserButton(): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();

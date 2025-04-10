@@ -27,6 +27,8 @@ import { RouterLink } from '@/components/core/link';
 import { paths } from '@/paths';
 import { PropertyList } from '@/components/core/property-list';
 import { PropertyItem } from '@/components/core/property-item';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 interface AsientoDetailsModalProps {
      open: boolean;
@@ -38,6 +40,7 @@ interface AsientoDetailsModalProps {
 
 const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose, asiento, previewId }) => {
      //console.log(previewId);
+     const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
      return (
           <Dialog
                open={open}
@@ -65,7 +68,7 @@ const AsientoDetailsModal: React.FC<AsientoDetailsModalProps> = ({ open, onClose
                                         <Button
                                              color="secondary"
                                              component={RouterLink}
-                                             href={`${paths.dashboard.asientos.details(previewId)}`}
+                                             href={`${paths.dashboard.asientos.details(selectedEmpresa.id,previewId)}`}
                                              startIcon={<PencilSimpleIcon />}
                                         >
                                              Editar

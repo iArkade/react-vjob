@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { setAuthenticated } from "../../state/slices/authSlice";
+import { setJustLoggedIn } from "../../state/slices/authSlice";
 import { useLoginUser } from "../../api/user-request";
 import { User } from "../../types/user";
 
@@ -32,7 +32,7 @@ class AuthClient {
           localStorage.setItem('user', JSON.stringify(response.data));
           const isAuthenticated = true;
 
-          this.dispatch(setAuthenticated({ isAuthenticated }));
+          this.dispatch(setJustLoggedIn(isAuthenticated));
 
           return {};
      }
