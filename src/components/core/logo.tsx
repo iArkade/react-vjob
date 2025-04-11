@@ -7,6 +7,8 @@ import { NoSsr } from './no-ssr';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
+const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
+
 const HEIGHT = 60;
 const WIDTH = 60;
 
@@ -20,10 +22,10 @@ export interface LogoProps {
 }
 
 export function Logo({ height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.Element {
-  
+
 
   const { selectedEmpresa } = useSelector((state: RootState) => state.empresaSlice);
-  
+
   let url: string;
 
   if (selectedEmpresa.logo) {
@@ -31,11 +33,11 @@ export function Logo({ height = HEIGHT, width = WIDTH }: LogoProps): React.JSX.E
     url = selectedEmpresa.logo;
   } else {
     // Use the default logo
-    url = "http://localhost:4000/uploads/logos/logo-principal.png";
+    url = `${apiBaseUrl}/uploads/logos/logo-principal.png`;
   }
 
   const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    event.currentTarget.src = "http://localhost:4000/uploads/logos/sinlogo.png";
+    event.currentTarget.src = `${apiBaseUrl}/uploads/logos/sinlogo.png`;
   };
 
   return <Box alt="logo" component="img" height={height} src={url} width={width} margin={'auto'} onError={handleImageError} />;
